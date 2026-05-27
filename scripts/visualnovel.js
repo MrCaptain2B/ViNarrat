@@ -70,6 +70,14 @@ class VisualNovelApp extends AppBase {
     this._broadcasting = false;
     this._locGroupFilter = "";
     this._portGroupFilter = "";
+    this._bgBrightness = 1;
+    this._dialog = {
+      width: 65,
+      height: 160,
+      opacity: 0.85,
+      align: "left",
+      text: ""
+    };
   }
 
   /* ── Init ── */
@@ -115,7 +123,9 @@ class VisualNovelApp extends AppBase {
       locGroups,
       portGroups,
       presets: this._data?.presets || [],
-      selectedPortrait: selPort
+      selectedPortrait: selPort,
+      bgBrightness: this._bgBrightness,
+      dialog: this._dialog
     };
   }
 
@@ -505,69 +515,51 @@ class VisualNovelApp extends AppBase {
       this.render();
     });
 
-    // Stage portrait management (in scene panel)
-    html.querySelectorAll(".vn-scene-port-row").forEach(el => {
-      const idx = parseInt(el.dataset.idx);
-      const port = this._portraits[idx];
-      if (!port) return;
+    // Background brightness
+    html.querySelector(".vn-scene-brightness")?.addEventListener("input", (ev) => {
+      this._bgBrightness = parseFloat(ev.target.value) || 1;
+      const bg = html.querySelector(".vn-bg");
+      if (bg) bg.style.filter = `brightness(${this._bgBrightness})`;
+    });
 
-      el.querySelector(".vn-scene-port-remove")?.addEventListener("click", () => {
-        this._portraits.splice(idx, 1);
+    // Dialog width
+    html.querySelector(".vn-dialog-width")?.addEventListener("input", (ev) => {
+      this._dialog.width = parseInt(ev.target.value) || 65;
+      const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
+      if (val) val.textContent = this._dialog.width + "%";
+    });
+
+    // Dialog height
+    html.querySelector(".vn-dialog-height")?.addEventListener("input", (ev) => {
+      this._dialog.height = parseInt(ev.target.value) || 160;
+      const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
+      if (val) val.textContent = this._dialog.height + "px";
+    });
+
+    // Dialog opacity
+    html.querySelector(".vn-dialog-opacity")?.addEventListener("input", (ev) => {
+      this._dialog.opacity = parseFloat(ev.target.value) || 0.85;
+      const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
+      if (val) val.textContent = this._dialog.opacity;
+    });
+
+    // Dialog alignment
+    html.querySelectorAll(".vn-dialog-align").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        this._dialog.align = ev.currentTarget.dataset.align;
         this.render();
-        this._broadcast();
-      });
-
-      el.querySelector(".vn-scene-port-flip")?.addEventListener("click", () => {
-        this._portraits[idx].flip = !this._portraits[idx].flip;
-        this.render();
-        this._broadcast();
-      });
-
-      el.querySelector(".vn-scene-port-scale")?.addEventListener("input", (ev) => {
-        this._portraits[idx].scale = parseFloat(ev.target.value) || 1;
-      });
-
-      el.querySelector(".vn-scene-port-left")?.addEventListener("click", () => {
-        if (idx > 0) {
-          [this._portraits[idx-1], this._portraits[idx]] = [this._portraits[idx], this._portraits[idx-1]];
-          this.render();
-          this._broadcast();
-        }
-      });
-
-      el.querySelector(".vn-scene-port-right")?.addEventListener("click", () => {
-        if (idx < this._portraits.length - 1) {
-          [this._portraits[idx], this._portraits[idx+1]] = [this._portraits[idx+1], this._portraits[idx]];
-          this.render();
-          this._broadcast();
-        }
       });
     });
 
-    // Presets
-    html.querySelector(".vn-preset-save")?.addEventListener("click", async () => {
-      const name = html.querySelector(".vn-preset-name-input")?.value?.trim();
-      if (!name) return ui.notifications?.warn("Enter a preset name");
-      await this._savePreset(name);
-      ui.notifications?.info(`Preset "${name}" saved`);
-      this.render();
-    });
-
-    html.querySelectorAll(".vn-preset-load").forEach(btn => {
-      btn.addEventListener("click", () => {
-        if (!this._loadPreset(btn.dataset.id)) return;
-        this.render();
-        this._broadcast();
-      });
-    });
-
-    html.querySelectorAll(".vn-preset-delete").forEach(btn => {
-      btn.addEventListener("click", async () => {
-        const id = btn.dataset.id;
-        this._data.presets = this._data.presets.filter(p => p.id !== id);
-        await _saveData(this._data);
-        this.render();
-      });
+    // Dialog text input (live update)
+    html.querySelector(".vn-dialog-text")?.addEventListener("input", (ev) => {
+      this._dialog.text = ev.target.value;
+      // update the dialogue box on the main stage live without full re-render
+      const box = document.querySelector(".vn-dialog-box");
+      if (box) {
+        const txt = box.querySelector(".vn-dialog-content");
+        if (txt) txt.textContent = this._dialog.text;
+      }
     });
   }
 

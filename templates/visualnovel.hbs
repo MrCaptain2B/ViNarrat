@@ -1,9 +1,9 @@
 <div class="vn-root">
 
   {{#if bg}}
-  <div class="vn-bg" style="background-image: url({{bg}});"></div>
+  <div class="vn-bg" style="background-image: url({{bg}}); filter: brightness({{bgBrightness}});"></div>
   {{else}}
-  <div class="vn-bg vn-bg-default"></div>
+  <div class="vn-bg vn-bg-default" style="filter: brightness({{bgBrightness}});"></div>
   {{/if}}
 
   {{#if showPanel}}
@@ -108,23 +108,43 @@
   {{#if (eq showPanel "scene")}}
   <div class="vn-panel vn-panel-scene">
     <div class="vn-panel-header">
-      <span class="vn-panel-title">Scene Control</span>
+      <span class="vn-panel-title">Scene Settings</span>
       <button class="vn-scene-back"><i class="fas fa-arrow-left"></i> Back</button>
     </div>
     <div class="vn-scene-section">
-      <label>Portraits on stage</label>
-      {{#each portraits}}
-      <div class="vn-scene-port-row" data-idx="{{@index}}">
-        <span class="vn-scene-port-name">{{this.name}}</span>
-        <input class="vn-scene-port-scale" data-idx="{{@index}}" type="range" min="0.3" max="3" step="0.1" value="{{this.scale}}">
-        <div class="vn-scene-port-actions">
-          <button class="vn-scene-port-left" data-idx="{{@index}}" title="Move left"><i class="fas fa-chevron-left"></i></button>
-          <button class="vn-scene-port-right" data-idx="{{@index}}" title="Move right"><i class="fas fa-chevron-right"></i></button>
-          <button class="vn-scene-port-flip" data-idx="{{@index}}" title="Flip">{{#if this.flip}}<i class="fas fa-arrows-alt-h"></i>{{else}}<i class="fas fa-arrow-right"></i>{{/if}}</button>
-          <button class="vn-scene-port-remove" data-idx="{{@index}}" title="Remove"><i class="fas fa-times"></i></button>
+      <label>Background Brightness</label>
+      <input class="vn-scene-brightness" type="range" min="0.2" max="2" step="0.05" value="{{bgBrightness}}">
+    </div>
+    <div class="vn-scene-section">
+      <label>Dialogue Box</label>
+      <div class="vn-dialog-setting">
+        <span>Width</span>
+        <input class="vn-dialog-width" type="range" min="30" max="100" step="1" value="{{dialog.width}}">
+        <span class="vn-dialog-val">{{dialog.width}}%</span>
+      </div>
+      <div class="vn-dialog-setting">
+        <span>Height</span>
+        <input class="vn-dialog-height" type="range" min="80" max="350" step="5" value="{{dialog.height}}">
+        <span class="vn-dialog-val">{{dialog.height}}px</span>
+      </div>
+      <div class="vn-dialog-setting">
+        <span>Opacity</span>
+        <input class="vn-dialog-opacity" type="range" min="0.2" max="1" step="0.05" value="{{dialog.opacity}}">
+        <span class="vn-dialog-val">{{dialog.opacity}}</span>
+      </div>
+      <div class="vn-dialog-setting">
+        <span>Align</span>
+        <div class="vn-dialog-align-group">
+          <button class="vn-dialog-align {{#if (eq dialog.align 'left')}}vn-align-active{{/if}}" data-align="left">Left</button>
+          <button class="vn-dialog-align {{#if (eq dialog.align 'center')}}vn-align-active{{/if}}" data-align="center">Center</button>
+          <button class="vn-dialog-align {{#if (eq dialog.align 'right')}}vn-align-active{{/if}}" data-align="right">Right</button>
         </div>
       </div>
-      {{/each}}
+      <div class="vn-dialog-setting">
+        <span>Text</span>
+        <textarea class="vn-dialog-text" rows="3" placeholder="Type dialogue here...">{{dialog.text}}</textarea>
+      </div>
+    </div>
   </div>
   {{/if}}
 
@@ -192,6 +212,15 @@
       <i class="fas {{#if selectedPortrait.locked}}fa-lock{{else}}fa-unlock{{/if}}"></i>
     </button>
     <button class="vn-port-remove" data-port-idx="{{selectedPortrait.index}}" title="Remove"><i class="fas fa-times"></i></button>
+  </div>
+  {{/if}}
+
+  {{#if dialog.text}}
+  <div class="vn-dialog-box" style="width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; text-align: {{dialog.align}};">
+    {{#if speaker}}
+    <div class="vn-dialog-speaker">{{speaker}}</div>
+    {{/if}}
+    <div class="vn-dialog-content">{{dialog.text}}</div>
   </div>
   {{/if}}
 

@@ -468,3 +468,100 @@
   display: flex;
   gap: 4px;
 }
+
+/* ── Scene Settings ── */
+.vn-scene-section {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgba(255,255,255,0.03);
+  border-radius: 8px;
+  padding: 12px;
+}
+.vn-scene-section label {
+  font-size: 0.8em;
+  color: rgba(255,255,255,0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.vn-scene-brightness {
+  width: 100%;
+  accent-color: #f0c040;
+}
+.vn-dialog-setting {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.vn-dialog-setting span:first-child {
+  width: 50px;
+  font-size: 0.82em;
+  color: rgba(255,255,255,0.7);
+}
+.vn-dialog-setting input[type="range"] {
+  flex: 1;
+  accent-color: #f0c040;
+}
+.vn-dialog-val {
+  width: 50px;
+  text-align: right;
+  font-size: 0.8em;
+  color: #f0c040;
+  font-weight: 600;
+}
+.vn-dialog-align-group {
+  display: flex;
+  gap: 4px;
+}
+.vn-dialog-align {
+  background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 5px;
+  color: rgba(255,255,255,0.6);
+  cursor: pointer;
+  padding: 4px 14px;
+  font-size: 0.8em;
+  transition: all 0.15s;
+}
+.vn-dialog-align:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.vn-dialog-align.vn-align-active { background: rgba(240,192,64,0.2); border-color: #f0c040; color: #f0c040; }
+.vn-dialog-text {
+  width: 100%;
+  background: rgba(0,0,0,0.4);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px;
+  color: #f0e6d0;
+  padding: 8px;
+  font-size: 0.85em;
+  resize: vertical;
+  font-family: inherit;
+}
+
+/* ── Dialogue Box ── */
+.vn-dialog-box {
+  position: absolute;
+  bottom: 100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(10,8,18,0.85);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 14px 20px;
+  pointer-events: none;
+  z-index: 30;
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
+}
+.vn-dialog-speaker {
+  font-size: 0.85em;
+  font-weight: 600;
+  color: #f0c040;
+  margin-bottom: 6px;
+  text-shadow: 0 0 6px rgba(240,192,64,0.3);
+}
+.vn-dialog-content {
+  font-size: 1em;
+  line-height: 1.5;
+  color: #f0e6d0;
+  word-wrap: break-word;
+}
