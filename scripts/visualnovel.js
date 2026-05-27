@@ -155,7 +155,7 @@ class VisualNovelApp extends AppBase {
       });
       html.querySelector(".vn-btn-toggle-dialogue")?.addEventListener("click", () => {
         this._hideDialogue = !this._hideDialogue;
-        this.render();
+        this._broadcast();
       });
     }
 
@@ -182,6 +182,10 @@ class VisualNovelApp extends AppBase {
     });
   }
 
+  _broadcast() {
+    _broadcastVNState(this);
+  }
+
   /* ─────────────── LOCATION PANEL ─────────────── */
   _bindLocationPanel() {
     const html = this._el();
@@ -204,9 +208,9 @@ class VisualNovelApp extends AppBase {
         if (loc) {
           this._bg = loc.background || "";
           this._showPanel = null;
-          // Store current location in scene state
           this._currentLocationId = id;
           this.render();
+          this._broadcast();
         }
       });
     });
@@ -220,12 +224,8 @@ class VisualNovelApp extends AppBase {
   }
 
   _bindAddLocation(html) {
-    const btn = html.querySelector(".vn-loc-add");
     const form = html.querySelector(".vn-loc-form");
-    if (!btn || !form) return;
-    btn.addEventListener("click", () => {
-      form.classList.toggle("vn-hidden");
-    });
+    if (!form) return;
     form.querySelector(".vn-loc-save")?.addEventListener("click", async () => {
       const name = form.querySelector(".vn-loc-f-name")?.value?.trim();
       if (!name) return ui.notifications?.warn("Enter location name");
@@ -244,7 +244,6 @@ class VisualNovelApp extends AppBase {
       form.querySelector(".vn-loc-f-tags").value = "";
       form.querySelector(".vn-loc-f-parent").value = "";
       form.querySelector(".vn-loc-f-weather").value = "";
-      form.classList.add("vn-hidden");
       this.render();
     });
     form.querySelector(".vn-loc-fp")?.addEventListener("click", () => {
@@ -286,6 +285,7 @@ class VisualNovelApp extends AppBase {
           });
           this._showPanel = null;
           this.render();
+          this._broadcast();
         }
       });
     });
@@ -303,12 +303,8 @@ class VisualNovelApp extends AppBase {
   }
 
   _bindAddPortrait(html) {
-    const btn = html.querySelector(".vn-port-add");
     const form = html.querySelector(".vn-port-form");
-    if (!btn || !form) return;
-    btn.addEventListener("click", () => {
-      form.classList.toggle("vn-hidden");
-    });
+    if (!form) return;
     form.querySelector(".vn-port-save")?.addEventListener("click", async () => {
       const name = form.querySelector(".vn-port-f-name")?.value?.trim();
       if (!name) return ui.notifications?.warn("Enter portrait name");
@@ -325,7 +321,6 @@ class VisualNovelApp extends AppBase {
       form.querySelector(".vn-port-f-title").value = "";
       form.querySelector(".vn-port-f-img").value = "";
       form.querySelector(".vn-port-f-actor").value = "";
-      form.classList.add("vn-hidden");
       this.render();
     });
     form.querySelector(".vn-port-fp")?.addEventListener("click", () => {
@@ -369,6 +364,7 @@ class VisualNovelApp extends AppBase {
     html.querySelector(".vn-scene-apply")?.addEventListener("click", () => {
       this._showPanel = null;
       this.render();
+      this._broadcast();
     });
 
     html.querySelectorAll(".vn-scene-port-remove").forEach(btn => {
@@ -499,7 +495,7 @@ class VisualNovelApp extends AppBase {
   /* ─────────────── EXTERNAL API ─────────────── */
   setBackground(path) {
     this._bg = path;
-    if (this.rendered) this.render();
+    if (this.rendered) { this.render(); this._broadcast(); }
   }
 
   addPortraitToStage(portraitId) {
@@ -512,7 +508,7 @@ class VisualNovelApp extends AppBase {
         scale: 1,
         flip: false
       });
-      if (this.rendered) this.render();
+      if (this.rendered) { this.render(); this._broadcast(); }
     }
   }
 
@@ -522,7 +518,7 @@ class VisualNovelApp extends AppBase {
     this._dialogue = "";
     this._speaker = "";
     this._choices = [];
-    if (this.rendered) this.render();
+    if (this.rendered) { this.render(); this._broadcast(); }
   }
 
   /* ── Lifecycle ── */
@@ -535,6 +531,38 @@ class VisualNovelApp extends AppBase {
     if (this._dragCleanup) this._dragCleanup();
     this.element?.classList.remove("vn-fullscreen-active");
   }
+}
+
+/* ─────────────── Socket Broadcast ─────────────── */
+const SOCKET = "module.free-visual-novel";
+
+function _broadcastVNState(app) {
+  if (!game.user?.isGM) return;
+  game.socket?.emit(SOCKET, {
+    type: "state",
+    bg: app._bg,
+    portraits: app._portraits,
+    speaker: app._speaker,
+    dialogue: app._dialogue,
+    choices: app._choices,
+    hideDialogue: app._hideDialogue
+  });
+}
+
+function _applyVNState(data) {
+  if (game.user?.isGM) return;
+  let app = ui.freevisualnovel;
+  if (!app) {
+    app = new VisualNovelApp();
+    ui.freevisualnovel = app;
+  }
+  app._bg = data.bg || "";
+  app._portraits = data.portraits || [];
+  app._speaker = data.speaker || "";
+  app._dialogue = data.dialogue || "";
+  app._choices = data.choices || [];
+  app._hideDialogue = data.hideDialogue || false;
+  app.render(true);
 }
 
 /* ─────────────── Handlebars Helpers ─────────────── */
@@ -562,6 +590,10 @@ Hooks.once("init", async function() {
 
   const hasEpicRolls = game.modules?.get("epic-rolls")?.active ?? false;
   const hasSequencer = game.modules?.get("sequencer")?.active ?? false;
+
+  game.socket?.on(SOCKET, (data) => {
+    if (data?.type === "state") _applyVNState(data);
+  });
 
   game.freevisualnovel = {
     _hasEpicRolls: hasEpicRolls,
