@@ -525,11 +525,13 @@ class VisualNovelApp extends AppBase {
       const mainImg = form.querySelector(".vn-port-f-img")?.value?.trim() || "";
       const extra = readEmotions();
       const allImgs = extra.length ? [mainImg, ...extra.filter(p => p !== mainImg)] : (mainImg ? [mainImg] : []);
+      const tagsRaw = form.querySelector(".vn-port-f-tags")?.value?.trim() || "";
       const port = {
         id: String(this._data.nextPortId++),
         name,
         title: form.querySelector(".vn-port-f-title")?.value?.trim() || "",
         group: form.querySelector(".vn-port-f-group")?.value?.trim() || "",
+        tags: tagsRaw ? tagsRaw.split(",").map(s => s.trim()).filter(Boolean) : [],
         image: mainImg,
         images: allImgs,
         actorId: form.querySelector(".vn-port-f-actor")?.value?.trim() || ""
@@ -539,6 +541,7 @@ class VisualNovelApp extends AppBase {
       this._saving = false;
       form.querySelector(".vn-port-f-name").value = "";
       form.querySelector(".vn-port-f-title").value = "";
+      form.querySelector(".vn-port-f-tags").value = "";
       form.querySelector(".vn-port-f-img").value = "";
       form.querySelector(".vn-port-f-actor").value = "";
       resetEmotions();

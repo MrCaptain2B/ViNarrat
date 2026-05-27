@@ -74,7 +74,7 @@
     </div>
     <div class="vn-port-list">
       {{#each allPortraits}}
-      <div class="vn-port-item" data-search="{{this.name}} {{this.title}} {{this.group}}">
+      <div class="vn-port-item" data-search="{{this.name}} {{this.title}} {{this.group}} {{this.tags}}">
         <div class="vn-port-avatar">
           {{#if this.image}}<img src="{{this.image}}">{{/if}}
         </div>
@@ -94,7 +94,10 @@
         <input class="vn-port-f-name" type="text" placeholder="Portrait name">
         <input class="vn-port-f-group" type="text" placeholder="Group (optional)">
       </div>
-      <input class="vn-port-f-title" type="text" placeholder="Title (optional)">
+      <div class="vn-form-row">
+        <input class="vn-port-f-title" type="text" placeholder="Title (optional)">
+        <input class="vn-port-f-tags" type="text" placeholder="Tags (comma separated)">
+      </div>
       <div class="vn-form-row">
         <input class="vn-port-f-img" type="text" placeholder="Default image path">
         <button class="vn-port-fp" type="button"><i class="fas fa-folder-open"></i></button>
