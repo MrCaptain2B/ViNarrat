@@ -1,9 +1,9 @@
 {
   "id": "free-visual-novel",
   "name": "FreeVisualNovel",
-  "title": "Free Visual Novel",
-  "description": "A visual novel module for Foundry VTT 13 with multiple characters, positioning, and dialogue.",
-  "version": "0.4.0",
+  "title": "Visual Novel Dialogues",
+  "description": "Live TTRPG dialogue tool for GMs. Manage portraits, backgrounds, and dialogue in real-time social scenes.",
+  "version": "0.5.0",
   "authors": [
     {
       "name": "Your Name"

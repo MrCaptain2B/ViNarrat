@@ -1,65 +1,201 @@
-<div class="vn-stage">
-  {{#if showingBacklog}}
-  <div class="vn-backlog-screen">
-    <div class="vn-backlog-header">History</div>
-    <div class="vn-backlog-entries">
-      {{#each history}}
-      <div class="vn-backlog-entry">
-        <span class="vn-backlog-name">{{this.name}}</span>
-        <span class="vn-backlog-text">{{this.text}}</span>
+<div class="vn-root">
+
+  {{#if showPanel}}
+  {{!-- ─────────── PANELS ─────────── --}}
+
+  {{#if (eq showPanel "locations")}}
+  <div class="vn-panel">
+    <div class="vn-panel-header">
+      <span class="vn-panel-title">Locations</span>
+      <button class="vn-loc-back"><i class="fas fa-arrow-left"></i> Back</button>
+    </div>
+    <input class="vn-loc-search" type="text" placeholder="Search locations...">
+    <div class="vn-loc-list">
+      {{#each locations}}
+      <div class="vn-loc-item" data-search="{{this.name}} {{this.tags}}">
+        <div class="vn-loc-info">
+          <strong>{{this.name}}</strong>
+          {{#if this.tags.length}}<span class="vn-loc-tags">{{this.tags}}</span>{{/if}}
+        </div>
+        <button class="vn-loc-select" data-id="{{this.id}}">Set Background</button>
       </div>
       {{/each}}
     </div>
-    <button class="vn-backlog-close">Close</button>
+    <button class="vn-loc-add">+ New Location</button>
+    <div class="vn-loc-form" style="display:none">
+      <input class="vn-loc-f-name" type="text" placeholder="Location name">
+      <div style="display:flex;gap:4px">
+        <input class="vn-loc-f-bg" type="text" placeholder="Background image path">
+        <button class="vn-loc-fp" type="button"><i class="fas fa-folder-open"></i></button>
+      </div>
+      <input class="vn-loc-f-tags" type="text" placeholder="Tags (comma separated)">
+      <input class="vn-loc-f-parent" type="text" placeholder="Parent location">
+      <input class="vn-loc-f-weather" type="text" placeholder="Weather">
+      <button class="vn-loc-save">Save Location</button>
+    </div>
   </div>
-  {{else}}
+  {{/if}}
 
-  {{#if state.background}}
-  <div class="vn-bg" style="background-image: url({{state.background}});"></div>
+  {{#if (eq showPanel "portraits")}}
+  <div class="vn-panel">
+    <div class="vn-panel-header">
+      <span class="vn-panel-title">Portraits</span>
+      <button class="vn-port-back"><i class="fas fa-arrow-left"></i> Back</button>
+    </div>
+    <input class="vn-port-search" type="text" placeholder="Search portraits...">
+    <div class="vn-port-list">
+      {{#each allPortraits}}
+      <div class="vn-port-item" data-search="{{this.name}} {{this.title}}">
+        <div class="vn-port-avatar">
+          {{#if this.image}}<img src="{{this.image}}">{{/if}}
+        </div>
+        <div class="vn-port-info">
+          <strong>{{this.name}}</strong>
+          {{#if this.title}}<span class="vn-port-title">{{this.title}}</span>{{/if}}
+        </div>
+        <button class="vn-port-add-to-stage" data-id="{{this.id}}">Add to Stage</button>
+      </div>
+      {{/each}}
+    </div>
+    <button class="vn-port-import">Import from Actors</button>
+    <button class="vn-port-add">+ New Portrait</button>
+    <div class="vn-port-form" style="display:none">
+      <input class="vn-port-f-name" type="text" placeholder="Portrait name">
+      <input class="vn-port-f-title" type="text" placeholder="Title (optional)">
+      <div style="display:flex;gap:4px">
+        <input class="vn-port-f-img" type="text" placeholder="Image path">
+        <button class="vn-port-fp" type="button"><i class="fas fa-folder-open"></i></button>
+      </div>
+      <input class="vn-port-f-actor" type="text" placeholder="Actor ID (optional)">
+      <button class="vn-port-save">Save Portrait</button>
+    </div>
+  </div>
+  {{/if}}
+
+  {{#if (eq showPanel "scene")}}
+  <div class="vn-panel vn-panel-scene">
+    <div class="vn-panel-header">
+      <span class="vn-panel-title">Scene Control</span>
+      <button class="vn-scene-back"><i class="fas fa-arrow-left"></i> Back</button>
+    </div>
+    <div class="vn-scene-section">
+      <label>Dialogue text</label>
+      <textarea class="vn-scene-dialogue" rows="3" placeholder="Type dialogue here..."></textarea>
+    </div>
+    <div class="vn-scene-section">
+      <label>Speaker</label>
+      <select class="vn-scene-speaker"></select>
+    </div>
+    <div class="vn-scene-section">
+      <label>Portraits on stage</label>
+      {{#each portraits}}
+      <div class="vn-scene-port-row" data-idx="{{@index}}">
+        <span class="vn-scene-port-name">{{this.name}}</span>
+        <input class="vn-scene-port-scale" data-idx="{{@index}}" type="range" min="0.3" max="2" step="0.1" value="{{this.scale}}">
+        <div class="vn-scene-port-actions">
+          <button class="vn-scene-port-left" data-idx="{{@index}}" title="Move left"><i class="fas fa-chevron-left"></i></button>
+          <button class="vn-scene-port-right" data-idx="{{@index}}" title="Move right"><i class="fas fa-chevron-right"></i></button>
+          <button class="vn-scene-port-flip" data-idx="{{@index}}" title="Flip">{{#if this.flip}}<i class="fas fa-arrows-alt-h"></i>{{else}}<i class="fas fa-arrow-right"></i>{{/if}}</button>
+          <button class="vn-scene-port-remove" data-idx="{{@index}}" title="Remove"><i class="fas fa-times"></i></button>
+        </div>
+      </div>
+      {{/each}}
+    </div>
+    <div class="vn-scene-section">
+      <label>Choices</label>
+      <div style="display:flex;gap:4px">
+        <input class="vn-scene-choice-text" type="text" placeholder="Choice text">
+        <button class="vn-scene-choice-add">Add</button>
+      </div>
+      {{#each choices}}
+      <div class="vn-scene-choice-row">
+        <span>{{this.text}}</span>
+        <input class="vn-scene-choice-cb" data-idx="{{@index}}" type="text" placeholder="Callback (optional)" value="{{this.callback}}">
+        <button class="vn-scene-choice-remove" data-idx="{{@index}}"><i class="fas fa-times"></i></button>
+      </div>
+      {{/each}}
+    </div>
+    <button class="vn-scene-apply">Apply</button>
+  </div>
+  {{/if}}
+
+  {{else}}
+  {{!-- ─────────── MAIN STAGE ─────────── --}}
+
+  {{#if bg}}
+  <div class="vn-bg" style="background-image: url({{bg}});"></div>
   {{else}}
   <div class="vn-bg vn-bg-default"></div>
   {{/if}}
 
-  <div class="vn-char-area">
-    {{#each state.characters}}
-    <div class="vn-char" data-char-index="{{@index}}"
+  {{#unless hideUI}}
+  <div class="vn-stage-area">
+    {{#each portraits}}
+    <div class="vn-portrait" data-port-idx="{{@index}}"
          style="left: {{this.x}}px; top: {{this.y}}px;
                 transform: scale({{this.scale}}) {{#if this.flip}}scaleX(-1){{/if}};
                 opacity: {{#if this.speaking}}1{{else}}0.4{{/if}};
                 z-index: {{@index}};">
-      {{#if this.src}}
-      <img class="vn-char-img" src="{{this.src}}" alt="{{this.name}}">
+      {{#if this.image}}
+      <img class="vn-portrait-img" src="{{this.image}}" alt="{{this.name}}">
       {{else}}
-      <div class="vn-char-placeholder">{{this.name}}</div>
+      <div class="vn-portrait-placeholder">{{this.name}}</div>
       {{/if}}
     </div>
     {{/each}}
   </div>
 
-  {{#if state.choices.length}}
-  <div class="vn-choices">
-    {{#each state.choices}}
-    <button class="vn-choice" data-index="{{@index}}">{{this.text}}</button>
+  <div class="vn-dialogue-box">
+    {{#if speaker}}
+    <div class="vn-dialogue-speaker">{{speaker}}</div>
+    {{/if}}
+    {{#if dialogue}}
+    <div class="vn-dialogue-text">{{dialogue}}</div>
+    {{else}}
+    <div class="vn-dialogue-text vn-dialogue-muted">Waiting for GM...</div>
+    {{/if}}
+    {{#if choices.length}}
+    <div class="vn-choices">
+      {{#each choices}}
+      <button class="vn-choice" data-index="{{@index}}">{{this.text}}</button>
+      {{/each}}
+    </div>
+    {{/if}}
+  </div>
+
+  {{/unless}}
+
+  {{!-- Requests (inactive queue at top, GM only) --}}
+  {{#if isGM}}
+  {{#if requests.length}}
+  <div class="vn-requests">
+    {{#each requests}}
+    <div class="vn-request vn-request-{{this.priority}}">
+      <span class="vn-request-text">{{this.playerName}}: {{this.text}}</span>
+      <button class="vn-request-resolve" data-id="{{this.id}}"><i class="fas fa-check"></i></button>
+    </div>
     {{/each}}
   </div>
-  {{else}}
-  <div class="vn-dialogue">
-    {{#if state.name}}
-    <div class="vn-dialogue-name">{{state.name}}</div>
-    {{/if}}
-    <div class="vn-dialogue-text" data-full="{{state.text}}"></div>
-    <div class="vn-next-indicator" style="display:none">&#9660;</div>
-  </div>
+  {{/if}}
   {{/if}}
 
-  <div class="vn-next-area"></div>
-  {{/if}}
-
-  <div class="vn-toolbar">
-    <button class="vn-btn-backlog" title="History"><i class="fas fa-history"></i></button>
-    <button class="vn-btn-skip" title="Skip"><i class="fas fa-forward"></i></button>
-    <button class="vn-btn-save" title="Quick Save"><i class="fas fa-save"></i></button>
-    <button class="vn-btn-load" title="Quick Load"><i class="fas fa-upload"></i></button>
+  {{!-- GM Toolbar --}}
+  {{#if isGM}}
+  <div class="vn-gm-toolbar">
+    <button class="vn-btn-locations" title="Locations"><i class="fas fa-map-marked-alt"></i></button>
+    <button class="vn-btn-portraits" title="Portraits"><i class="fas fa-users"></i></button>
+    <button class="vn-btn-scene" title="Scene Control"><i class="fas fa-sliders-h"></i></button>
+    <button class="vn-btn-toggle-bg" title="Toggle Background"><i class="fas fa-image"></i></button>
+    <button class="vn-btn-toggle-ui" title="Toggle UI"><i class="fas fa-eye-slash"></i></button>
     <button class="vn-btn-close" title="Close"><i class="fas fa-times"></i></button>
   </div>
+  {{else}}
+  <div class="vn-gm-toolbar vn-player-bar">
+    <span class="vn-player-label">Visual Novel Dialogue</span>
+    <button class="vn-btn-close" title="Close"><i class="fas fa-times"></i></button>
+  </div>
+  {{/if}}
+
+  {{/if}}
+
 </div>

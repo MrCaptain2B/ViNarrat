@@ -1,16 +1,39 @@
 const _AppBase = foundry.applications?.api?.Application || foundry.applications?.api?.ApplicationV2;
 if (!_AppBase) {
-  console.error("FreeVisualNovel | Application class not found. Requires Foundry V13+.");
+  console.error("FreeVisualNovel | Application class not found.");
 } else {
   _defineModule(_AppBase);
 }
 
 function _defineModule(AppBase) {
 
+/* ─────────────── Data Store ─────────────── */
+const DATA_KEY = "vndata";
+
+function _defaultData() {
+  return {
+    locations: [],
+    portraits: [],
+    nextLocId: 1,
+    nextPortId: 1
+  };
+}
+
+async function _loadData() {
+  let data = game.settings?.get("free-visual-novel", DATA_KEY);
+  if (!data) data = _defaultData();
+  return data;
+}
+
+async function _saveData(data) {
+  await game.settings?.set("free-visual-novel", DATA_KEY, data);
+}
+
+/* ─────────────── Main VN App ─────────────── */
 class VisualNovelApp extends AppBase {
   static DEFAULT_OPTIONS = {
     id: "free-visual-novel",
-    title: "Free Visual Novel",
+    title: "Visual Novel Dialogues",
     template: "modules/free-visual-novel/templates/visualnovel.hbs",
     window: {
       width: window.innerWidth,
@@ -25,28 +48,55 @@ class VisualNovelApp extends AppBase {
     form: { submitOnChange: false, closeOnSubmit: false }
   };
 
-  constructor(scenes, options = {}) {
+  constructor(options = {}) {
     super(options);
-    this.scenes = scenes;
-    this.currentScene = 0;
-    this.history = [];
-    this.backlog = [];
-    this._vnState = this._prepareScene(0);
+    this._ready = false;
+    this._data = null;
+
+    this._bg = "";
+    this._portraits = [];
+    this._dialogue = "";
+    this._speaker = "";
+    this._choices = [];
+    this._requests = [];
+    this._hideBg = false;
+    this._hideUI = false;
+    this._showPanel = null; // "locations" | "portraits" | "scene"
     this._dragState = null;
     this._dragCleanup = null;
-    this._typewriterTimer = null;
-    this._typing = false;
-    this._revealed = false;
-    this._showingBacklog = false;
+    this._selectedPortrait = null;
+    this._currentLocationId = null;
   }
 
+  /* ── Init ── */
+  async _initialize() {
+    this._data = await _loadData();
+    this._ready = true;
+  }
+
+  /* ── Context ── */
   async _prepareContext() {
+    if (!this._ready) await this._initialize();
+
+    const portraits = this._portraits.map((p, i) => ({
+      ...p,
+      index: i,
+      speaking: this._speaker === p.id
+    }));
+
     return {
-      state: this._vnState,
-      current: this.currentScene,
-      total: this.scenes.length - 1,
-      history: this.backlog,
-      showingBacklog: this._showingBacklog
+      bg: this._hideBg ? "" : this._bg,
+      hideUI: this._hideUI,
+      portraits,
+      speaker: this._speaker,
+      dialogue: this._dialogue,
+      choices: this._choices,
+      requests: this._requests,
+      isGM: game.user?.isGM,
+      showPanel: this._showPanel,
+      locations: this._data?.locations || [],
+      allPortraits: this._data?.portraits || [],
+      selectedPortrait: this._selectedPortrait
     };
   }
 
@@ -60,212 +110,352 @@ class VisualNovelApp extends AppBase {
 
   _replaceHTML(result, content, options) {
     content.innerHTML = result;
-    this._onRenderContent();
+    this._onRender();
   }
 
-  _prepareScene(index) {
-    const scene = this.scenes[index];
-    if (!scene) return null;
-    const chars = [];
-    if (Array.isArray(scene.characters)) {
-      scene.characters.forEach((c, i) => chars.push(this._normalizeChar(c, i)));
-    } else if (scene.character) {
-      chars.push(this._normalizeChar({ src: scene.character, name: scene.name || "" }, 0));
-    }
-    return {
-      background: scene.background || null,
-      characters: chars,
-      name: scene.name || "",
-      text: scene.text || "",
-      choices: scene.choices || [],
-      next: "next" in scene ? scene.next : undefined
-    };
+  _onRender(context, options) {
+    super._onRender?.(context, options);
+    if (this._showPanel === "locations") this._bindLocationPanel();
+    else if (this._showPanel === "portraits") this._bindPortraitPanel();
+    else if (this._showPanel === "scene") this._bindScenePanel();
+    else this._bindMainUI();
   }
 
-  _normalizeChar(char, index) {
-    return {
-      index,
-      src: char.src || "",
-      name: char.name || "",
-      x: char.x != null ? char.x : 50 + index * 200,
-      y: char.y != null ? char.y : 250,
-      scale: char.scale || 1,
-      speaking: !!char.speaking,
-      flip: !!char.flip
-    };
-  }
-
-  _onRenderContent() {
+  /* ─────────────── MAIN UI ─────────────── */
+  _bindMainUI() {
     const html = this.element;
-    this._showNextButton = false;
 
-    if (this._showingBacklog) {
-      html.querySelector(".vn-backlog-close")?.addEventListener("click", () => {
-        this._showingBacklog = false;
+    if (game.user?.isGM) {
+      html.querySelector(".vn-btn-locations")?.addEventListener("click", () => {
+        this._showPanel = "locations";
         this.render();
       });
-      return;
+      html.querySelector(".vn-btn-portraits")?.addEventListener("click", () => {
+        this._showPanel = "portraits";
+        this.render();
+      });
+      html.querySelector(".vn-btn-scene")?.addEventListener("click", () => {
+        this._showPanel = "scene";
+        this.render();
+      });
+      html.querySelector(".vn-btn-toggle-bg")?.addEventListener("click", () => {
+        this._hideBg = !this._hideBg;
+        this.render();
+      });
+      html.querySelector(".vn-btn-toggle-ui")?.addEventListener("click", () => {
+        this._hideUI = !this._hideUI;
+        this.render();
+      });
     }
 
-    this._showText(html);
-    this._bindChoices(html);
-    this._bindButtons(html);
-    this._initDrag(html);
-  }
+    html.querySelector(".vn-btn-close")?.addEventListener("click", () => this.close());
 
-  _showText(html) {
-    const textEl = html.querySelector(".vn-dialogue-text");
-    const nextEl = html.querySelector(".vn-next-indicator");
-    if (!textEl) return;
-    const text = this._vnState.text || "";
-    textEl.textContent = "";
-    textEl.dataset.full = text;
-    if (nextEl) nextEl.style.display = "none";
+    this._bindPortraitDrag(html);
 
-    if (this._revealed || !text) {
-      textEl.textContent = text;
-      this._revealed = true;
-      if (nextEl) nextEl.style.display = "block";
-      this._showNextButton = true;
-      return;
-    }
-
-    this._typing = true;
-    let i = 0;
-    const speed = 30;
-    if (this._typewriterTimer) clearInterval(this._typewriterTimer);
-    this._typewriterTimer = setInterval(() => {
-      if (i >= text.length) {
-        clearInterval(this._typewriterTimer);
-        this._typewriterTimer = null;
-        this._typing = false;
-        this._showNextButton = true;
-        if (nextEl) nextEl.style.display = "block";
-        return;
-      }
-      i++;
-      textEl.textContent = text.slice(0, i);
-    }, speed);
-  }
-
-  _bindChoices(html) {
     html.querySelectorAll(".vn-choice").forEach(btn => {
       btn.addEventListener("click", (ev) => {
-        const index = parseInt(ev.currentTarget.dataset.index);
-        const choice = this._vnState.choices[index];
-        if (choice && choice.next !== undefined) {
-          this._revealed = false;
-          this.goToScene(choice.next);
+        const idx = parseInt(ev.currentTarget.dataset.index);
+        const choice = this._choices[idx];
+        if (choice && choice.callback) {
+          try { new Function(choice.callback)(); } catch(e) { console.error(e); }
         }
       });
     });
+
+    html.querySelectorAll(".vn-request-resolve")?.forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const id = ev.currentTarget.dataset.id;
+        this._requests = this._requests.filter(r => r.id !== id);
+        this.render();
+      });
+    });
   }
 
-  _bindButtons(html) {
-    html.querySelector(".vn-next-area")?.addEventListener("click", () => {
-      if (this._typing) {
-        this._revealNow();
-      } else if (this._showNextButton && this._vnState.choices.length === 0 && this._vnState.next !== undefined) {
-        this._revealed = false;
-        this.goToScene(this._vnState.next);
-      }
+  /* ─────────────── LOCATION PANEL ─────────────── */
+  _bindLocationPanel() {
+    const html = this.element;
+
+    const searchInput = html.querySelector(".vn-loc-search");
+    if (searchInput) {
+      searchInput.addEventListener("input", (ev) => {
+        const q = ev.target.value.toLowerCase();
+        html.querySelectorAll(".vn-loc-item").forEach(el => {
+          const match = el.dataset.search?.toLowerCase().includes(q);
+          el.style.display = match ? "" : "none";
+        });
+      });
+    }
+
+    html.querySelectorAll(".vn-loc-select").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const id = ev.currentTarget.dataset.id;
+        const loc = this._data?.locations.find(l => l.id === id);
+        if (loc) {
+          this._bg = loc.background || "";
+          this._showPanel = null;
+          // Store current location in scene state
+          this._currentLocationId = id;
+          this.render();
+        }
+      });
     });
 
-    html.querySelector(".vn-btn-backlog")?.addEventListener("click", () => {
-      this._showingBacklog = true;
+    html.querySelector(".vn-loc-back")?.addEventListener("click", () => {
+      this._showPanel = null;
       this.render();
     });
 
-    html.querySelector(".vn-btn-skip")?.addEventListener("click", () => {
-      this._revealed = true;
-      const el = this.element?.querySelector(".vn-dialogue-text");
-      if (el) el.textContent = el.dataset.full || "";
-    });
+    this._bindAddLocation(html);
+  }
 
-    html.querySelector(".vn-btn-save")?.addEventListener("click", () => {
-      this._saveQuick();
+  _bindAddLocation(html) {
+    const btn = html.querySelector(".vn-loc-add");
+    const form = html.querySelector(".vn-loc-form");
+    if (!btn || !form) return;
+    btn.addEventListener("click", () => {
+      form.style.display = form.style.display === "none" ? "block" : "none";
     });
-
-    html.querySelector(".vn-btn-load")?.addEventListener("click", () => {
-      this._loadQuick();
+    form.querySelector(".vn-loc-save")?.addEventListener("click", async () => {
+      const name = form.querySelector(".vn-loc-f-name")?.value?.trim();
+      if (!name) return ui.notifications?.warn("Enter location name");
+      const loc = {
+        id: String(this._data.nextLocId++),
+        name,
+        background: form.querySelector(".vn-loc-f-bg")?.value?.trim() || "",
+        tags: (form.querySelector(".vn-loc-f-tags")?.value?.trim() || "").split(",").map(s => s.trim()).filter(Boolean),
+        parent: form.querySelector(".vn-loc-f-parent")?.value?.trim() || "",
+        weather: form.querySelector(".vn-loc-f-weather")?.value?.trim() || ""
+      };
+      this._data.locations.push(loc);
+      await _saveData(this._data);
+      form.querySelector(".vn-loc-f-name").value = "";
+      form.querySelector(".vn-loc-f-bg").value = "";
+      form.querySelector(".vn-loc-f-tags").value = "";
+      form.querySelector(".vn-loc-f-parent").value = "";
+      form.querySelector(".vn-loc-f-weather").value = "";
+      form.style.display = "none";
+      this.render();
     });
-
-    html.querySelector(".vn-btn-close")?.addEventListener("click", () => {
-      this.close();
+    form.querySelector(".vn-loc-fp")?.addEventListener("click", () => {
+      new FilePicker({ type: "image", current: "", callback: (path) => {
+        form.querySelector(".vn-loc-f-bg").value = path;
+      }}).render(true);
     });
   }
 
-  _revealNow() {
-    if (this._typewriterTimer) {
-      clearInterval(this._typewriterTimer);
-      this._typewriterTimer = null;
-    }
-    this._typing = false;
-    this._revealed = true;
-    const el = this.element?.querySelector(".vn-dialogue-text");
-    if (el) el.textContent = el.dataset.full || "";
-    const nextEl = this.element?.querySelector(".vn-next-indicator");
-    if (nextEl) nextEl.style.display = "block";
-    this._showNextButton = true;
-  }
+  /* ─────────────── PORTRAIT PANEL ─────────────── */
+  _bindPortraitPanel() {
+    const html = this.element;
 
-  goToScene(index) {
-    if (index < 0 || index >= this.scenes.length) return;
-    const prev = this.scenes[this.currentScene];
-    if (prev) {
-      this.backlog.push({
-        name: prev.name || "",
-        text: prev.text || ""
+    const searchInput = html.querySelector(".vn-port-search");
+    if (searchInput) {
+      searchInput.addEventListener("input", (ev) => {
+        const q = ev.target.value.toLowerCase();
+        html.querySelectorAll(".vn-port-item").forEach(el => {
+          const match = el.dataset.search?.toLowerCase().includes(q);
+          el.style.display = match ? "" : "none";
+        });
       });
     }
-    this.history.push(this.currentScene);
-    this.currentScene = index;
-    this._vnState = this._prepareScene(index);
-    this._revealed = false;
-    this._showNextButton = false;
-    this.render();
+
+    html.querySelectorAll(".vn-port-add-to-stage").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const id = ev.currentTarget.dataset.id;
+        const port = this._data?.portraits.find(p => p.id === id);
+        if (port && this._portraits.length < 10) {
+          this._portraits.push({
+            ...port,
+            x: 50 + this._portraits.length * 180,
+            y: 200,
+            scale: 1,
+            flip: false
+          });
+          this._showPanel = null;
+          this.render();
+        }
+      });
+    });
+
+    html.querySelector(".vn-port-import")?.addEventListener("click", () => {
+      _importActorPortraits();
+    });
+
+    html.querySelector(".vn-port-back")?.addEventListener("click", () => {
+      this._showPanel = null;
+      this.render();
+    });
+
+    this._bindAddPortrait(html);
   }
 
-  _initDrag(html) {
+  _bindAddPortrait(html) {
+    const btn = html.querySelector(".vn-port-add");
+    const form = html.querySelector(".vn-port-form");
+    if (!btn || !form) return;
+    btn.addEventListener("click", () => {
+      form.style.display = form.style.display === "none" ? "block" : "none";
+    });
+    form.querySelector(".vn-port-save")?.addEventListener("click", async () => {
+      const name = form.querySelector(".vn-port-f-name")?.value?.trim();
+      if (!name) return ui.notifications?.warn("Enter portrait name");
+      const port = {
+        id: String(this._data.nextPortId++),
+        name,
+        title: form.querySelector(".vn-port-f-title")?.value?.trim() || "",
+        image: form.querySelector(".vn-port-f-img")?.value?.trim() || "",
+        actorId: form.querySelector(".vn-port-f-actor")?.value?.trim() || ""
+      };
+      this._data.portraits.push(port);
+      await _saveData(this._data);
+      form.querySelector(".vn-port-f-name").value = "";
+      form.querySelector(".vn-port-f-title").value = "";
+      form.querySelector(".vn-port-f-img").value = "";
+      form.querySelector(".vn-port-f-actor").value = "";
+      form.style.display = "none";
+      this.render();
+    });
+    form.querySelector(".vn-port-fp")?.addEventListener("click", () => {
+      new FilePicker({ type: "image", current: "", callback: (path) => {
+        form.querySelector(".vn-port-f-img").value = path;
+      }}).render(true);
+    });
+  }
+
+  /* ─────────────── SCENE PANEL ─────────────── */
+  _bindScenePanel() {
+    const html = this.element;
+
+    html.querySelector(".vn-scene-back")?.addEventListener("click", () => {
+      this._showPanel = null;
+      this.render();
+    });
+
+    const dialogueInput = html.querySelector(".vn-scene-dialogue");
+    if (dialogueInput) {
+      dialogueInput.value = this._dialogue;
+      dialogueInput.addEventListener("input", (ev) => {
+        this._dialogue = ev.target.value;
+      });
+    }
+
+    const speakerSelect = html.querySelector(".vn-scene-speaker");
+    if (speakerSelect) {
+      speakerSelect.innerHTML = '<option value="">(narrator)</option>';
+      this._portraits.forEach(p => {
+        speakerSelect.innerHTML += `<option value="${p.id}" ${this._speaker === p.id ? "selected" : ""}>${p.name}</option>`;
+      });
+      speakerSelect.addEventListener("change", (ev) => {
+        this._speaker = ev.target.value;
+      });
+    }
+
+    html.querySelector(".vn-scene-apply")?.addEventListener("click", () => {
+      this._showPanel = null;
+      this.render();
+    });
+
+    html.querySelectorAll(".vn-scene-port-remove").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.idx);
+        this._portraits.splice(idx, 1);
+        this.render();
+      });
+    });
+
+    html.querySelectorAll(".vn-scene-port-left, .vn-scene-port-right").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.idx);
+        const dir = ev.currentTarget.classList.contains("vn-scene-port-left") ? -1 : 1;
+        const newIdx = Math.max(0, Math.min(this._portraits.length - 1, idx + dir));
+        [this._portraits[idx], this._portraits[newIdx]] = [this._portraits[newIdx], this._portraits[idx]];
+        this.render();
+      });
+    });
+
+    html.querySelectorAll(".vn-scene-port-flip").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.idx);
+        this._portraits[idx].flip = !this._portraits[idx].flip;
+        this.render();
+      });
+    });
+
+    html.querySelectorAll(".vn-scene-port-scale").forEach(slider => {
+      slider.addEventListener("input", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.idx);
+        this._portraits[idx].scale = parseFloat(ev.currentTarget.value);
+        const el = this.element?.querySelector(`.vn-portrait[data-port-idx="${idx}"]`);
+        if (el) {
+          const flip = this._portraits[idx].flip ? "scaleX(-1)" : "";
+          el.style.transform = `scale(${this._portraits[idx].scale}) ${flip}`;
+        }
+      });
+    });
+
+    // Choice management
+    const choiceInput = html.querySelector(".vn-scene-choice-text");
+    const choiceAddBtn = html.querySelector(".vn-scene-choice-add");
+    if (choiceInput && choiceAddBtn) {
+      choiceAddBtn.addEventListener("click", () => {
+        const text = choiceInput.value.trim();
+        if (!text) return;
+        this._choices.push({ text, callback: "" });
+        choiceInput.value = "";
+        this.render();
+      });
+    }
+
+    html.querySelectorAll(".vn-scene-choice-remove").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.idx);
+        this._choices.splice(idx, 1);
+        this.render();
+      });
+    });
+
+    html.querySelectorAll(".vn-scene-choice-cb").forEach(input => {
+      input.addEventListener("input", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.idx);
+        this._choices[idx].callback = ev.target.value;
+      });
+    });
+  }
+
+  /* ─────────────── PORTRAIT DRAG ─────────────── */
+  _bindPortraitDrag(html) {
     if (this._dragCleanup) this._dragCleanup();
+    if (this._showPanel) return;
+
     const container = html;
     const onDown = (ev) => {
-      const wrapper = ev.target.closest(".vn-char");
-      if (!wrapper) return;
-      const idx = parseInt(wrapper.dataset.charIndex);
+      const el = ev.target.closest(".vn-portrait");
+      if (!el) return;
+      const idx = parseInt(el.dataset.portIdx);
       if (isNaN(idx)) return;
+      const portrait = this._portraits[idx];
+      if (!portrait) return;
       ev.preventDefault();
       const rect = container.getBoundingClientRect();
       this._dragState = {
         index: idx,
-        offsetX: ev.clientX - rect.left - (this._vnState.characters[idx]?.x || 0),
-        offsetY: ev.clientY - rect.top - (this._vnState.characters[idx]?.y || 0)
+        ox: ev.clientX - rect.left - portrait.x,
+        oy: ev.clientY - rect.top - portrait.y
       };
     };
     const onMove = (ev) => {
       if (!this._dragState) return;
       const rect = container.getBoundingClientRect();
-      const char = this._vnState.characters[this._dragState.index];
-      if (!char) return;
-      char.x = Math.round(ev.clientX - rect.left - this._dragState.offsetX);
-      char.y = Math.round(ev.clientY - rect.top - this._dragState.offsetY);
-      const wrapper = container.querySelector(`.vn-char[data-char-index="${this._dragState.index}"]`);
-      if (wrapper) {
-        wrapper.style.left = char.x + "px";
-        wrapper.style.top = char.y + "px";
+      const p = this._portraits[this._dragState.index];
+      if (!p) return;
+      p.x = Math.round(ev.clientX - rect.left - this._dragState.ox);
+      p.y = Math.round(ev.clientY - rect.top - this._dragState.oy);
+      const el = container.querySelector(`.vn-portrait[data-port-idx="${this._dragState.index}"]`);
+      if (el) {
+        el.style.left = p.x + "px";
+        el.style.top = p.y + "px";
       }
     };
-    const onUp = () => {
-      if (this._dragState) {
-        const scene = this.scenes[this.currentScene];
-        const idx = this._dragState.index;
-        if (scene.characters?.[idx]) {
-          scene.characters[idx].x = this._vnState.characters[idx]?.x;
-          scene.characters[idx].y = this._vnState.characters[idx]?.y;
-        }
-        this._dragState = null;
-      }
-    };
+    const onUp = () => { this._dragState = null; };
     container.addEventListener("pointerdown", onDown);
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
@@ -276,33 +466,49 @@ class VisualNovelApp extends AppBase {
     };
   }
 
-  _saveQuick() {
-    const data = {
-      currentScene: this.currentScene,
-      history: this.history,
-      backlog: this.backlog
-    };
-    game.user?.setFlag("free-visual-novel", "quicksave", data).then(() => {
-      ui.notifications?.info("Quick saved!");
+  /* ─────────────── REQUESTS (GM) ─────────────── */
+  addRequest(text, priority = "normal") {
+    this._requests.push({
+      id: foundry.utils.randomID(),
+      playerId: game.user?.id || "",
+      playerName: game.user?.name || "Unknown",
+      text,
+      priority,
+      timestamp: Date.now()
     });
+    if (this.rendered) this.render();
   }
 
-  _loadQuick() {
-    game.user?.getFlag("free-visual-novel", "quicksave").then((data) => {
-      if (!data) {
-        ui.notifications?.warn("No quick save found.");
-        return;
-      }
-      this.history = data.history || [];
-      this.backlog = data.backlog || [];
-      this.currentScene = data.currentScene || 0;
-      this._vnState = this._prepareScene(this.currentScene);
-      this._revealed = false;
-      this.render();
-      ui.notifications?.info("Quick loaded!");
-    });
+  /* ─────────────── EXTERNAL API ─────────────── */
+  setBackground(path) {
+    this._bg = path;
+    if (this.rendered) this.render();
   }
 
+  addPortraitToStage(portraitId) {
+    const port = this._data?.portraits.find(p => p.id === portraitId);
+    if (port && this._portraits.length < 10) {
+      this._portraits.push({
+        ...port,
+        x: 50 + this._portraits.length * 180,
+        y: 200,
+        scale: 1,
+        flip: false
+      });
+      if (this.rendered) this.render();
+    }
+  }
+
+  clearStage() {
+    this._bg = "";
+    this._portraits = [];
+    this._dialogue = "";
+    this._speaker = "";
+    this._choices = [];
+    if (this.rendered) this.render();
+  }
+
+  /* ── Lifecycle ── */
   _onFirstRender(context, options) {
     super._onFirstRender?.(context, options);
     this.element?.classList.add("vn-fullscreen-active");
@@ -310,86 +516,143 @@ class VisualNovelApp extends AppBase {
 
   _onClose(options) {
     if (this._dragCleanup) this._dragCleanup();
-    if (this._typewriterTimer) clearInterval(this._typewriterTimer);
     this.element?.classList.remove("vn-fullscreen-active");
-  }
-
-  static _createDefaultScenes() {
-    return [
-      {
-        name: "Narrator",
-        text: "It was a quiet evening in the town of Oakvale... The streets were empty, and a cold wind swept through the alleys.",
-        background: "",
-        characters: [
-          { src: "", name: "Lyra", x: 150, y: 180, scale: 0.9, speaking: false },
-          { src: "", name: "Hero", x: 600, y: 180, scale: 0.9, speaking: false }
-        ],
-        next: 1
-      },
-      {
-        name: "Mysterious Girl",
-        text: "Hey! You there! Wake up! You've been asleep for hours!",
-        background: "",
-        characters: [
-          { src: "", name: "Lyra", x: 350, y: 160, scale: 1, speaking: true }
-        ],
-        choices: [
-          { text: "\"Who are you?\"", next: 2 },
-          { text: "\"Where am I?\"", next: 3 }
-        ]
-      },
-      {
-        name: "Lyra",
-        text: "I'm Lyra. I've been searching for you. The village is in danger, and we need your help.",
-        background: "",
-        characters: [
-          { src: "", name: "Lyra", x: 350, y: 160, scale: 1, speaking: true }
-        ],
-        next: 4
-      },
-      {
-        name: "Lyra",
-        text: "You're in the Forgotten Temple, just outside Oakvale. Don't you remember anything that happened?",
-        background: "",
-        characters: [
-          { src: "", name: "Lyra", x: 350, y: 160, scale: 1, speaking: true }
-        ],
-        next: 4
-      },
-      {
-        name: "Lyra",
-        text: "Come on, we don't have much time. I'll explain everything on the way.",
-        background: "",
-        characters: [
-          { src: "", name: "Lyra", x: 200, y: 160, scale: 1, speaking: true },
-          { src: "", name: "Hero", x: 550, y: 180, scale: 0.9, speaking: false }
-        ],
-        next: 5
-      },
-      {
-        name: "Narrator",
-        text: "And so the adventure begins...",
-        background: "",
-        characters: [],
-        next: null
-      }
-    ];
   }
 }
 
-Hooks.on("init", function() {
+/* ─────────────── Handlebars Helpers ─────────────── */
+Handlebars.registerHelper("eq", function(v1, v2) {
+  return v1 === v2;
+});
+
+/* ─────────────── Hooks ─────────────── */
+Hooks.once("init", async function() {
+  game.settings?.register("free-visual-novel", DATA_KEY, {
+    scope: "world",
+    type: Object,
+    default: _defaultData(),
+    config: false
+  });
+
+  game.settings?.register("free-visual-novel", "defaultPortraitFolder", {
+    scope: "world",
+    type: String,
+    default: "",
+    config: true,
+    name: "Default Portrait Folder",
+    hint: "Path to folder containing actor portraits for auto-import (e.g. worlds/my-world/portraits)"
+  });
+
+  const hasEpicRolls = game.modules?.get("epic-rolls")?.active ?? false;
+  const hasSequencer = game.modules?.get("sequencer")?.active ?? false;
+
   game.freevisualnovel = {
-    scenes: VisualNovelApp._createDefaultScenes()
+    _hasEpicRolls: hasEpicRolls,
+    _hasSequencer: hasSequencer,
+    open() {
+      _openVN();
+    },
+    close() {
+      ui.freevisualnovel?.close();
+    },
+    setBackground(path) {
+      ui.freevisualnovel?.setBackground(path);
+    },
+    addPortrait(id) {
+      ui.freevisualnovel?.addPortraitToStage(id);
+    },
+    addRequest(text, priority) {
+      ui.freevisualnovel?.addRequest(text, priority);
+    },
+    clearStage() {
+      ui.freevisualnovel?.clearStage();
+    },
+    importActorPortraits(folderPath) {
+      _importActorPortraits(folderPath);
+    }
   };
+});
+
+/* ─────────────── Mass Import ─────────────── */
+async function _importActorPortraits(folderPath) {
+  if (!folderPath) {
+    folderPath = game.settings?.get("free-visual-novel", "defaultPortraitFolder");
+  }
+  if (!folderPath) {
+    ui.notifications?.warn("Set a default portrait folder in module settings first");
+    return;
+  }
+
+  let fileList;
+  try {
+    const result = await FilePicker.browse("data", folderPath);
+    fileList = result.files || [];
+  } catch(e) {
+    ui.notifications?.error(`Cannot browse folder: ${folderPath}`);
+    return;
+  }
+  if (!fileList.length) {
+    ui.notifications?.info("No files found in the portrait folder");
+    return;
+  }
+
+  const data = await _loadData();
+  let count = 0;
+
+  // Build a lookup: normalize file basename -> file path
+  const fileMap = {};
+  for (const f of fileList) {
+    const base = f.replace(/^.*[\\\/]/, "").replace(/\.[^.]+$/, "").toLowerCase();
+    fileMap[base] = f;
+  }
+
+  for (const actor of game.actors) {
+    if (data.portraits.some(p => p.actorId === actor.id)) continue;
+
+    const searchName = actor.name.toLowerCase().replace(/[^a-z0-9\u0400-\u04ff]/g, "");
+    const foundPath = fileMap[searchName] || fileMap[actor.name.toLowerCase()];
+
+    if (!foundPath) continue;
+
+    data.portraits.push({
+      id: String(data.nextPortId++),
+      name: actor.name,
+      title: "",
+      image: foundPath,
+      actorId: actor.id
+    });
+    count++;
+  }
+
+  if (count > 0) {
+    await _saveData(data);
+    ui.notifications?.info(`Imported ${count} actor portrait(s)`);
+    ui.freevisualnovel?.render(true);
+  } else {
+    ui.notifications?.info("No new portraits found to import");
+  }
+}
+
+/* ─────────────── Chat Command ─────────────── */
+Hooks.on("chatMessage", (message, text) => {
+  if (text.startsWith("/vnreq ")) {
+    const reqText = text.slice(7).trim();
+    if (reqText && ui.freevisualnovel) {
+      ui.freevisualnovel.addRequest(reqText, "normal");
+    }
+    return false;
+  }
+  if (text === "/vnreq" || text === "/vnrequest") {
+    ui.notifications?.info("Usage: /vnreq <your request text>");
+    return false;
+  }
 });
 
 function _openVN() {
   try {
-    if (!ui.freevisualnovel) {
-      const scenes = game.freevisualnovel?.scenes || VisualNovelApp._createDefaultScenes();
-      ui.freevisualnovel = new VisualNovelApp(scenes);
-    }
-    ui.freevisualnovel.render({ force: true });
+    const app = new VisualNovelApp();
+    ui.freevisualnovel = app;
+    app.render(true);
   } catch(e) {
     console.error("FreeVisualNovel | Failed to open:", e);
     ui.notifications?.error("Free Visual Novel: failed to open");
@@ -398,27 +661,28 @@ function _openVN() {
 
 Hooks.on("getSceneControlButtons", (t) => {
   if (!canvas) return;
-  t.freevisualnovel = {
+  const group = {
     name: "freevisualnovel",
-    title: "Free Visual Novel",
-    icon: "fas fa-book-open",
+    title: "Visual Novel Dialogues",
+    icon: "fas fa-comment-dots",
     layer: "Canvas",
     order: 90,
     tools: {
       launch: {
         name: "launch",
-        title: "Open Visual Novel",
+        title: "Open Visual Novel Dialogues",
         icon: "fas fa-play",
         button: true,
-        visible: true,
-        onChange: (_event, active) => {
-          if (active === false) return;
-          _openVN();
-        }
+        visible: true
       }
     },
-    activeTool: "launch"
+    activeTool: "launch",
+    onChange: (_event, active) => {
+      if (active === false) return;
+      _openVN();
+    }
   };
+  t.freevisualnovel = group;
 });
 
 } // end _defineModule
