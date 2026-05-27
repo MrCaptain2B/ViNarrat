@@ -24,6 +24,13 @@
   color: #f0e6d0;
 }
 
+.vn-content {
+  position: absolute;
+  inset: 0;
+  right: var(--sidebar-w, 0px);
+  overflow: hidden;
+}
+
 /* ── Background ── */
 .vn-bg {
   position: absolute;
@@ -96,19 +103,19 @@
   white-space: nowrap;
 }
 .vn-port-scale-inline {
-  width: 60px;
+  width: 50px;
   height: 4px;
   accent-color: #f0c040;
   cursor: pointer;
 }
-.vn-port-lock {
+.vn-port-lock, .vn-port-bring-forward, .vn-port-send-backward {
   background: transparent;
   border: none;
   color: rgba(255,255,255,0.4);
   cursor: pointer;
-  font-size: 11px;
-  width: 20px;
-  height: 20px;
+  font-size: 10px;
+  width: 18px;
+  height: 18px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -116,7 +123,7 @@
   transition: all 0.15s;
   padding: 0;
 }
-.vn-port-lock:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.vn-port-lock:hover, .vn-port-bring-forward:hover, .vn-port-send-backward:hover { color: #fff; background: rgba(255,255,255,0.1); }
 .vn-port-lock.vn-locked { color: #f0c040; }
 .vn-portrait-placeholder {
   width: 140px;
@@ -432,4 +439,25 @@
   height: 24px;
   padding: 0;
   font-size: 11px;
+}
+
+/* ── Presets ── */
+.vn-preset-save-row {
+  display: flex;
+  gap: 6px;
+}
+.vn-preset-save-row input { flex: 1; }
+.vn-preset-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.04);
+  border-radius: 6px;
+  padding: 4px 8px;
+  font-size: 0.82em;
+}
+.vn-preset-actions {
+  display: flex;
+  gap: 4px;
 }

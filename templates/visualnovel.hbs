@@ -1,7 +1,14 @@
 <div class="vn-root">
 
+  {{#if bg}}
+  <div class="vn-bg" style="background-image: url({{bg}});"></div>
+  {{else}}
+  <div class="vn-bg vn-bg-default"></div>
+  {{/if}}
+
   {{#if showPanel}}
   {{!-- ─────────── PANELS ─────────── --}}
+  <div class="vn-content">
 
   {{#if (eq showPanel "locations")}}
   <div class="vn-panel">
@@ -109,7 +116,7 @@
       {{#each portraits}}
       <div class="vn-scene-port-row" data-idx="{{@index}}">
         <span class="vn-scene-port-name">{{this.name}}</span>
-        <input class="vn-scene-port-scale" data-idx="{{@index}}" type="range" min="0.3" max="2" step="0.1" value="{{this.scale}}">
+        <input class="vn-scene-port-scale" data-idx="{{@index}}" type="range" min="0.3" max="3" step="0.1" value="{{this.scale}}">
         <div class="vn-scene-port-actions">
           <button class="vn-scene-port-left" data-idx="{{@index}}" title="Move left"><i class="fas fa-chevron-left"></i></button>
           <button class="vn-scene-port-right" data-idx="{{@index}}" title="Move right"><i class="fas fa-chevron-right"></i></button>
@@ -119,17 +126,30 @@
       </div>
       {{/each}}
     </div>
+    <div class="vn-scene-section">
+      <label>Presets</label>
+      <div class="vn-preset-save-row">
+        <input class="vn-preset-name-input" type="text" placeholder="Preset name">
+        <button class="vn-preset-save">Save Current</button>
+      </div>
+      {{#each presets}}
+      <div class="vn-preset-row">
+        <span>{{this.name}}</span>
+        <div class="vn-preset-actions">
+          <button class="vn-preset-load" data-id="{{this.id}}">Load</button>
+          <button class="vn-preset-delete" data-id="{{this.id}}"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+      {{/each}}
+    </div>
   </div>
   {{/if}}
 
+  </div>{{!-- /vn-content --}}
+
   {{else}}
   {{!-- ─────────── MAIN STAGE ─────────── --}}
-
-  {{#if bg}}
-  <div class="vn-bg" style="background-image: url({{bg}});"></div>
-  {{else}}
-  <div class="vn-bg vn-bg-default"></div>
-  {{/if}}
+  <div class="vn-content">
 
   {{#unless hideUI}}
   <div class="vn-stage-area">
@@ -148,7 +168,9 @@
       {{#if canManage}}
       <div class="vn-portrait-overlay">
         <div class="vn-port-controls">
-          <input class="vn-port-scale-inline" type="range" min="0.3" max="2" step="0.1" value="{{this.scale}}" data-port-idx="{{@index}}">
+          <button class="vn-port-bring-forward" data-port-idx="{{@index}}" title="Bring Forward"><i class="fas fa-chevron-up"></i></button>
+          <button class="vn-port-send-backward" data-port-idx="{{@index}}" title="Send Backward"><i class="fas fa-chevron-down"></i></button>
+          <input class="vn-port-scale-inline" type="range" min="0.3" max="3" step="0.1" value="{{this.scale}}" data-port-idx="{{@index}}">
           <button class="vn-port-lock {{#if this.locked}}vn-locked{{/if}}" data-port-idx="{{@index}}" title="{{#if this.locked}}Unlock{{else}}Lock{{/if}}">
             <i class="fas {{#if this.locked}}fa-lock{{else}}fa-unlock{{/if}}"></i>
           </button>
@@ -214,6 +236,7 @@
   </div>
   {{/if}}
 
+  </div>{{!-- /vn-content --}}
   {{/if}}
 
 </div>

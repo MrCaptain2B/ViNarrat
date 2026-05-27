@@ -14,8 +14,10 @@ function _defaultData() {
   return {
     locations: [],
     portraits: [],
+    presets: [],
     nextLocId: 1,
-    nextPortId: 1
+    nextPortId: 1,
+    nextPresetId: 1
   };
 }
 
@@ -110,6 +112,7 @@ class VisualNovelApp extends AppBase {
       portGroupFilter: this._portGroupFilter,
       locGroups,
       portGroups,
+      presets: this._data?.presets || [],
       selectedPortrait: this._selectedPortrait
     };
   }
@@ -129,10 +132,17 @@ class VisualNovelApp extends AppBase {
 
   _onRender(context, options) {
     super._onRender?.(context, options);
+    this._adjustForSidebar();
     if (this._showPanel === "locations") this._bindLocationPanel();
     else if (this._showPanel === "portraits") this._bindPortraitPanel();
     else if (this._showPanel === "scene") this._bindScenePanel();
     else this._bindMainUI();
+  }
+
+  _adjustForSidebar() {
+    const sidebar = document.getElementById("sidebar");
+    const w = sidebar && !sidebar.classList.contains("collapsed") ? "300px" : "0px";
+    this.element?.style.setProperty("--sidebar-w", w);
   }
 
   _el() {
@@ -189,7 +199,7 @@ class VisualNovelApp extends AppBase {
       });
     });
 
-    // Portrait hover controls (GM only)
+    // Portrait hover controls (managers only)
     html.querySelectorAll(".vn-port-scale-inline").forEach(slider => {
       const idx = parseInt(slider.dataset.portIdx);
       slider.addEventListener("input", (ev) => {
@@ -210,6 +220,26 @@ class VisualNovelApp extends AppBase {
         if (this._portraits[idx]) {
           this._portraits[idx].locked = !this._portraits[idx].locked;
           this.render();
+        }
+      });
+    });
+    html.querySelectorAll(".vn-port-bring-forward").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.portIdx);
+        if (idx < this._portraits.length - 1) {
+          [this._portraits[idx], this._portraits[idx+1]] = [this._portraits[idx+1], this._portraits[idx]];
+          this.render();
+          this._broadcast();
+        }
+      });
+    });
+    html.querySelectorAll(".vn-port-send-backward").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.portIdx);
+        if (idx > 0) {
+          [this._portraits[idx-1], this._portraits[idx]] = [this._portraits[idx], this._portraits[idx-1]];
+          this.render();
+          this._broadcast();
         }
       });
     });
@@ -467,6 +497,46 @@ class VisualNovelApp extends AppBase {
           this.render();
           this._broadcast();
         }
+      });
+    });
+
+    // Presets
+    html.querySelector(".vn-preset-save")?.addEventListener("click", async () => {
+      const name = html.querySelector(".vn-preset-name-input")?.value?.trim();
+      if (!name) return ui.notifications?.warn("Enter a preset name");
+      const preset = {
+        id: String(this._data.nextPresetId++),
+        name,
+        bg: this._bg,
+        portraits: JSON.parse(JSON.stringify(this._portraits)),
+        speaker: this._speaker
+      };
+      this._data.presets.push(preset);
+      await _saveData(this._data);
+      ui.notifications?.info(`Preset "${name}" saved`);
+      this.render();
+    });
+
+    html.querySelectorAll(".vn-preset-load").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        const preset = this._data?.presets.find(p => p.id === id);
+        if (!preset) return;
+        this._bg = preset.bg || "";
+        this._portraits = JSON.parse(JSON.stringify(preset.portraits || []));
+        this._speaker = preset.speaker || "";
+        this._showPanel = null;
+        this.render();
+        this._broadcast();
+      });
+    });
+
+    html.querySelectorAll(".vn-preset-delete").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        this._data.presets = this._data.presets.filter(p => p.id !== id);
+        await _saveData(this._data);
+        this.render();
       });
     });
   }
