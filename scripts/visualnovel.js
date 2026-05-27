@@ -27,14 +27,14 @@ class VisualNovelApp extends AppBase {
     this.scenes = scenes;
     this.currentScene = 0;
     this.history = [];
-    this.state = this._prepareScene(0);
+    this._vnState = this._prepareScene(0);
     this._dragState = null;
     this._dragCleanup = null;
   }
 
   _prepareContext() {
     return {
-      state: this.state,
+      state: this._vnState,
       current: this.currentScene,
       total: this.scenes.length - 1
     };
@@ -82,7 +82,7 @@ class VisualNovelApp extends AppBase {
     html.querySelectorAll(".choice-btn").forEach(btn => {
       btn.addEventListener("click", (ev) => {
         const index = parseInt(ev.currentTarget.dataset.index);
-        const choice = this.state.choices[index];
+        const choice = this._vnState.choices[index];
         if (choice && choice.next !== undefined) {
           this.goToScene(choice.next);
         }
@@ -91,8 +91,8 @@ class VisualNovelApp extends AppBase {
     const nextBtn = html.querySelector(".vn-next");
     if (nextBtn) {
       nextBtn.addEventListener("click", () => {
-        if (this.state.choices.length === 0 && this.state.next !== undefined) {
-          this.goToScene(this.state.next);
+        if (this._vnState.choices.length === 0 && this._vnState.next !== undefined) {
+          this.goToScene(this._vnState.next);
         }
       });
     }
@@ -112,7 +112,7 @@ class VisualNovelApp extends AppBase {
     if (index < 0 || index >= this.scenes.length) return;
     this.history.push(this.currentScene);
     this.currentScene = index;
-    this.state = this._prepareScene(index);
+    this._vnState = this._prepareScene(index);
     this.render();
   }
 
@@ -128,14 +128,14 @@ class VisualNovelApp extends AppBase {
       const rect = container.getBoundingClientRect();
       this._dragState = {
         index: idx,
-        offsetX: ev.clientX - rect.left - this.state.characters[idx].x,
-        offsetY: ev.clientY - rect.top - this.state.characters[idx].y
+        offsetX: ev.clientX - rect.left - this._vnState.characters[idx].x,
+        offsetY: ev.clientY - rect.top - this._vnState.characters[idx].y
       };
     };
     const onMove = (ev) => {
       if (!this._dragState) return;
       const rect = container.getBoundingClientRect();
-      const char = this.state.characters[this._dragState.index];
+      const char = this._vnState.characters[this._dragState.index];
       char.x = Math.round(ev.clientX - rect.left - this._dragState.offsetX);
       char.y = Math.round(ev.clientY - rect.top - this._dragState.offsetY);
       const wrapper = container.querySelector(
@@ -151,8 +151,8 @@ class VisualNovelApp extends AppBase {
         const scene = this.scenes[this.currentScene];
         const idx = this._dragState.index;
         if (scene.characters && scene.characters[idx]) {
-          scene.characters[idx].x = this.state.characters[idx].x;
-          scene.characters[idx].y = this.state.characters[idx].y;
+          scene.characters[idx].x = this._vnState.characters[idx].x;
+          scene.characters[idx].y = this._vnState.characters[idx].y;
         }
         this._dragState = null;
       }
@@ -168,7 +168,7 @@ class VisualNovelApp extends AppBase {
   }
 
   _editCharacters() {
-    const chars = this.state.characters;
+    const chars = this._vnState.characters;
     if (!chars.length) {
       ui.notifications.warn("No characters in this scene.");
       return;
@@ -199,7 +199,7 @@ class VisualNovelApp extends AppBase {
           callback: (html) => {
             const fd = new FormDataExtended(html[0].querySelector("form"));
             const data = fd.object;
-            this.state.characters.forEach((c, i) => {
+            this._vnState.characters.forEach((c, i) => {
               c.x = parseInt(data[`x-${i}`]) || 0;
               c.y = parseInt(data[`y-${i}`]) || 0;
               c.scale = parseFloat(data[`scale-${i}`]) || 1;
@@ -277,7 +277,7 @@ class VisualNovelApp extends AppBase {
             } else if (target === "char" && scene.characters && scene.characters[index]) {
               scene.characters[index].src = path;
             }
-            this.state = this._prepareScene(this.currentScene);
+            this._vnState = this._prepareScene(this.currentScene);
             this.render();
             dlg.render(true);
           });
@@ -291,7 +291,7 @@ class VisualNovelApp extends AppBase {
           } else if (target === "char" && scene.characters && scene.characters[index]) {
             scene.characters[index].src = "";
           }
-          this.state = this._prepareScene(this.currentScene);
+          this._vnState = this._prepareScene(this.currentScene);
           this.render();
           dlg.render(true);
         });
@@ -312,8 +312,8 @@ class VisualNovelApp extends AppBase {
       const s = this.scenes[i];
       return `${s.name || ""}: ${s.text}`;
     }).join("\n");
-    if (this.state && this.state.text) {
-      text += `\n${this.state.name || ""}: ${this.state.text}`;
+    if (this._vnState && this._vnState.text) {
+      text += `\n${this._vnState.name || ""}: ${this._vnState.text}`;
     }
     Dialog.prompt({
       title: "Backlog",
@@ -388,7 +388,7 @@ Hooks.once("ready", function() {
 });
 
 Hooks.on("getSceneControlButtons", (controls) => {
-  controls.push({
+  controls.set("freevisualnovel", {
     name: "freevisualnovel",
     title: "Free Visual Novel",
     icon: "fas fa-book-open",
