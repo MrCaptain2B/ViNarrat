@@ -186,6 +186,31 @@ class VisualNovelApp extends AppBase {
       });
     });
 
+    // Portrait hover controls (GM only)
+    html.querySelectorAll(".vn-port-scale-inline").forEach(slider => {
+      const idx = parseInt(slider.dataset.portIdx);
+      slider.addEventListener("input", (ev) => {
+        const val = parseFloat(ev.currentTarget.value);
+        if (this._portraits[idx]) {
+          this._portraits[idx].scale = val;
+          const el = html.querySelector(`.vn-portrait[data-port-idx="${idx}"]`);
+          if (el) {
+            const flip = this._portraits[idx].flip ? "scaleX(-1)" : "";
+            el.style.transform = `scale(${val}) ${flip}`;
+          }
+        }
+      });
+    });
+    html.querySelectorAll(".vn-port-lock").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.portIdx);
+        if (this._portraits[idx]) {
+          this._portraits[idx].locked = !this._portraits[idx].locked;
+          this.render();
+        }
+      });
+    });
+
     // Request resolve
     html.querySelectorAll(".vn-request-resolve")?.forEach(btn => {
       btn.addEventListener("click", (ev) => {
@@ -327,7 +352,8 @@ class VisualNovelApp extends AppBase {
             x: 50 + this._portraits.length * 180,
             y: 200,
             scale: 1,
-            flip: false
+            flip: false,
+            locked: false
           });
           this._showPanel = null;
           this.render();
@@ -455,6 +481,8 @@ class VisualNovelApp extends AppBase {
       if (isNaN(idx)) return;
       const portrait = this._portraits[idx];
       if (!portrait) return;
+      if (portrait.locked) return;
+      if (ev.target.closest(".vn-portrait-overlay")) return;
       ev.preventDefault();
       const rect = container.getBoundingClientRect();
       this._dragState = {
@@ -514,7 +542,8 @@ class VisualNovelApp extends AppBase {
         x: 50 + this._portraits.length * 180,
         y: 200,
         scale: 1,
-        flip: false
+        flip: false,
+        locked: false
       });
       if (this.rendered) { this.render(); this._broadcast(); }
     }

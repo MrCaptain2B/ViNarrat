@@ -52,18 +52,16 @@
   max-width: 220px;
 }
 .vn-portrait:active { cursor: grabbing; }
+.vn-portrait.vn-portrait-locked { cursor: default; }
+.vn-portrait.vn-portrait-locked:active { cursor: default; }
 
 .vn-portrait-frame {
   position: relative;
   display: inline-block;
   line-height: 0;
 }
-.vn-portrait-frame.vn-dimmed::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.15);
-  pointer-events: none;
+.vn-portrait-frame.vn-dimmed img {
+  filter: brightness(0.75);
 }
 .vn-portrait-frame.vn-speaking::after {
   content: "";
@@ -80,6 +78,55 @@
   max-height: 400px;
   width: auto;
 }
+
+/* ── Portrait Hover Controls ── */
+.vn-portrait-overlay {
+  position: absolute;
+  bottom: -32px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: none;
+  z-index: 10;
+}
+.vn-portrait:hover .vn-portrait-overlay {
+  display: block;
+}
+.vn-portrait:hover { cursor: default; }
+.vn-portrait:not(.vn-dragging):hover { cursor: default; }
+.vn-port-controls {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  background: rgba(0,0,0,0.7);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 8px;
+  padding: 3px 8px;
+  white-space: nowrap;
+}
+.vn-port-scale-inline {
+  width: 60px;
+  height: 4px;
+  accent-color: #f0c040;
+  cursor: pointer;
+}
+.vn-port-lock {
+  background: transparent;
+  border: none;
+  color: rgba(255,255,255,0.4);
+  cursor: pointer;
+  font-size: 11px;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all 0.15s;
+  padding: 0;
+}
+.vn-port-lock:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.vn-port-lock.vn-locked { color: #f0c040; }
 .vn-portrait-placeholder {
   width: 140px;
   height: 200px;
