@@ -904,7 +904,7 @@ Hooks.on("getSceneControlButtons", (t) => {
       }
     },
     onChange: (_event, active) => {
-      if (active === "launch") _openVN();
+      if (active) _openVN();
     }
   };
   t.freevisualnovel = group;
