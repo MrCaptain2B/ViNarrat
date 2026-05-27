@@ -36,7 +36,6 @@
 .vn-bg {
   position: absolute;
   inset: 0;
-  right: var(--sidebar-w, 0px);
   pointer-events: none;
   background-size: cover;
   background-position: center;

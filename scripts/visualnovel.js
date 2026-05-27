@@ -900,12 +900,9 @@ Hooks.on("getSceneControlButtons", (t) => {
         title: "New Dialogue",
         icon: "fas fa-play",
         button: true,
-        visible: true
+        visible: true,
+        onClick: () => _openVN()
       }
-    },
-    activeTool: "launch",
-    onChange: (_event, active) => {
-      if (active) _openVN();
     }
   };
   t.freevisualnovel = group;
