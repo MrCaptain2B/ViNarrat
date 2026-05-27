@@ -42,7 +42,10 @@ class VisualNovelApp extends AppBase {
 
   async _renderHTML(context, options) {
     const path = "modules/free-visual-novel/templates/visualnovel.hbs";
-    return foundry.utils.renderTemplate(path, context);
+    const resp = await fetch(path);
+    const source = await resp.text();
+    const template = Handlebars.compile(source);
+    return template(context);
   }
 
   _replaceHTML(result, content, options) {
