@@ -659,6 +659,8 @@ class VisualNovelApp extends AppBase {
     const onClick = (ev) => {
       if (ev.target.closest(".vn-portrait-controls")) return;
       if (ev.target.closest(".vn-dialog-box")) return;
+      if (ev.target.closest(".vn-panel")) return;
+      if (ev.target.closest("select")) return;
       const el = ev.target.closest(".vn-portrait");
       if (!el) {
         this._selectedPortraitIdx = null;
