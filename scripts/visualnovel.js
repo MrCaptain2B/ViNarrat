@@ -13,12 +13,15 @@ class VisualNovelApp extends AppBase {
     title: "Free Visual Novel",
     template: "modules/free-visual-novel/templates/visualnovel.hbs",
     window: {
-      width: 1000,
-      height: 700,
-      resizable: true,
-      positioned: true
+      width: window.innerWidth,
+      height: window.innerHeight,
+      positioned: true,
+      minimizable: false,
+      resizable: false,
+      frame: false,
+      controls: []
     },
-    classes: ["free-visual-novel"],
+    classes: ["free-visual-novel", "vn-fullscreen"],
     form: { submitOnChange: false, closeOnSubmit: false }
   };
 
@@ -27,16 +30,23 @@ class VisualNovelApp extends AppBase {
     this.scenes = scenes;
     this.currentScene = 0;
     this.history = [];
+    this.backlog = [];
     this._vnState = this._prepareScene(0);
     this._dragState = null;
     this._dragCleanup = null;
+    this._typewriterTimer = null;
+    this._typing = false;
+    this._revealed = false;
+    this._showingBacklog = false;
   }
 
   async _prepareContext() {
     return {
       state: this._vnState,
       current: this.currentScene,
-      total: this.scenes.length - 1
+      total: this.scenes.length - 1,
+      history: this.backlog,
+      showingBacklog: this._showingBacklog
     };
   }
 
@@ -50,6 +60,7 @@ class VisualNovelApp extends AppBase {
 
   _replaceHTML(result, content, options) {
     content.innerHTML = result;
+    this._onRenderContent();
   }
 
   _prepareScene(index) {
@@ -57,9 +68,7 @@ class VisualNovelApp extends AppBase {
     if (!scene) return null;
     const chars = [];
     if (Array.isArray(scene.characters)) {
-      scene.characters.forEach((c, i) => {
-        chars.push(this._normalizeChar(c, i));
-      });
+      scene.characters.forEach((c, i) => chars.push(this._normalizeChar(c, i)));
     } else if (scene.character) {
       chars.push(this._normalizeChar({ src: scene.character, name: scene.name || "" }, 0));
     }
@@ -69,8 +78,6 @@ class VisualNovelApp extends AppBase {
       name: scene.name || "",
       text: scene.text || "",
       choices: scene.choices || [],
-      effects: scene.effects || "",
-      music: scene.music || null,
       next: "next" in scene ? scene.next : undefined
     };
   }
@@ -88,43 +95,134 @@ class VisualNovelApp extends AppBase {
     };
   }
 
-  _onRender(context, options) {
-    super._onRender(context, options);
+  _onRenderContent() {
     const html = this.element;
-    html.querySelectorAll(".choice-btn").forEach(btn => {
+    this._showNextButton = false;
+
+    if (this._showingBacklog) {
+      html.querySelector(".vn-backlog-close")?.addEventListener("click", () => {
+        this._showingBacklog = false;
+        this.render();
+      });
+      return;
+    }
+
+    this._showText(html);
+    this._bindChoices(html);
+    this._bindButtons(html);
+    this._initDrag(html);
+  }
+
+  _showText(html) {
+    const textEl = html.querySelector(".vn-dialogue-text");
+    const nextEl = html.querySelector(".vn-next-indicator");
+    if (!textEl) return;
+    const text = this._vnState.text || "";
+    textEl.textContent = "";
+    textEl.dataset.full = text;
+    if (nextEl) nextEl.style.display = "none";
+
+    if (this._revealed || !text) {
+      textEl.textContent = text;
+      this._revealed = true;
+      if (nextEl) nextEl.style.display = "block";
+      this._showNextButton = true;
+      return;
+    }
+
+    this._typing = true;
+    let i = 0;
+    const speed = 30;
+    if (this._typewriterTimer) clearInterval(this._typewriterTimer);
+    this._typewriterTimer = setInterval(() => {
+      if (i >= text.length) {
+        clearInterval(this._typewriterTimer);
+        this._typewriterTimer = null;
+        this._typing = false;
+        this._showNextButton = true;
+        if (nextEl) nextEl.style.display = "block";
+        return;
+      }
+      i++;
+      textEl.textContent = text.slice(0, i);
+    }, speed);
+  }
+
+  _bindChoices(html) {
+    html.querySelectorAll(".vn-choice").forEach(btn => {
       btn.addEventListener("click", (ev) => {
         const index = parseInt(ev.currentTarget.dataset.index);
         const choice = this._vnState.choices[index];
         if (choice && choice.next !== undefined) {
+          this._revealed = false;
           this.goToScene(choice.next);
         }
       });
     });
-    const nextBtn = html.querySelector(".vn-next");
-    if (nextBtn) {
-      nextBtn.addEventListener("click", () => {
-        if (this._vnState.choices.length === 0 && this._vnState.next !== undefined) {
-          this.goToScene(this._vnState.next);
-        }
-      });
+  }
+
+  _bindButtons(html) {
+    html.querySelector(".vn-next-area")?.addEventListener("click", () => {
+      if (this._typing) {
+        this._revealNow();
+      } else if (this._showNextButton && this._vnState.choices.length === 0 && this._vnState.next !== undefined) {
+        this._revealed = false;
+        this.goToScene(this._vnState.next);
+      }
+    });
+
+    html.querySelector(".vn-btn-backlog")?.addEventListener("click", () => {
+      this._showingBacklog = true;
+      this.render();
+    });
+
+    html.querySelector(".vn-btn-skip")?.addEventListener("click", () => {
+      this._revealed = true;
+      const el = this.element?.querySelector(".vn-dialogue-text");
+      if (el) el.textContent = el.dataset.full || "";
+    });
+
+    html.querySelector(".vn-btn-save")?.addEventListener("click", () => {
+      this._saveQuick();
+    });
+
+    html.querySelector(".vn-btn-load")?.addEventListener("click", () => {
+      this._loadQuick();
+    });
+
+    html.querySelector(".vn-btn-close")?.addEventListener("click", () => {
+      this.close();
+    });
+  }
+
+  _revealNow() {
+    if (this._typewriterTimer) {
+      clearInterval(this._typewriterTimer);
+      this._typewriterTimer = null;
     }
-    html.querySelector(".vn-backlog")?.addEventListener("click", () => {
-      this._showBacklog();
-    });
-    html.querySelector(".vn-edit-chars")?.addEventListener("click", () => {
-      this._editCharacters();
-    });
-    html.querySelector(".vn-manage-images")?.addEventListener("click", () => {
-      this._manageImages();
-    });
-    this._initDrag(html);
+    this._typing = false;
+    this._revealed = true;
+    const el = this.element?.querySelector(".vn-dialogue-text");
+    if (el) el.textContent = el.dataset.full || "";
+    const nextEl = this.element?.querySelector(".vn-next-indicator");
+    if (nextEl) nextEl.style.display = "block";
+    this._showNextButton = true;
   }
 
   goToScene(index) {
     if (index < 0 || index >= this.scenes.length) return;
+    const prev = this.scenes[this.currentScene];
+    if (prev) {
+      this.backlog.push({
+        name: prev.name || "",
+        text: prev.text || ""
+      });
+    }
     this.history.push(this.currentScene);
     this.currentScene = index;
     this._vnState = this._prepareScene(index);
+    this._revealed = false;
+    this._showNextButton = false;
     this.render();
   }
 
@@ -132,7 +230,7 @@ class VisualNovelApp extends AppBase {
     if (this._dragCleanup) this._dragCleanup();
     const container = html;
     const onDown = (ev) => {
-      const wrapper = ev.target.closest(".vn-char-wrapper");
+      const wrapper = ev.target.closest(".vn-char");
       if (!wrapper) return;
       const idx = parseInt(wrapper.dataset.charIndex);
       if (isNaN(idx)) return;
@@ -140,19 +238,18 @@ class VisualNovelApp extends AppBase {
       const rect = container.getBoundingClientRect();
       this._dragState = {
         index: idx,
-        offsetX: ev.clientX - rect.left - this._vnState.characters[idx].x,
-        offsetY: ev.clientY - rect.top - this._vnState.characters[idx].y
+        offsetX: ev.clientX - rect.left - (this._vnState.characters[idx]?.x || 0),
+        offsetY: ev.clientY - rect.top - (this._vnState.characters[idx]?.y || 0)
       };
     };
     const onMove = (ev) => {
       if (!this._dragState) return;
       const rect = container.getBoundingClientRect();
       const char = this._vnState.characters[this._dragState.index];
+      if (!char) return;
       char.x = Math.round(ev.clientX - rect.left - this._dragState.offsetX);
       char.y = Math.round(ev.clientY - rect.top - this._dragState.offsetY);
-      const wrapper = container.querySelector(
-        `.vn-char-wrapper[data-char-index="${this._dragState.index}"]`
-      );
+      const wrapper = container.querySelector(`.vn-char[data-char-index="${this._dragState.index}"]`);
       if (wrapper) {
         wrapper.style.left = char.x + "px";
         wrapper.style.top = char.y + "px";
@@ -162,9 +259,9 @@ class VisualNovelApp extends AppBase {
       if (this._dragState) {
         const scene = this.scenes[this.currentScene];
         const idx = this._dragState.index;
-        if (scene.characters && scene.characters[idx]) {
-          scene.characters[idx].x = this._vnState.characters[idx].x;
-          scene.characters[idx].y = this._vnState.characters[idx].y;
+        if (scene.characters?.[idx]) {
+          scene.characters[idx].x = this._vnState.characters[idx]?.x;
+          scene.characters[idx].y = this._vnState.characters[idx]?.y;
         }
         this._dragState = null;
       }
@@ -179,207 +276,101 @@ class VisualNovelApp extends AppBase {
     };
   }
 
-  _editCharacters() {
-    const chars = this._vnState.characters;
-    if (!chars.length) {
-      ui.notifications.warn("No characters in this scene.");
-      return;
-    }
-    let form = `
-    <form class="vn-char-editor">
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:4px;font-size:12px;margin-bottom:8px;">
-        <b>Sprite</b><b>X</b><b>Y</b><b>Scale</b><b>Flip</b>
-      </div>`;
-    chars.forEach((c, i) => {
-      form += `
-      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr 1fr;gap:4px;align-items:center;margin-bottom:4px;">
-        <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${c.name || "char"}</span>
-        <input type="number" name="x-${i}" value="${c.x}" step="1" style="width:60px">
-        <input type="number" name="y-${i}" value="${c.y}" step="1" style="width:60px">
-        <input type="number" name="scale-${i}" value="${c.scale}" step="0.05" min="0.1" max="3" style="width:60px">
-        <input type="checkbox" name="flip-${i}" ${c.flip ? "checked" : ""}>
-      </div>`;
+  _saveQuick() {
+    const data = {
+      currentScene: this.currentScene,
+      history: this.history,
+      backlog: this.backlog
+    };
+    game.user?.setFlag("free-visual-novel", "quicksave", data).then(() => {
+      ui.notifications?.info("Quick saved!");
     });
-    form += `</form>`;
-    new Dialog({
-      title: "Character Positions",
-      content: form,
-      buttons: {
-        apply: {
-          icon: '<i class="fas fa-check"></i>',
-          label: "Apply",
-          callback: (html) => {
-            const fd = new FormDataExtended(html[0].querySelector("form"));
-            const data = fd.object;
-            this._vnState.characters.forEach((c, i) => {
-              c.x = parseInt(data[`x-${i}`]) || 0;
-              c.y = parseInt(data[`y-${i}`]) || 0;
-              c.scale = parseFloat(data[`scale-${i}`]) || 1;
-              c.flip = !!data[`flip-${i}`];
-              const scene = this.scenes[this.currentScene];
-              if (scene.characters && scene.characters[i]) {
-                scene.characters[i].x = c.x;
-                scene.characters[i].y = c.y;
-                scene.characters[i].scale = c.scale;
-                scene.characters[i].flip = c.flip;
-              }
-            });
-            this.render();
-          }
-        },
-        cancel: { icon: '<i class="fas fa-times"></i>', label: "Cancel" }
-      },
-      default: "apply"
-    }).render(true);
   }
 
-  _manageImages() {
-    const scene = this.scenes[this.currentScene];
-    if (!scene) return;
-    let content = `
-    <div class="vn-img-manager">
-      <h3>Background</h3>
-      <div class="vn-img-row">
-        <div class="vn-img-preview">${scene.background
-          ? `<img src="${scene.background}" style="max-width:200px;max-height:100px">`
-          : `<span class="vn-img-empty">No background</span>`}</div>
-        <div class="vn-img-buttons">
-          <button class="vn-fp-btn" data-target="bg">Change Background</button>
-          <button class="vn-fp-clear" data-target="bg">Clear</button>
-        </div>
-      </div>
-      <hr>
-      <h3>Characters</h3>`;
-    const chars = scene.characters || [];
-    if (!chars.length) {
-      content += `<p>No characters in this scene.</p>`;
-    } else {
-      chars.forEach((c, i) => {
-        content += `
-      <div class="vn-img-row">
-        <div class="vn-img-preview">${c.src
-          ? `<img src="${c.src}" style="max-width:100px;max-height:80px">`
-          : `<span class="vn-img-empty">No sprite</span>`}</div>
-        <div class="vn-img-label">${c.name || `Char ${i}`}</div>
-        <div class="vn-img-buttons">
-          <button class="vn-fp-btn" data-target="char" data-index="${i}">Change Sprite</button>
-          <button class="vn-fp-clear" data-target="char" data-index="${i}">Clear</button>
-        </div>
-      </div>`;
-      });
-    }
-    content += `</div>`;
-
-    const dlg = new Dialog({
-      title: "Manage Images",
-      content,
-      buttons: {
-        close: { icon: '<i class="fas fa-times"></i>', label: "Close" }
-      },
-      render: (html) => {
-        html.find(".vn-fp-btn").on("click", (ev) => {
-          const btn = ev.currentTarget;
-          const target = btn.dataset.target;
-          const index = btn.dataset.index;
-          const current = target === "bg" ? scene.background
-            : (scene.characters && scene.characters[index] ? scene.characters[index].src : "");
-          this._openFilePicker(current, (path) => {
-            if (target === "bg") {
-              scene.background = path;
-            } else if (target === "char" && scene.characters && scene.characters[index]) {
-              scene.characters[index].src = path;
-            }
-            this._vnState = this._prepareScene(this.currentScene);
-            this.render();
-            dlg.render(true);
-          });
-        });
-        html.find(".vn-fp-clear").on("click", (ev) => {
-          const btn = ev.currentTarget;
-          const target = btn.dataset.target;
-          const index = btn.dataset.index;
-          if (target === "bg") {
-            scene.background = "";
-          } else if (target === "char" && scene.characters && scene.characters[index]) {
-            scene.characters[index].src = "";
-          }
-          this._vnState = this._prepareScene(this.currentScene);
-          this.render();
-          dlg.render(true);
-        });
+  _loadQuick() {
+    game.user?.getFlag("free-visual-novel", "quicksave").then((data) => {
+      if (!data) {
+        ui.notifications?.warn("No quick save found.");
+        return;
       }
-    }).render(true);
-  }
-
-  _openFilePicker(current, callback) {
-    new FilePicker({
-      type: "image",
-      current: current || "",
-      callback: (path) => { callback(path); }
-    }).render(true);
-  }
-
-  _showBacklog() {
-    let text = this.history.map(i => {
-      const s = this.scenes[i];
-      return `${s.name || ""}: ${s.text}`;
-    }).join("\n");
-    if (this._vnState && this._vnState.text) {
-      text += `\n${this._vnState.name || ""}: ${this._vnState.text}`;
-    }
-    Dialog.prompt({
-      title: "Backlog",
-      content: `<pre style="max-height:300px;overflow-y:auto;white-space:pre-wrap">${text}</pre>`
+      this.history = data.history || [];
+      this.backlog = data.backlog || [];
+      this.currentScene = data.currentScene || 0;
+      this._vnState = this._prepareScene(this.currentScene);
+      this._revealed = false;
+      this.render();
+      ui.notifications?.info("Quick loaded!");
     });
   }
 
-  close(...args) {
+  _onFirstRender(context, options) {
+    super._onFirstRender?.(context, options);
+    this.element?.classList.add("vn-fullscreen-active");
+  }
+
+  _onClose(options) {
     if (this._dragCleanup) this._dragCleanup();
-    return super.close(...args);
+    if (this._typewriterTimer) clearInterval(this._typewriterTimer);
+    this.element?.classList.remove("vn-fullscreen-active");
   }
 
   static _createDefaultScenes() {
     return [
       {
         name: "Narrator",
-        text: "It was a quiet evening in the town of Oakvale...",
+        text: "It was a quiet evening in the town of Oakvale... The streets were empty, and a cold wind swept through the alleys.",
         background: "",
         characters: [
-          { src: "", name: "Lyra", x: 150, y: 250, scale: 0.8, speaking: false },
-          { src: "", name: "Hero", x: 500, y: 250, scale: 0.8, speaking: false }
+          { src: "", name: "Lyra", x: 150, y: 180, scale: 0.9, speaking: false },
+          { src: "", name: "Hero", x: 600, y: 180, scale: 0.9, speaking: false }
         ],
         next: 1
       },
       {
-        name: "??",
-        text: "Hey you! Wake up!",
+        name: "Mysterious Girl",
+        text: "Hey! You there! Wake up! You've been asleep for hours!",
+        background: "",
         characters: [
-          { src: "", name: "??", x: 300, y: 200, scale: 1, speaking: true }
+          { src: "", name: "Lyra", x: 350, y: 160, scale: 1, speaking: true }
         ],
         choices: [
-          { text: "Who are you?", next: 2 },
-          { text: "Where am I?", next: 3 }
+          { text: "\"Who are you?\"", next: 2 },
+          { text: "\"Where am I?\"", next: 3 }
         ]
       },
       {
-        name: "Mysterious Girl",
-        text: "I'm Lyra. I've been looking for you.",
+        name: "Lyra",
+        text: "I'm Lyra. I've been searching for you. The village is in danger, and we need your help.",
+        background: "",
         characters: [
-          { src: "", name: "Lyra", x: 300, y: 200, scale: 1, speaking: true }
+          { src: "", name: "Lyra", x: 350, y: 160, scale: 1, speaking: true }
         ],
         next: 4
       },
       {
-        name: "Mysterious Girl",
-        text: "You're in the Forgotten Temple. Don't you remember anything?",
+        name: "Lyra",
+        text: "You're in the Forgotten Temple, just outside Oakvale. Don't you remember anything that happened?",
+        background: "",
         characters: [
-          { src: "", name: "Lyra", x: 300, y: 200, scale: 1, speaking: true }
+          { src: "", name: "Lyra", x: 350, y: 160, scale: 1, speaking: true }
         ],
         next: 4
+      },
+      {
+        name: "Lyra",
+        text: "Come on, we don't have much time. I'll explain everything on the way.",
+        background: "",
+        characters: [
+          { src: "", name: "Lyra", x: 200, y: 160, scale: 1, speaking: true },
+          { src: "", name: "Hero", x: 550, y: 180, scale: 0.9, speaking: false }
+        ],
+        next: 5
       },
       {
         name: "Narrator",
-        text: "The adventure begins...",
+        text: "And so the adventure begins...",
+        background: "",
+        characters: [],
         next: null
       }
     ];

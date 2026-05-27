@@ -1,43 +1,65 @@
-<div class="vn-container">
+<div class="vn-stage">
+  {{#if showingBacklog}}
+  <div class="vn-backlog-screen">
+    <div class="vn-backlog-header">History</div>
+    <div class="vn-backlog-entries">
+      {{#each history}}
+      <div class="vn-backlog-entry">
+        <span class="vn-backlog-name">{{this.name}}</span>
+        <span class="vn-backlog-text">{{this.text}}</span>
+      </div>
+      {{/each}}
+    </div>
+    <button class="vn-backlog-close">Close</button>
+  </div>
+  {{else}}
+
   {{#if state.background}}
-  <div class="vn-background" style="background-image: url({{state.background}});"></div>
+  <div class="vn-bg" style="background-image: url({{state.background}});"></div>
+  {{else}}
+  <div class="vn-bg vn-bg-default"></div>
   {{/if}}
-  <div class="vn-characters-area">
+
+  <div class="vn-char-area">
     {{#each state.characters}}
-    <div class="vn-char-wrapper"
-         data-char-index="{{@index}}"
+    <div class="vn-char" data-char-index="{{@index}}"
          style="left: {{this.x}}px; top: {{this.y}}px;
                 transform: scale({{this.scale}}) {{#if this.flip}}scaleX(-1){{/if}};
-                {{#if this.speaking}}opacity: 1{{else}}opacity: 0.35{{/if}};">
+                opacity: {{#if this.speaking}}1{{else}}0.4{{/if}};
+                z-index: {{@index}};">
       {{#if this.src}}
-      <img class="vn-char-sprite" src="{{this.src}}" alt="{{this.name}}"
-           data-char-index="{{@index}}">
+      <img class="vn-char-img" src="{{this.src}}" alt="{{this.name}}">
       {{else}}
-      <div class="vn-char-placeholder" data-char-index="{{@index}}">
-        {{this.name}}
-      </div>
+      <div class="vn-char-placeholder">{{this.name}}</div>
       {{/if}}
     </div>
     {{/each}}
   </div>
-  <div class="vn-dialogue-box">
-    {{#if state.name}}
-    <div class="vn-speaker">{{state.name}}</div>
-    {{/if}}
-    <div class="vn-text">
-      {{state.text}}
-    </div>
-    <div class="vn-actions">
-      {{#if state.choices.length}}
-        {{#each state.choices}}
-        <button class="choice-btn" data-index="{{@index}}">{{this.text}}</button>
-        {{/each}}
-      {{else if (ne state.next null)}}
-        <button class="vn-next">Continue</button>
-      {{/if}}
-    </div>
+
+  {{#if state.choices.length}}
+  <div class="vn-choices">
+    {{#each state.choices}}
+    <button class="vn-choice" data-index="{{@index}}">{{this.text}}</button>
+    {{/each}}
   </div>
-  <button class="vn-manage-images" title="Manage backgrounds and sprites"><i class="fas fa-image"></i></button>
-  <button class="vn-edit-chars" title="Edit character positions"><i class="fas fa-arrows-alt"></i></button>
-  <button class="vn-backlog" title="View backlog"><i class="fas fa-history"></i></button>
+  {{else}}
+  <div class="vn-dialogue">
+    {{#if state.name}}
+    <div class="vn-dialogue-name">{{state.name}}</div>
+    {{/if}}
+    <div class="vn-dialogue-text" data-full="{{state.text}}"></div>
+    <div class="vn-next-indicator" style="display:none">&#9660;</div>
+  </div>
+  {{/if}}
+
+  <div class="vn-next-area"></div>
+  {{/if}}
+
+  <div class="vn-toolbar">
+    <button class="vn-btn-backlog" title="History"><i class="fas fa-history"></i></button>
+    <button class="vn-btn-skip" title="Skip"><i class="fas fa-forward"></i></button>
+    <button class="vn-btn-save" title="Quick Save"><i class="fas fa-save"></i></button>
+    <button class="vn-btn-load" title="Quick Load"><i class="fas fa-upload"></i></button>
+    <button class="vn-btn-close" title="Close"><i class="fas fa-times"></i></button>
+  </div>
 </div>
