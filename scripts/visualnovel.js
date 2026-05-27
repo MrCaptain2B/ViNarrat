@@ -110,6 +110,7 @@ class VisualNovelApp extends AppBase {
 
   _replaceHTML(result, content, options) {
     content.innerHTML = result;
+    this._contentEl = content;
     this._onRender();
   }
 
@@ -121,9 +122,13 @@ class VisualNovelApp extends AppBase {
     else this._bindMainUI();
   }
 
+  _el() {
+    return this._contentEl || this.element;
+  }
+
   /* ─────────────── MAIN UI ─────────────── */
   _bindMainUI() {
-    const html = this.element;
+    const html = this._el();
 
     if (game.user?.isGM) {
       html.querySelector(".vn-btn-locations")?.addEventListener("click", () => {
@@ -173,7 +178,7 @@ class VisualNovelApp extends AppBase {
 
   /* ─────────────── LOCATION PANEL ─────────────── */
   _bindLocationPanel() {
-    const html = this.element;
+    const html = this._el();
 
     const searchInput = html.querySelector(".vn-loc-search");
     if (searchInput) {
@@ -245,7 +250,7 @@ class VisualNovelApp extends AppBase {
 
   /* ─────────────── PORTRAIT PANEL ─────────────── */
   _bindPortraitPanel() {
-    const html = this.element;
+    const html = this._el();
 
     const searchInput = html.querySelector(".vn-port-search");
     if (searchInput) {
@@ -323,7 +328,7 @@ class VisualNovelApp extends AppBase {
 
   /* ─────────────── SCENE PANEL ─────────────── */
   _bindScenePanel() {
-    const html = this.element;
+    const html = this._el();
 
     html.querySelector(".vn-scene-back")?.addEventListener("click", () => {
       this._showPanel = null;
