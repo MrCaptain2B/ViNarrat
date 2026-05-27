@@ -383,78 +383,44 @@ Hooks.on("ready", function() {
 });
 
 /* ── Add scene toolbar button (v13 compat) ─────────── */
+const _CONTROL_GROUP = {
+  name: "freevisualnovel",
+  title: "Free Visual Novel",
+  icon: "fas fa-book-open",
+  layer: "FreeVisualNovel",
+  tools: [
+    {
+      name: "launch",
+      title: "Open Visual Novel",
+      icon: "fas fa-play",
+      onClick: () => ui.freevisualnovel.render(true)
+    }
+  ]
+};
+
 function _injectToolbarButton() {
   if (!ui.controls || !ui.controls.controls) return;
   const controls = ui.controls.controls;
   if (controls instanceof Map) {
     if (controls.has("freevisualnovel")) return;
-    controls.set("freevisualnovel", {
-      name: "freevisualnovel",
-      title: "Free Visual Novel",
-      icon: "fas fa-book-open",
-      layer: "FreeVisualNovel",
-      tools: [
-        {
-          name: "launch",
-          title: "Open Visual Novel",
-          icon: "fas fa-play",
-          onClick: () => ui.freevisualnovel.render(true)
-        }
-      ]
-    });
+    controls.set("freevisualnovel", _CONTROL_GROUP);
   } else if (Array.isArray(controls)) {
     if (controls.some(c => c.name === "freevisualnovel")) return;
-    controls.push({
-      name: "freevisualnovel",
-      title: "Free Visual Novel",
-      icon: "fas fa-book-open",
-      layer: "FreeVisualNovel",
-      tools: [
-        {
-          name: "launch",
-          title: "Open Visual Novel",
-          icon: "fas fa-play",
-          onClick: () => ui.freevisualnovel.render(true)
-        }
-      ]
-    });
+    controls.push(_CONTROL_GROUP);
   }
-  ui.controls.render();
 }
 
 Hooks.on("getSceneControlButtons", (controls) => {
   if (controls instanceof Map) {
     if (controls.has("freevisualnovel")) return;
-    controls.set("freevisualnovel", {
-      name: "freevisualnovel",
-      title: "Free Visual Novel",
-      icon: "fas fa-book-open",
-      layer: "FreeVisualNovel",
-      tools: [
-        {
-          name: "launch",
-          title: "Open Visual Novel",
-          icon: "fas fa-play",
-          onClick: () => ui.freevisualnovel.render(true)
-        }
-      ]
-    });
+    controls.set("freevisualnovel", _CONTROL_GROUP);
   } else if (Array.isArray(controls)) {
-    controls.push({
-      name: "freevisualnovel",
-      title: "Free Visual Novel",
-      icon: "fas fa-book-open",
-      layer: "FreeVisualNovel",
-      tools: [
-        {
-          name: "launch",
-          title: "Open Visual Novel",
-          icon: "fas fa-play",
-          onClick: () => ui.freevisualnovel.render(true)
-        }
-      ]
-    });
+    controls.push(_CONTROL_GROUP);
   }
 });
 
-Hooks.on("renderSceneControls", () => _injectToolbarButton());
+/* Apply once after ready; never call render() from renderSceneControls */
+Hooks.on("ready", () => {
+  _injectToolbarButton();
+  try { ui.controls?.render(); } catch(e) { /* already rendering */ }
+});
