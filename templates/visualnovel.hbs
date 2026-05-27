@@ -77,14 +77,6 @@
       <button class="vn-scene-back"><i class="fas fa-arrow-left"></i> Back</button>
     </div>
     <div class="vn-scene-section">
-      <label>Dialogue text</label>
-      <textarea class="vn-scene-dialogue" rows="3" placeholder="Type dialogue here..."></textarea>
-    </div>
-    <div class="vn-scene-section">
-      <label>Speaker</label>
-      <select class="vn-scene-speaker"></select>
-    </div>
-    <div class="vn-scene-section">
       <label>Portraits on stage</label>
       {{#each portraits}}
       <div class="vn-scene-port-row" data-idx="{{@index}}">
@@ -99,21 +91,6 @@
       </div>
       {{/each}}
     </div>
-    <div class="vn-scene-section">
-      <label>Choices</label>
-      <div style="display:flex;gap:4px">
-        <input class="vn-scene-choice-text" type="text" placeholder="Choice text">
-        <button class="vn-scene-choice-add">Add</button>
-      </div>
-      {{#each choices}}
-      <div class="vn-scene-choice-row">
-        <span>{{this.text}}</span>
-        <input class="vn-scene-choice-cb" data-idx="{{@index}}" type="text" placeholder="Callback (optional)" value="{{this.callback}}">
-        <button class="vn-scene-choice-remove" data-idx="{{@index}}"><i class="fas fa-times"></i></button>
-      </div>
-      {{/each}}
-    </div>
-    <button class="vn-scene-apply">Apply</button>
   </div>
   {{/if}}
 
@@ -132,7 +109,7 @@
     <div class="vn-portrait" data-port-idx="{{@index}}"
          style="left: {{this.x}}px; top: {{this.y}}px;
                 transform: scale({{this.scale}}) {{#if this.flip}}scaleX(-1){{/if}};
-                opacity: {{#if this.speaking}}1{{else}}0.4{{/if}};
+                opacity: {{#if this.speaking}}1{{else}}0.7{{/if}};
                 z-index: {{@index}};">
       {{#if this.image}}
       <img class="vn-portrait-img" src="{{this.image}}" alt="{{this.name}}">
@@ -143,25 +120,11 @@
     {{/each}}
   </div>
 
-  {{#unless hideDialogue}}
-  <div class="vn-dialogue-box">
-    {{#if speaker}}
-    <div class="vn-dialogue-speaker">{{speaker}}</div>
-    {{/if}}
-    {{#if dialogue}}
-    <div class="vn-dialogue-text">{{dialogue}}</div>
-    {{else}}
-    <div class="vn-dialogue-text vn-dialogue-muted">Waiting for GM...</div>
-    {{/if}}
-    {{#if choices.length}}
-    <div class="vn-choices">
-      {{#each choices}}
-      <button class="vn-choice" data-index="{{@index}}">{{this.text}}</button>
-      {{/each}}
-    </div>
-    {{/if}}
+  {{#if speaker}}
+  <div class="vn-speaker-indicator">
+    <span class="vn-speaker-name">{{speaker}}</span>
   </div>
-  {{/unless}}
+  {{/if}}
 
   {{/unless}}
 
@@ -179,6 +142,19 @@
   {{/if}}
   {{/if}}
 
+  {{!-- GM Speaker Selector --}}
+  {{#if isGM}}
+  {{#if portraits.length}}
+  <div class="vn-speaker-bar">
+    {{#each portraits}}
+    <button class="vn-speaker-btn {{#if this.speaking}}vn-speaker-active{{/if}}" data-id="{{this.id}}">
+      {{this.name}}
+    </button>
+    {{/each}}
+  </div>
+  {{/if}}
+  {{/if}}
+
   {{!-- GM Toolbar --}}
   {{#if isGM}}
   <div class="vn-gm-toolbar">
@@ -186,7 +162,6 @@
     <button class="vn-btn-portraits" title="Portraits"><i class="fas fa-users"></i></button>
     <button class="vn-btn-scene" title="Scene Control"><i class="fas fa-sliders-h"></i></button>
     <button class="vn-btn-toggle-bg" title="Toggle Background"><i class="fas fa-image"></i></button>
-    <button class="vn-btn-toggle-dialogue" title="Toggle Dialogue"><i class="fas fa-comment"></i></button>
     <button class="vn-btn-toggle-ui" title="Toggle Full UI"><i class="fas fa-eye-slash"></i></button>
     <button class="vn-btn-close" title="Close"><i class="fas fa-times"></i></button>
   </div>

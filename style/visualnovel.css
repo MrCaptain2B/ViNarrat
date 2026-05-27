@@ -73,51 +73,53 @@
   color: rgba(255,255,255,0.6);
 }
 
-/* ── Dialogue Box ── */
-.vn-dialogue-box {
+/* ── Speaker Indicator (bottom center, all users) ── */
+.vn-speaker-indicator {
   position: absolute;
-  bottom: 10%;
-  left: 10%;
-  right: 10%;
-  background: rgba(0,0,0,0.75);
-  backdrop-filter: blur(6px);
+  bottom: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(0,0,0,0.6);
+  backdrop-filter: blur(4px);
   border: 1px solid rgba(255,255,255,0.15);
-  border-radius: 12px;
-  padding: 16px 24px;
-  pointer-events: auto;
-  min-height: 100px;
+  border-radius: 8px;
+  padding: 8px 24px;
+  pointer-events: none;
+  text-align: center;
 }
-.vn-dialogue-speaker {
+.vn-speaker-name {
   font-size: 1.1em;
   font-weight: bold;
   color: #f0c040;
-  margin-bottom: 6px;
 }
-.vn-dialogue-text {
-  font-size: 1.05em;
-  line-height: 1.5;
-  white-space: pre-wrap;
-}
-.vn-dialogue-muted { color: rgba(255,255,255,0.4); font-style: italic; }
 
-/* ── Choices ── */
-.vn-choices {
+/* ── GM Speaker Bar ── */
+.vn-speaker-bar {
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 12px;
+  gap: 6px;
+  pointer-events: auto;
 }
-.vn-choice {
-  background: rgba(255,255,255,0.1);
-  border: 1px solid rgba(255,255,255,0.25);
+.vn-speaker-btn {
+  background: rgba(0,0,0,0.5);
+  border: 1px solid rgba(255,255,255,0.2);
   border-radius: 6px;
-  padding: 8px 18px;
-  color: #fff;
+  padding: 6px 16px;
+  color: #ccc;
   cursor: pointer;
-  font-size: 0.95em;
-  transition: background 0.2s;
+  font-size: 0.85em;
+  transition: all 0.15s;
 }
-.vn-choice:hover { background: rgba(255,255,255,0.2); }
+.vn-speaker-btn:hover { background: rgba(255,255,255,0.15); color: #fff; }
+.vn-speaker-active {
+  background: rgba(240,192,64,0.25);
+  border-color: #f0c040;
+  color: #f0c040;
+  font-weight: bold;
+}
 
 /* ── GM Toolbar ── */
 .vn-gm-toolbar {
@@ -260,7 +262,6 @@
 .vn-loc-tags { color: rgba(255,255,255,0.5); font-size: 0.8em; margin-left: 6px; }
 .vn-loc-search, .vn-port-search { margin-bottom: 4px; }
 .vn-port-import { background: rgba(46, 204, 113, 0.2); border-color: rgba(46, 204, 113, 0.4); }
-.vn-hidden { display: none !important; }
 .vn-loc-form, .vn-port-form {
   display: flex;
   flex-direction: column;
@@ -321,17 +322,4 @@
   padding: 0;
   font-size: 11px;
 }
-.vn-scene-choice-row {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 4px;
-}
-.vn-scene-choice-row span { min-width: 100px; }
-.vn-scene-choice-row input { flex: 1; }
-.vn-scene-choice-row button {
-  width: 24px;
-  height: 24px;
-  padding: 0;
-  font-size: 11px;
-}
+

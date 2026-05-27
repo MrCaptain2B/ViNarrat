@@ -55,18 +55,16 @@ class VisualNovelApp extends AppBase {
 
     this._bg = "";
     this._portraits = [];
-    this._dialogue = "";
     this._speaker = "";
-    this._choices = [];
     this._requests = [];
+    this._saving = false;
     this._hideBg = false;
     this._hideUI = false;
-    this._showPanel = null; // "locations" | "portraits" | "scene"
+    this._showPanel = null;
     this._dragState = null;
     this._dragCleanup = null;
     this._selectedPortrait = null;
     this._currentLocationId = null;
-    this._hideDialogue = false;
   }
 
   /* ── Init ── */
@@ -85,14 +83,13 @@ class VisualNovelApp extends AppBase {
       speaking: this._speaker === p.id
     }));
 
+    const speakerPortrait = this._portraits.find(p => p.id === this._speaker);
     return {
       bg: this._hideBg ? "" : this._bg,
       hideUI: this._hideUI,
-      hideDialogue: this._hideDialogue,
       portraits,
-      speaker: this._speaker,
-      dialogue: this._dialogue,
-      choices: this._choices,
+      speaker: speakerPortrait ? speakerPortrait.name : "",
+      speakerId: this._speaker,
       requests: this._requests,
       isGM: game.user?.isGM,
       showPanel: this._showPanel,
@@ -153,26 +150,23 @@ class VisualNovelApp extends AppBase {
         this._hideUI = !this._hideUI;
         this.render();
       });
-      html.querySelector(".vn-btn-toggle-dialogue")?.addEventListener("click", () => {
-        this._hideDialogue = !this._hideDialogue;
-        this._broadcast();
-      });
     }
 
     html.querySelector(".vn-btn-close")?.addEventListener("click", () => this.close());
 
     this._bindPortraitDrag(html);
 
-    html.querySelectorAll(".vn-choice").forEach(btn => {
+    // Speaker selector (GM only)
+    html.querySelectorAll(".vn-speaker-btn").forEach(btn => {
       btn.addEventListener("click", (ev) => {
-        const idx = parseInt(ev.currentTarget.dataset.index);
-        const choice = this._choices[idx];
-        if (choice && choice.callback) {
-          try { new Function(choice.callback)(); } catch(e) { console.error(e); }
-        }
+        const id = ev.currentTarget.dataset.id;
+        this._speaker = this._speaker === id ? "" : id;
+        this.render();
+        this._broadcast();
       });
     });
 
+    // Request resolve
     html.querySelectorAll(".vn-request-resolve")?.forEach(btn => {
       btn.addEventListener("click", (ev) => {
         const id = ev.currentTarget.dataset.id;
@@ -227,8 +221,10 @@ class VisualNovelApp extends AppBase {
     const form = html.querySelector(".vn-loc-form");
     if (!form) return;
     form.querySelector(".vn-loc-save")?.addEventListener("click", async () => {
+      if (this._saving) return;
+      this._saving = true;
       const name = form.querySelector(".vn-loc-f-name")?.value?.trim();
-      if (!name) return ui.notifications?.warn("Enter location name");
+      if (!name) { this._saving = false; return ui.notifications?.warn("Enter location name"); }
       const loc = {
         id: String(this._data.nextLocId++),
         name,
@@ -244,6 +240,7 @@ class VisualNovelApp extends AppBase {
       form.querySelector(".vn-loc-f-tags").value = "";
       form.querySelector(".vn-loc-f-parent").value = "";
       form.querySelector(".vn-loc-f-weather").value = "";
+      this._saving = false;
       this.render();
     });
     form.querySelector(".vn-loc-fp")?.addEventListener("click", () => {
@@ -306,8 +303,10 @@ class VisualNovelApp extends AppBase {
     const form = html.querySelector(".vn-port-form");
     if (!form) return;
     form.querySelector(".vn-port-save")?.addEventListener("click", async () => {
+      if (this._saving) return;
+      this._saving = true;
       const name = form.querySelector(".vn-port-f-name")?.value?.trim();
-      if (!name) return ui.notifications?.warn("Enter portrait name");
+      if (!name) { this._saving = false; return ui.notifications?.warn("Enter portrait name"); }
       const port = {
         id: String(this._data.nextPortId++),
         name,
@@ -317,6 +316,7 @@ class VisualNovelApp extends AppBase {
       };
       this._data.portraits.push(port);
       await _saveData(this._data);
+      this._saving = false;
       form.querySelector(".vn-port-f-name").value = "";
       form.querySelector(".vn-port-f-title").value = "";
       form.querySelector(".vn-port-f-img").value = "";
@@ -342,94 +342,42 @@ class VisualNovelApp extends AppBase {
       this.render();
     });
 
-    const dialogueInput = html.querySelector(".vn-scene-dialogue");
-    if (dialogueInput) {
-      dialogueInput.value = this._dialogue;
-      dialogueInput.addEventListener("input", (ev) => {
-        this._dialogue = ev.target.value;
-      });
-    }
+    // Stage portrait management (in scene panel)
+    html.querySelectorAll(".vn-scene-port-row").forEach(el => {
+      const idx = parseInt(el.dataset.idx);
+      const port = this._portraits[idx];
+      if (!port) return;
 
-    const speakerSelect = html.querySelector(".vn-scene-speaker");
-    if (speakerSelect) {
-      speakerSelect.innerHTML = '<option value="">(narrator)</option>';
-      this._portraits.forEach(p => {
-        speakerSelect.innerHTML += `<option value="${p.id}" ${this._speaker === p.id ? "selected" : ""}>${p.name}</option>`;
-      });
-      speakerSelect.addEventListener("change", (ev) => {
-        this._speaker = ev.target.value;
-      });
-    }
-
-    html.querySelector(".vn-scene-apply")?.addEventListener("click", () => {
-      this._showPanel = null;
-      this.render();
-      this._broadcast();
-    });
-
-    html.querySelectorAll(".vn-scene-port-remove").forEach(btn => {
-      btn.addEventListener("click", (ev) => {
-        const idx = parseInt(ev.currentTarget.dataset.idx);
+      el.querySelector(".vn-scene-port-remove")?.addEventListener("click", () => {
         this._portraits.splice(idx, 1);
         this.render();
+        this._broadcast();
       });
-    });
 
-    html.querySelectorAll(".vn-scene-port-left, .vn-scene-port-right").forEach(btn => {
-      btn.addEventListener("click", (ev) => {
-        const idx = parseInt(ev.currentTarget.dataset.idx);
-        const dir = ev.currentTarget.classList.contains("vn-scene-port-left") ? -1 : 1;
-        const newIdx = Math.max(0, Math.min(this._portraits.length - 1, idx + dir));
-        [this._portraits[idx], this._portraits[newIdx]] = [this._portraits[newIdx], this._portraits[idx]];
-        this.render();
-      });
-    });
-
-    html.querySelectorAll(".vn-scene-port-flip").forEach(btn => {
-      btn.addEventListener("click", (ev) => {
-        const idx = parseInt(ev.currentTarget.dataset.idx);
+      el.querySelector(".vn-scene-port-flip")?.addEventListener("click", () => {
         this._portraits[idx].flip = !this._portraits[idx].flip;
         this.render();
+        this._broadcast();
       });
-    });
 
-    html.querySelectorAll(".vn-scene-port-scale").forEach(slider => {
-      slider.addEventListener("input", (ev) => {
-        const idx = parseInt(ev.currentTarget.dataset.idx);
-        this._portraits[idx].scale = parseFloat(ev.currentTarget.value);
-        const el = this.element?.querySelector(`.vn-portrait[data-port-idx="${idx}"]`);
-        if (el) {
-          const flip = this._portraits[idx].flip ? "scaleX(-1)" : "";
-          el.style.transform = `scale(${this._portraits[idx].scale}) ${flip}`;
+      el.querySelector(".vn-scene-port-scale")?.addEventListener("input", (ev) => {
+        this._portraits[idx].scale = parseFloat(ev.target.value) || 1;
+      });
+
+      el.querySelector(".vn-scene-port-left")?.addEventListener("click", () => {
+        if (idx > 0) {
+          [this._portraits[idx-1], this._portraits[idx]] = [this._portraits[idx], this._portraits[idx-1]];
+          this.render();
+          this._broadcast();
         }
       });
-    });
 
-    // Choice management
-    const choiceInput = html.querySelector(".vn-scene-choice-text");
-    const choiceAddBtn = html.querySelector(".vn-scene-choice-add");
-    if (choiceInput && choiceAddBtn) {
-      choiceAddBtn.addEventListener("click", () => {
-        const text = choiceInput.value.trim();
-        if (!text) return;
-        this._choices.push({ text, callback: "" });
-        choiceInput.value = "";
-        this.render();
-      });
-    }
-
-    html.querySelectorAll(".vn-scene-choice-remove").forEach(btn => {
-      btn.addEventListener("click", (ev) => {
-        const idx = parseInt(ev.currentTarget.dataset.idx);
-        this._choices.splice(idx, 1);
-        this.render();
-      });
-    });
-
-    html.querySelectorAll(".vn-scene-choice-cb").forEach(input => {
-      input.addEventListener("input", (ev) => {
-        const idx = parseInt(ev.currentTarget.dataset.idx);
-        this._choices[idx].callback = ev.target.value;
+      el.querySelector(".vn-scene-port-right")?.addEventListener("click", () => {
+        if (idx < this._portraits.length - 1) {
+          [this._portraits[idx], this._portraits[idx+1]] = [this._portraits[idx+1], this._portraits[idx]];
+          this.render();
+          this._broadcast();
+        }
       });
     });
   }
@@ -515,9 +463,7 @@ class VisualNovelApp extends AppBase {
   clearStage() {
     this._bg = "";
     this._portraits = [];
-    this._dialogue = "";
     this._speaker = "";
-    this._choices = [];
     if (this.rendered) { this.render(); this._broadcast(); }
   }
 
@@ -542,10 +488,7 @@ function _broadcastVNState(app) {
     type: "state",
     bg: app._bg,
     portraits: app._portraits,
-    speaker: app._speaker,
-    dialogue: app._dialogue,
-    choices: app._choices,
-    hideDialogue: app._hideDialogue
+    speaker: app._speaker
   });
 }
 
@@ -559,9 +502,6 @@ function _applyVNState(data) {
   app._bg = data.bg || "";
   app._portraits = data.portraits || [];
   app._speaker = data.speaker || "";
-  app._dialogue = data.dialogue || "";
-  app._choices = data.choices || [];
-  app._hideDialogue = data.hideDialogue || false;
   app.render(true);
 }
 
