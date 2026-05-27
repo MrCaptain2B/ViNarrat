@@ -110,7 +110,7 @@
   accent-color: #f0c040;
   cursor: pointer;
 }
-.vn-port-lock, .vn-port-bring-forward, .vn-port-send-backward {
+.vn-port-lock, .vn-port-bring-forward, .vn-port-send-backward, .vn-port-remove {
   background: transparent;
   border: none;
   color: rgba(255,255,255,0.4);
@@ -125,7 +125,8 @@
   transition: all 0.15s;
   padding: 0;
 }
-.vn-port-lock:hover, .vn-port-bring-forward:hover, .vn-port-send-backward:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.vn-port-lock:hover, .vn-port-bring-forward:hover, .vn-port-send-backward:hover, .vn-port-remove:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.vn-port-remove:hover { color: #e74c3c; background: rgba(231,76,60,0.15); }
 .vn-port-lock.vn-locked { color: #f0c040; }
 .vn-portrait-placeholder {
   width: 140px;
@@ -156,10 +157,10 @@
   z-index: 20;
 }
 .vn-speaker-name {
-  font-size: 1.05em;
-  font-weight: 600;
+  font-size: 1.25em;
+  font-weight: 700;
   color: #f0c040;
-  text-shadow: 0 0 8px rgba(240,192,64,0.3);
+  text-shadow: 0 0 12px rgba(240,192,64,0.4);
 }
 
 /* ── GM Speaker Bar ── */

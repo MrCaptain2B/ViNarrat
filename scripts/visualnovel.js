@@ -255,6 +255,14 @@ class VisualNovelApp extends AppBase {
         }
       });
     });
+    html.querySelectorAll(".vn-port-remove").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.portIdx);
+        this._portraits.splice(idx, 1);
+        this.render();
+        this._broadcast();
+      });
+    });
 
     // Request resolve
     html.querySelectorAll(".vn-request-resolve")?.forEach(btn => {
