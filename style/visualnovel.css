@@ -143,7 +143,7 @@
 /* ── Speaker Indicator ── */
 .vn-speaker-indicator {
   position: absolute;
-  bottom: 60px;
+  top: 52px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(0,0,0,0.5);
@@ -153,6 +153,7 @@
   padding: 6px 20px;
   pointer-events: none;
   text-align: center;
+  z-index: 20;
 }
 .vn-speaker-name {
   font-size: 1.05em;
@@ -164,12 +165,13 @@
 /* ── GM Speaker Bar ── */
 .vn-speaker-bar {
   position: absolute;
-  bottom: 52px;
+  top: 86px;
   left: 50%;
   transform: translateX(-50%);
   display: flex;
   gap: 6px;
   pointer-events: auto;
+  z-index: 20;
 }
 .vn-speaker-btn {
   background: rgba(0,0,0,0.5);
