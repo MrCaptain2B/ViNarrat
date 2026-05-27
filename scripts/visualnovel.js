@@ -94,7 +94,11 @@ class VisualNovelApp extends AppBase {
       ...p,
       index: i,
       speaking: this._speaker === p.id,
-      selected: this._selectedPortraitIdx === i
+      selected: this._selectedPortraitIdx === i,
+      currentImg: (p.images && p.images.length) ? p.images[p._currentEmotion || 0] : p.image,
+      hasEmotions: (p.images && p.images.length > 1),
+      images: p.images || [],
+      emotionIdx: p._currentEmotion || 0
     }));
 
     const speakerPortrait = this._portraits.find(p => p.id === this._speaker);
@@ -245,6 +249,17 @@ class VisualNovelApp extends AppBase {
         if (this._portraits[idx]) {
           this._portraits[idx].locked = !this._portraits[idx].locked;
           this.render();
+        }
+      });
+    });
+    html.querySelectorAll(".vn-emotion-thumb").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.portIdx);
+        const emo = parseInt(ev.currentTarget.dataset.emotion);
+        if (this._portraits[idx] && !isNaN(emo)) {
+          this._portraits[idx]._currentEmotion = emo;
+          this.render();
+          this._broadcast();
         }
       });
     });
@@ -475,17 +490,48 @@ class VisualNovelApp extends AppBase {
   _bindAddPortrait(html) {
     const form = html.querySelector(".vn-port-form");
     if (!form) return;
+
+    function readEmotions() {
+      const paths = [];
+      form.querySelectorAll(".vn-emotion-path").forEach(inp => {
+        const v = inp.value.trim();
+        if (v) paths.push(v);
+      });
+      return paths;
+    }
+    function resetEmotions() {
+      const list = form.querySelector(".vn-emotion-list");
+      if (list) list.innerHTML = "";
+    }
+    form.querySelector(".vn-emotion-add")?.addEventListener("click", () => {
+      const list = form.querySelector(".vn-emotion-list");
+      const tpl = form.querySelector(".vn-emotion-row-tpl");
+      if (!list || !tpl) return;
+      const el = tpl.content.cloneNode(true);
+      el.querySelector(".vn-emotion-remove")?.addEventListener("click", (ev) => {
+        const row = ev.currentTarget.closest(".vn-emotion-row");
+        row?.parentElement?.removeChild(row);
+        list.querySelectorAll(".vn-emotion-idx").forEach((s, i) => s.textContent = (i + 1) + ".");
+      });
+      list.appendChild(el);
+      list.querySelectorAll(".vn-emotion-idx").forEach((s, i) => s.textContent = (i + 1) + ".");
+    });
+
     form.querySelector(".vn-port-save")?.addEventListener("click", async () => {
       if (this._saving) return;
       this._saving = true;
       const name = form.querySelector(".vn-port-f-name")?.value?.trim();
       if (!name) { this._saving = false; return ui.notifications?.warn("Enter portrait name"); }
+      const mainImg = form.querySelector(".vn-port-f-img")?.value?.trim() || "";
+      const extra = readEmotions();
+      const allImgs = extra.length ? [mainImg, ...extra.filter(p => p !== mainImg)] : (mainImg ? [mainImg] : []);
       const port = {
         id: String(this._data.nextPortId++),
         name,
         title: form.querySelector(".vn-port-f-title")?.value?.trim() || "",
         group: form.querySelector(".vn-port-f-group")?.value?.trim() || "",
-        image: form.querySelector(".vn-port-f-img")?.value?.trim() || "",
+        image: mainImg,
+        images: allImgs,
         actorId: form.querySelector(".vn-port-f-actor")?.value?.trim() || ""
       };
       this._data.portraits.push(port);
@@ -495,6 +541,7 @@ class VisualNovelApp extends AppBase {
       form.querySelector(".vn-port-f-title").value = "";
       form.querySelector(".vn-port-f-img").value = "";
       form.querySelector(".vn-port-f-actor").value = "";
+      resetEmotions();
       this.render();
     });
     form.querySelector(".vn-port-fp")?.addEventListener("click", () => {
@@ -685,13 +732,16 @@ class VisualNovelApp extends AppBase {
   addPortraitToStage(portraitId) {
     const port = this._data?.portraits.find(p => p.id === portraitId);
     if (port && this._portraits.length < 10) {
+      const images = port.images && port.images.length ? port.images : (port.image ? [port.image] : []);
       this._portraits.push({
         ...port,
+        images,
         x: 50 + this._portraits.length * 180,
         y: 150,
         scale: 1.5,
         flip: false,
-        locked: false
+        locked: false,
+        _currentEmotion: 0
       });
       if (this.rendered) { this.render(); this._broadcast(); }
     }

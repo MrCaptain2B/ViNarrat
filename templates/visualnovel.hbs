@@ -96,8 +96,20 @@
       </div>
       <input class="vn-port-f-title" type="text" placeholder="Title (optional)">
       <div class="vn-form-row">
-        <input class="vn-port-f-img" type="text" placeholder="Image path">
+        <input class="vn-port-f-img" type="text" placeholder="Default image path">
         <button class="vn-port-fp" type="button"><i class="fas fa-folder-open"></i></button>
+      </div>
+      <div class="vn-port-emotions">
+        <label>Emotions (alternate images)</label>
+        <div class="vn-emotion-list"></div>
+        <button class="vn-emotion-add" type="button"><i class="fas fa-plus"></i> Add emotion</button>
+        <template class="vn-emotion-row-tpl">
+          <div class="vn-emotion-row">
+            <span class="vn-emotion-idx"></span>
+            <input class="vn-emotion-path" type="text" placeholder="Emotion image path">
+            <button class="vn-emotion-remove" type="button" title="Remove"><i class="fas fa-times"></i></button>
+          </div>
+        </template>
       </div>
       <input class="vn-port-f-actor" type="text" placeholder="Actor ID (optional)">
       <button class="vn-port-save">Save Portrait</button>
@@ -186,12 +198,21 @@
                 transform: scale({{this.scale}}) {{#if this.flip}}scaleX(-1){{/if}};
                 z-index: {{@index}};">
       <div class="vn-portrait-frame {{#unless this.speaking}}vn-dimmed{{/unless}}">
-        {{#if this.image}}
-        <img class="vn-portrait-img" src="{{this.image}}" alt="{{this.name}}">
+        {{#if this.currentImg}}
+        <img class="vn-portrait-img" src="{{this.currentImg}}" alt="{{this.name}}">
         {{else}}
         <div class="vn-portrait-placeholder">{{this.name}}</div>
         {{/if}}
       </div>
+      {{#if this.hasEmotions}}
+      <div class="vn-emotion-strip">
+        {{#each this.images}}
+        <button class="vn-emotion-thumb {{#if (eq @index ../this.emotionIdx)}}vn-emotion-active{{/if}}" data-port-idx="{{../this.index}}" data-emotion="{{@index}}">
+          <img src="{{this}}" alt="">
+        </button>
+        {{/each}}
+      </div>
+      {{/if}}
     </div>
     {{/each}}
   </div>
