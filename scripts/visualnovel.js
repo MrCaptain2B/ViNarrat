@@ -136,6 +136,7 @@ class VisualNovelApp extends AppBase {
     if (this._showPanel === "locations") this._bindLocationPanel();
     else if (this._showPanel === "portraits") this._bindPortraitPanel();
     else if (this._showPanel === "scene") this._bindScenePanel();
+    else if (this._showPanel === "presets") this._bindPresetsPanel();
     else this._bindMainUI();
   }
 
@@ -168,6 +169,10 @@ class VisualNovelApp extends AppBase {
       });
       html.querySelector(".vn-btn-toggle-bg")?.addEventListener("click", () => {
         this._hideBg = !this._hideBg;
+        this.render();
+      });
+      html.querySelector(".vn-btn-presets")?.addEventListener("click", () => {
+        this._showPanel = "presets";
         this.render();
       });
       html.querySelector(".vn-btn-toggle-ui")?.addEventListener("click", () => {
@@ -541,6 +546,55 @@ class VisualNovelApp extends AppBase {
     });
   }
 
+  /* ─────────────── PRESETS PANEL ─────────────── */
+  _bindPresetsPanel() {
+    const html = this._el();
+
+    html.querySelector(".vn-presets-back")?.addEventListener("click", () => {
+      this._showPanel = null;
+      this.render();
+    });
+
+    html.querySelector(".vn-presets-save-btn")?.addEventListener("click", async () => {
+      const name = html.querySelector(".vn-presets-name-input")?.value?.trim();
+      if (!name) return ui.notifications?.warn("Enter a preset name");
+      const preset = {
+        id: String(this._data.nextPresetId++),
+        name,
+        bg: this._bg,
+        portraits: JSON.parse(JSON.stringify(this._portraits)),
+        speaker: this._speaker
+      };
+      this._data.presets.push(preset);
+      await _saveData(this._data);
+      ui.notifications?.info(`Preset "${name}" saved`);
+      this.render();
+    });
+
+    html.querySelectorAll(".vn-presets-load").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const id = btn.dataset.id;
+        const preset = this._data?.presets.find(p => p.id === id);
+        if (!preset) return;
+        this._bg = preset.bg || "";
+        this._portraits = JSON.parse(JSON.stringify(preset.portraits || []));
+        this._speaker = preset.speaker || "";
+        this._showPanel = null;
+        this.render();
+        this._broadcast();
+      });
+    });
+
+    html.querySelectorAll(".vn-presets-delete").forEach(btn => {
+      btn.addEventListener("click", async () => {
+        const id = btn.dataset.id;
+        this._data.presets = this._data.presets.filter(p => p.id !== id);
+        await _saveData(this._data);
+        this.render();
+      });
+    });
+  }
+
   /* ─────────────── PORTRAIT DRAG ─────────────── */
   _bindPortraitDrag(html) {
     if (this._dragCleanup) this._dragCleanup();
@@ -849,10 +903,8 @@ Hooks.on("getSceneControlButtons", (t) => {
         visible: true
       }
     },
-    activeTool: "launch",
     onChange: (_event, active) => {
-      if (active === false) return;
-      _openVN();
+      if (active === "launch") _openVN();
     }
   };
   t.freevisualnovel = group;

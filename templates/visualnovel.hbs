@@ -125,19 +125,26 @@
         </div>
       </div>
       {{/each}}
+  </div>
+  {{/if}}
+
+  {{#if (eq showPanel "presets")}}
+  <div class="vn-panel">
+    <div class="vn-panel-header">
+      <span class="vn-panel-title">Scene Presets</span>
+      <button class="vn-presets-back"><i class="fas fa-arrow-left"></i> Back</button>
     </div>
-    <div class="vn-scene-section">
-      <label>Presets</label>
-      <div class="vn-preset-save-row">
-        <input class="vn-preset-name-input" type="text" placeholder="Preset name">
-        <button class="vn-preset-save">Save Current</button>
-      </div>
+    <div class="vn-presets-save-row">
+      <input class="vn-presets-name-input" type="text" placeholder="Preset name">
+      <button class="vn-presets-save-btn">Save Current</button>
+    </div>
+    <div class="vn-presets-list">
       {{#each presets}}
-      <div class="vn-preset-row">
+      <div class="vn-presets-row">
         <span>{{this.name}}</span>
-        <div class="vn-preset-actions">
-          <button class="vn-preset-load" data-id="{{this.id}}">Load</button>
-          <button class="vn-preset-delete" data-id="{{this.id}}"><i class="fas fa-trash"></i></button>
+        <div class="vn-presets-actions">
+          <button class="vn-presets-load" data-id="{{this.id}}">Load</button>
+          <button class="vn-presets-delete" data-id="{{this.id}}"><i class="fas fa-trash"></i></button>
         </div>
       </div>
       {{/each}}
@@ -222,6 +229,7 @@
     <button class="vn-btn-locations" title="Locations"><i class="fas fa-map-marked-alt"></i></button>
     <button class="vn-btn-portraits" title="Portraits"><i class="fas fa-users"></i></button>
     <button class="vn-btn-scene" title="Scene Control"><i class="fas fa-sliders-h"></i></button>
+    <button class="vn-btn-presets" title="Scene Presets"><i class="fas fa-bookmark"></i></button>
     <button class="vn-btn-toggle-bg" title="Toggle Background"><i class="fas fa-image"></i></button>
     <button class="vn-btn-toggle-ui" title="Toggle UI"><i class="fas fa-eye-slash"></i></button>
     <button class="vn-btn-broadcast {{#if broadcasting}}vn-broadcast-active{{/if}}" title="{{#if broadcasting}}Stop{{else}}Start{{/if}} Broadcast">

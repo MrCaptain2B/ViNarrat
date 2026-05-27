@@ -29,12 +29,15 @@
   inset: 0;
   right: var(--sidebar-w, 0px);
   overflow: hidden;
+  pointer-events: none;
 }
 
 /* ── Background ── */
 .vn-bg {
   position: absolute;
   inset: 0;
+  right: var(--sidebar-w, 0px);
+  pointer-events: none;
   background-size: cover;
   background-position: center;
   transition: background-image 0.5s;
@@ -442,12 +445,12 @@
 }
 
 /* ── Presets ── */
-.vn-preset-save-row {
+.vn-presets-save-row {
   display: flex;
   gap: 6px;
 }
-.vn-preset-save-row input { flex: 1; }
-.vn-preset-row {
+.vn-presets-save-row input { flex: 1; }
+.vn-presets-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -457,7 +460,7 @@
   padding: 4px 8px;
   font-size: 0.82em;
 }
-.vn-preset-actions {
+.vn-presets-actions {
   display: flex;
   gap: 4px;
 }
