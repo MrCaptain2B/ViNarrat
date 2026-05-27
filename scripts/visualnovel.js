@@ -373,8 +373,30 @@ Hooks.on("ready", function() {
   }
 });
 
-Hooks.on("getSceneControlButtons", (controls, bp) => {
-  console.log("FreeVisualNovel | controls type:", typeof controls, "isArray:", Array.isArray(controls), controls);
+/* Add button to scene controls toolbar */
+function _addControlButton() {
+  if (!ui.controls || !ui.controls.controls) return;
+  /* Check if already added */
+  if (ui.controls.controls.some(c => c.name === "freevisualnovel")) return;
+  ui.controls.controls.push({
+    name: "freevisualnovel",
+    title: "Free Visual Novel",
+    icon: "fas fa-book-open",
+    layer: "FreeVisualNovel",
+    tools: [
+      {
+        name: "launch",
+        title: "Open Visual Novel",
+        icon: "fas fa-play",
+        onClick: () => ui.freevisualnovel.render(true)
+      }
+    ]
+  });
+  try { ui.controls.render(); } catch(e) { /* ignore */ }
+}
+
+/* Try standard hook first (v12), fall back to direct injection */
+Hooks.on("getSceneControlButtons", (controls) => {
   if (Array.isArray(controls)) {
     controls.push({
       name: "freevisualnovel",
@@ -393,17 +415,5 @@ Hooks.on("getSceneControlButtons", (controls, bp) => {
   }
 });
 
-/* Fallback: add button via renderSceneControls if the main hook didn't work */
-Hooks.on("renderSceneControls", (controls, html) => {
-  const existing = html[0]?.querySelector('.control-tool[data-tool="launch"]');
-  if (existing) return;
-  const nav = html[0]?.querySelector('#controls');
-  if (!nav) return;
-  const btn = document.createElement("li");
-  btn.className = "scene-control freevisualnovel-control";
-  btn.setAttribute("data-tool", "launch");
-  btn.innerHTML = '<i class="fas fa-book-open"></i>';
-  btn.title = "Free Visual Novel";
-  btn.addEventListener("click", () => ui.freevisualnovel.render(true));
-  nav.appendChild(btn);
-});
+Hooks.on("ready", () => _addControlButton());
+Hooks.on("renderSceneControls", () => _addControlButton());
