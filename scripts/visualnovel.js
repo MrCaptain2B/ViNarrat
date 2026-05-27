@@ -380,6 +380,19 @@ Hooks.on("init", function() {
   };
 });
 
+function _openVN() {
+  try {
+    if (!ui.freevisualnovel) {
+      const scenes = game.freevisualnovel?.scenes || VisualNovelApp._createDefaultScenes();
+      ui.freevisualnovel = new VisualNovelApp(scenes);
+    }
+    ui.freevisualnovel.render({ force: true });
+  } catch(e) {
+    console.error("FreeVisualNovel | Failed to open:", e);
+    ui.notifications?.error("Free Visual Novel: failed to open");
+  }
+}
+
 Hooks.on("getSceneControlButtons", (controls) => {
   const group = {
     name: "freevisualnovel",
@@ -391,23 +404,23 @@ Hooks.on("getSceneControlButtons", (controls) => {
         name: "launch",
         title: "Open Visual Novel",
         icon: "fas fa-play",
-        onClick: () => {
-          try {
-            if (!ui.freevisualnovel) {
-              const scenes = game.freevisualnovel?.scenes || VisualNovelApp._createDefaultScenes();
-              ui.freevisualnovel = new VisualNovelApp(scenes);
-            }
-            ui.freevisualnovel.render({ force: true });
-          } catch(e) {
-            console.error("FreeVisualNovel | Failed to open:", e);
-            ui.notifications?.error("Free Visual Novel: failed to open");
-          }
-        }
+        onClick: _openVN
       }
     ]
   };
   if (controls instanceof Map) controls.set("freevisualnovel", group);
   else controls["freevisualnovel"] = group;
+});
+
+Hooks.on("renderSceneControls", (app, html) => {
+  const btn = html[0]?.querySelector('[data-tool="launch"]');
+  if (btn && !btn.dataset.vnBound) {
+    btn.dataset.vnBound = "1";
+    btn.addEventListener("click", (e) => {
+      e.preventDefault();
+      _openVN();
+    });
+  }
 });
 
 } // end _defineModule
