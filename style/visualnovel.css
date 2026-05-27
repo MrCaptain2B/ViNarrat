@@ -84,9 +84,14 @@
   position: absolute;
   bottom: 6px;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translateX(-50%) scale(calc(1 / var(--port-scale, 1)));
+  transform-origin: bottom center;
+  display: none;
   z-index: 10;
   pointer-events: auto;
+}
+.vn-portrait.vn-selected .vn-portrait-overlay {
+  display: block;
 }
 .vn-port-controls {
   display: flex;

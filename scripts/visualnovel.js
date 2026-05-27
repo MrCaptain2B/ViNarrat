@@ -602,6 +602,19 @@ class VisualNovelApp extends AppBase {
     if (this._showPanel) return;
 
     const container = html;
+
+    const onClick = (ev) => {
+      if (ev.target.closest(".vn-portrait-overlay")) return;
+      const el = ev.target.closest(".vn-portrait");
+      if (!el) {
+        container.querySelectorAll(".vn-portrait.vn-selected").forEach(p => p.classList.remove("vn-selected"));
+        return;
+      }
+      const was = el.classList.contains("vn-selected");
+      container.querySelectorAll(".vn-portrait.vn-selected").forEach(p => p.classList.remove("vn-selected"));
+      if (!was) el.classList.add("vn-selected");
+    };
+
     const onDown = (ev) => {
       const el = ev.target.closest(".vn-portrait");
       if (!el) return;
@@ -633,10 +646,12 @@ class VisualNovelApp extends AppBase {
       }
     };
     const onUp = () => { this._dragState = null; };
+    container.addEventListener("click", onClick);
     container.addEventListener("pointerdown", onDown);
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
     this._dragCleanup = () => {
+      container.removeEventListener("click", onClick);
       container.removeEventListener("pointerdown", onDown);
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onUp);

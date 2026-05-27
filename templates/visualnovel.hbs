@@ -164,6 +164,7 @@
     <div class="vn-portrait {{#if this.locked}}vn-portrait-locked{{/if}}" data-port-idx="{{@index}}"
          style="left: {{this.x}}px; top: {{this.y}}px;
                 transform: scale({{this.scale}}) {{#if this.flip}}scaleX(-1){{/if}};
+                --port-scale: {{this.scale}};
                 z-index: {{@index}};">
       <div class="vn-portrait-frame {{#unless this.speaking}}vn-dimmed{{/unless}}">
         {{#if this.image}}
