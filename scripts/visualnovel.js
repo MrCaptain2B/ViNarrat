@@ -65,7 +65,7 @@ class VisualNovelApp extends AppBase {
     this._showPanel = null;
     this._dragState = null;
     this._dragCleanup = null;
-    this._selectedPortrait = null;
+    this._selectedPortraitIdx = null;
     this._currentLocationId = null;
     this._broadcasting = false;
     this._locGroupFilter = "";
@@ -85,10 +85,12 @@ class VisualNovelApp extends AppBase {
     const portraits = this._portraits.map((p, i) => ({
       ...p,
       index: i,
-      speaking: this._speaker === p.id
+      speaking: this._speaker === p.id,
+      selected: this._selectedPortraitIdx === i
     }));
 
     const speakerPortrait = this._portraits.find(p => p.id === this._speaker);
+    const selPort = this._selectedPortraitIdx !== null ? portraits[this._selectedPortraitIdx] : null;
     const allLocations = this._data?.locations || [];
     const allPortraits = this._data?.portraits || [];
     const locGroups = [...new Set(allLocations.map(l => l.group || "").filter(Boolean))];
@@ -113,7 +115,7 @@ class VisualNovelApp extends AppBase {
       locGroups,
       portGroups,
       presets: this._data?.presets || [],
-      selectedPortrait: this._selectedPortrait
+      selectedPortrait: selPort
     };
   }
 
@@ -612,15 +614,16 @@ class VisualNovelApp extends AppBase {
     const container = html;
 
     const onClick = (ev) => {
-      if (ev.target.closest(".vn-portrait-overlay")) return;
+      if (ev.target.closest(".vn-portrait-controls")) return;
       const el = ev.target.closest(".vn-portrait");
       if (!el) {
-        container.querySelectorAll(".vn-portrait.vn-selected").forEach(p => p.classList.remove("vn-selected"));
+        this._selectedPortraitIdx = null;
+        this.render();
         return;
       }
-      const was = el.classList.contains("vn-selected");
-      container.querySelectorAll(".vn-portrait.vn-selected").forEach(p => p.classList.remove("vn-selected"));
-      if (!was) el.classList.add("vn-selected");
+      const idx = parseInt(el.dataset.portIdx);
+      this._selectedPortraitIdx = this._selectedPortraitIdx === idx ? null : idx;
+      this.render();
     };
 
     const onDown = (ev) => {
@@ -631,7 +634,7 @@ class VisualNovelApp extends AppBase {
       const portrait = this._portraits[idx];
       if (!portrait) return;
       if (portrait.locked) return;
-      if (ev.target.closest(".vn-portrait-overlay")) return;
+      if (ev.target.closest(".vn-portrait-controls")) return;
       ev.preventDefault();
       const rect = container.getBoundingClientRect();
       this._dragState = {

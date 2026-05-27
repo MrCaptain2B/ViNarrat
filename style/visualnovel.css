@@ -62,6 +62,7 @@
 .vn-portrait:active { cursor: grabbing; }
 .vn-portrait.vn-portrait-locked { cursor: default; }
 .vn-portrait.vn-portrait-locked:active { cursor: default; }
+.vn-portrait.vn-selected { outline: 2px solid #f0c040; outline-offset: 3px; border-radius: 4px; }
 
 .vn-portrait-frame {
   position: relative;
@@ -79,55 +80,54 @@
   width: auto;
 }
 
-/* ── Portrait Hover Controls ── */
-.vn-portrait-overlay {
+/* ── Portrait Controls Panel ── */
+.vn-portrait-controls {
   position: absolute;
-  bottom: 6px;
+  bottom: 30px;
   left: 50%;
-  transform: translateX(-50%) scale(calc(1 / var(--port-scale, 1)));
-  transform-origin: bottom center;
-  display: none;
-  z-index: 10;
-  pointer-events: auto;
-}
-.vn-portrait.vn-selected .vn-portrait-overlay {
-  display: block;
-}
-.vn-port-controls {
+  transform: translateX(-50%);
   display: flex;
   align-items: center;
-  gap: 4px;
-  background: rgba(0,0,0,0.75);
-  backdrop-filter: blur(4px);
-  border: 1px solid rgba(255,255,255,0.1);
-  border-radius: 6px;
-  padding: 2px 6px;
+  gap: 8px;
+  background: rgba(0,0,0,0.8);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 10px;
+  padding: 8px 14px;
+  z-index: 50;
+  pointer-events: auto;
   white-space: nowrap;
 }
+.vn-controls-name {
+  font-size: 0.95em;
+  font-weight: 600;
+  color: #f0c040;
+  margin-right: 6px;
+}
 .vn-port-scale-inline {
-  width: 50px;
-  height: 4px;
+  width: 80px;
+  height: 5px;
   accent-color: #f0c040;
   cursor: pointer;
 }
-.vn-port-lock, .vn-port-bring-forward, .vn-port-send-backward, .vn-port-remove {
+.vn-portrait-controls button {
   background: transparent;
   border: none;
-  color: rgba(255,255,255,0.4);
+  color: rgba(255,255,255,0.5);
   cursor: pointer;
-  font-size: 10px;
-  width: 18px;
-  height: 18px;
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 4px;
+  border-radius: 5px;
   transition: all 0.15s;
   padding: 0;
 }
-.vn-port-lock:hover, .vn-port-bring-forward:hover, .vn-port-send-backward:hover, .vn-port-remove:hover { color: #fff; background: rgba(255,255,255,0.1); }
-.vn-port-remove:hover { color: #e74c3c; background: rgba(231,76,60,0.15); }
-.vn-port-lock.vn-locked { color: #f0c040; }
+.vn-portrait-controls button:hover { color: #fff; background: rgba(255,255,255,0.12); }
+.vn-portrait-controls .vn-port-remove:hover { color: #e74c3c; background: rgba(231,76,60,0.15); }
+.vn-portrait-controls .vn-locked { color: #f0c040; }
 .vn-portrait-placeholder {
   width: 140px;
   height: 200px;
