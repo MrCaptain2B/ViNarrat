@@ -604,17 +604,7 @@ class VisualNovelApp extends AppBase {
     const container = html;
     const onDown = (ev) => {
       const el = ev.target.closest(".vn-portrait");
-      if (!el) {
-        container.querySelectorAll(".vn-portrait.vn-selected").forEach(p => p.classList.remove("vn-selected"));
-        return;
-      }
-
-      if (!ev.target.closest(".vn-portrait-overlay")) {
-        const wasSelected = el.classList.contains("vn-selected");
-        container.querySelectorAll(".vn-portrait.vn-selected").forEach(p => p.classList.remove("vn-selected"));
-        if (!wasSelected) el.classList.add("vn-selected");
-      }
-
+      if (!el) return;
       const idx = parseInt(el.dataset.portIdx);
       if (isNaN(idx)) return;
       const portrait = this._portraits[idx];

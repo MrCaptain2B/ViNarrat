@@ -86,12 +86,8 @@
   bottom: 6px;
   left: 50%;
   transform: translateX(-50%);
-  display: none;
   z-index: 10;
   pointer-events: auto;
-}
-.vn-portrait.vn-selected .vn-portrait-overlay {
-  display: block;
 }
 .vn-port-controls {
   display: flex;
@@ -195,16 +191,17 @@
 /* ── GM Toolbar ── */
 .vn-gm-toolbar {
   position: absolute;
-  top: 12px;
-  right: 12px;
+  top: 0;
+  left: 0;
+  right: 0;
   display: flex;
   gap: 4px;
   pointer-events: auto;
   background: rgba(10,10,20,0.7);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,0.08);
-  padding: 6px 10px;
-  border-radius: 10px;
+  border-bottom: 1px solid rgba(255,255,255,0.08);
+  padding: 6px 12px;
+  justify-content: center;
 }
 .vn-gm-toolbar button {
   background: transparent;
@@ -224,8 +221,9 @@
 .vn-broadcast-active { color: #2ecc71 !important; }
 .vn-broadcast-active:hover { background: rgba(46,204,113,0.15) !important; }
 .vn-player-bar {
-  right: 50%;
-  transform: translateX(50%);
+  left: 0;
+  right: 0;
+  justify-content: center;
   pointer-events: auto;
 }
 .vn-player-label {
