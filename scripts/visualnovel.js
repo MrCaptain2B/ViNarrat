@@ -388,7 +388,7 @@ Hooks.once("ready", function() {
 });
 
 Hooks.on("getSceneControlButtons", (controls) => {
-  controls.set("freevisualnovel", {
+  const group = {
     name: "freevisualnovel",
     title: "Free Visual Novel",
     icon: "fas fa-book-open",
@@ -401,7 +401,9 @@ Hooks.on("getSceneControlButtons", (controls) => {
         onClick: () => ui.freevisualnovel?.render(true)
       }
     ]
-  });
+  };
+  if (controls instanceof Map) controls.set("freevisualnovel", group);
+  else controls["freevisualnovel"] = group;
 });
 
 } // end _defineModule
