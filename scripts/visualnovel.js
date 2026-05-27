@@ -110,7 +110,6 @@ class VisualNovelApp extends AppBase {
   _replaceHTML(result, content, options) {
     content.innerHTML = result;
     this._contentEl = content;
-    this._onRender();
   }
 
   _onRender(context, options) {
@@ -209,6 +208,16 @@ class VisualNovelApp extends AppBase {
       });
     });
 
+    html.querySelectorAll(".vn-loc-delete").forEach(btn => {
+      btn.addEventListener("click", async (ev) => {
+        const id = ev.currentTarget.dataset.id;
+        if (!id) return;
+        this._data.locations = this._data.locations.filter(l => l.id !== id);
+        await _saveData(this._data);
+        this.render();
+      });
+    });
+
     html.querySelector(".vn-loc-back")?.addEventListener("click", () => {
       this._showPanel = null;
       this.render();
@@ -284,6 +293,16 @@ class VisualNovelApp extends AppBase {
           this.render();
           this._broadcast();
         }
+      });
+    });
+
+    html.querySelectorAll(".vn-port-delete").forEach(btn => {
+      btn.addEventListener("click", async (ev) => {
+        const id = ev.currentTarget.dataset.id;
+        if (!id) return;
+        this._data.portraits = this._data.portraits.filter(p => p.id !== id);
+        await _saveData(this._data);
+        this.render();
       });
     });
 
@@ -471,6 +490,7 @@ class VisualNovelApp extends AppBase {
   _onFirstRender(context, options) {
     super._onFirstRender?.(context, options);
     this.element?.classList.add("vn-fullscreen-active");
+    this._onRender(context, options);
   }
 
   _onClose(options) {
@@ -642,7 +662,15 @@ Hooks.on("chatMessage", (message, text) => {
   }
 });
 
+let _vnOpening = false;
 function _openVN() {
+  if (_vnOpening) return;
+  _vnOpening = true;
+  if (ui.freevisualnovel?.rendered) {
+    ui.freevisualnovel.render(true);
+    _vnOpening = false;
+    return;
+  }
   try {
     const app = new VisualNovelApp();
     ui.freevisualnovel = app;
@@ -651,6 +679,7 @@ function _openVN() {
     console.error("FreeVisualNovel | Failed to open:", e);
     ui.notifications?.error("Free Visual Novel: failed to open");
   }
+  _vnOpening = false;
 }
 
 Hooks.on("getSceneControlButtons", (t) => {

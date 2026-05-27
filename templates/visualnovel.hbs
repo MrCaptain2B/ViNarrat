@@ -17,7 +17,10 @@
           <strong>{{this.name}}</strong>
           {{#if this.tags.length}}<span class="vn-loc-tags">{{this.tags}}</span>{{/if}}
         </div>
-        <button class="vn-loc-select" data-id="{{this.id}}">Set Background</button>
+        <div class="vn-loc-actions">
+          <button class="vn-loc-select" data-id="{{this.id}}">Set Background</button>
+          <button class="vn-loc-delete" data-id="{{this.id}}" title="Delete"><i class="fas fa-trash"></i></button>
+        </div>
       </div>
       {{/each}}
     </div>
@@ -53,6 +56,7 @@
           {{#if this.title}}<span class="vn-port-title">{{this.title}}</span>{{/if}}
         </div>
         <button class="vn-port-add-to-stage" data-id="{{this.id}}">Add to Stage</button>
+        <button class="vn-port-delete" data-id="{{this.id}}" title="Delete"><i class="fas fa-trash"></i></button>
       </div>
       {{/each}}
     </div>
