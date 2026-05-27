@@ -691,8 +691,8 @@ class VisualNovelApp extends AppBase {
       this._portraits.push({
         ...port,
         x: 50 + this._portraits.length * 180,
-        y: 200,
-        scale: 1,
+        y: 150,
+        scale: 1.5,
         flip: false,
         locked: false
       });
