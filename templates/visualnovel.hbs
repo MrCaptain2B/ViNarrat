@@ -1,0 +1,43 @@
+<div class="vn-container">
+  {{#if state.background}}
+  <div class="vn-background" style="background-image: url({{state.background}});"></div>
+  {{/if}}
+  <div class="vn-characters-area">
+    {{#each state.characters}}
+    <div class="vn-char-wrapper"
+         data-char-index="{{@index}}"
+         style="left: {{this.x}}px; top: {{this.y}}px;
+                transform: scale({{this.scale}}) {{#if this.flip}}scaleX(-1){{/if}};
+                {{#if this.speaking}}opacity: 1{{else}}opacity: 0.35{{/if}};">
+      {{#if this.src}}
+      <img class="vn-char-sprite" src="{{this.src}}" alt="{{this.name}}"
+           data-char-index="{{@index}}">
+      {{else}}
+      <div class="vn-char-placeholder" data-char-index="{{@index}}">
+        {{this.name}}
+      </div>
+      {{/if}}
+    </div>
+    {{/each}}
+  </div>
+  <div class="vn-dialogue-box">
+    {{#if state.name}}
+    <div class="vn-speaker">{{state.name}}</div>
+    {{/if}}
+    <div class="vn-text">
+      {{state.text}}
+    </div>
+    <div class="vn-actions">
+      {{#if state.choices.length}}
+        {{#each state.choices}}
+        <button class="choice-btn" data-index="{{@index}}">{{this.text}}</button>
+        {{/each}}
+      {{else if (ne state.next null)}}
+        <button class="vn-next">Continue</button>
+      {{/if}}
+    </div>
+  </div>
+  <button class="vn-manage-images" title="Manage backgrounds and sprites"><i class="fas fa-image"></i></button>
+  <button class="vn-edit-chars" title="Edit character positions"><i class="fas fa-arrows-alt"></i></button>
+  <button class="vn-backlog" title="View backlog"><i class="fas fa-history"></i></button>
+</div>

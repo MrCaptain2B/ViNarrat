@@ -1,0 +1,32 @@
+{
+  "id": "free-visual-novel",
+  "name": "FreeVisualNovel",
+  "title": "Free Visual Novel",
+  "description": "A visual novel module for Foundry VTT 13 with multiple characters, positioning, and dialogue.",
+  "version": "0.2.0",
+  "authors": [
+    {
+      "name": "Your Name"
+    }
+  ],
+  "compatibility": {
+    "minimum": "13",
+    "verified": "13"
+  },
+  "esmodules": [
+    "scripts/visualnovel.js"
+  ],
+  "styles": [
+    "style/visualnovel.css"
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "languages/en.json"
+    }
+  ],
+  "url": "https://github.com/yourname/free-visual-novel",
+  "manifest": "https://raw.githubusercontent.com/yourname/free-visual-novel/main/module.json",
+  "download": "https://github.com/yourname/free-visual-novel/archive/main.zip"
+}

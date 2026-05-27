@@ -1,0 +1,259 @@
+.free-visual-novel .window-content {
+  padding: 0;
+  overflow: hidden;
+  background: #111122;
+}
+
+.vn-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  color: #e0e8f0;
+  font-family: 'Segoe UI', 'Noto Sans', sans-serif;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* ── Background ─────────────────────────────────── */
+.vn-background {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background-size: cover;
+  background-position: center;
+  z-index: 0;
+  animation: vnFadeIn 1s ease;
+}
+
+/* ── Characters Area ────────────────────────────── */
+.vn-characters-area {
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+
+.vn-char-wrapper {
+  position: absolute;
+  pointer-events: auto;
+  cursor: grab;
+  transition: opacity 0.5s ease;
+  transform-origin: bottom center;
+}
+
+.vn-char-wrapper:active {
+  cursor: grabbing;
+}
+
+.vn-char-sprite {
+  display: block;
+  max-height: 400px;
+  pointer-events: none;
+}
+
+.vn-char-placeholder {
+  width: 120px;
+  height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(100, 140, 200, 0.15);
+  border: 1px dashed rgba(100, 180, 255, 0.4);
+  border-radius: 8px;
+  font-size: 13px;
+  color: rgba(200, 220, 255, 0.6);
+  text-align: center;
+  padding: 4px;
+}
+
+/* ── Dialogue Box (transparent blue) ────────────── */
+.vn-dialogue-box {
+  position: relative;
+  z-index: 2;
+  background: rgba(40, 60, 100, 0.65);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  border-top: 2px solid rgba(120, 180, 255, 0.5);
+  padding: 14px 24px;
+  min-height: 140px;
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.5);
+}
+
+.vn-speaker {
+  font-size: 13px;
+  font-weight: bold;
+  color: #8ab4ff;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.vn-text {
+  font-size: 16px;
+  line-height: 1.6;
+  margin-bottom: 10px;
+  min-height: 44px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.6);
+}
+
+.vn-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+
+.choice-btn,
+.vn-next {
+  background: rgba(100, 160, 255, 0.3);
+  color: #d0e4ff;
+  border: 1px solid rgba(100, 160, 255, 0.4);
+  padding: 8px 22px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.2s, transform 0.1s;
+}
+
+.choice-btn:hover,
+.vn-next:hover {
+  background: rgba(100, 160, 255, 0.5);
+  transform: scale(1.04);
+}
+
+/* ── Tool Buttons ───────────────────────────────── */
+.vn-manage-images,
+.vn-edit-chars,
+.vn-backlog {
+  position: absolute;
+  top: 8px;
+  z-index: 3;
+  background: rgba(0, 0, 0, 0.45);
+  color: #aac;
+  border: none;
+  padding: 6px 10px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.vn-backlog {
+  right: 8px;
+}
+
+.vn-edit-chars {
+  right: 44px;
+}
+
+.vn-manage-images {
+  right: 80px;
+}
+
+.vn-manage-images:hover,
+.vn-edit-chars:hover,
+.vn-backlog:hover {
+  background: rgba(0, 0, 0, 0.7);
+  color: #fff;
+}
+
+/* ── Image Manager Dialog ───────────────────────── */
+.vn-img-manager {
+  padding: 4px;
+}
+
+.vn-img-manager h3 {
+  margin: 8px 0 4px;
+  color: #8ab4ff;
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.vn-img-manager hr {
+  border: none;
+  border-top: 1px solid rgba(100, 160, 255, 0.2);
+  margin: 10px 0;
+}
+
+.vn-img-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  padding: 6px;
+  background: rgba(40, 60, 100, 0.2);
+  border-radius: 4px;
+}
+
+.vn-img-preview {
+  min-width: 80px;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.25);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.vn-img-preview img {
+  display: block;
+  border-radius: 2px;
+}
+
+.vn-img-empty {
+  font-size: 11px;
+  color: rgba(200, 220, 255, 0.4);
+  white-space: nowrap;
+}
+
+.vn-img-label {
+  font-size: 13px;
+  color: #c0d0e8;
+  min-width: 60px;
+}
+
+.vn-img-buttons {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.vn-img-buttons button {
+  background: rgba(100, 160, 255, 0.2);
+  color: #b0c8f0;
+  border: 1px solid rgba(100, 160, 255, 0.3);
+  padding: 4px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 12px;
+  transition: background 0.15s;
+}
+
+.vn-img-buttons button:hover {
+  background: rgba(100, 160, 255, 0.4);
+}
+
+/* ── Character Editor Dialog ────────────────────── */
+.vn-char-editor input[type="number"] {
+  background: rgba(40, 60, 100, 0.4);
+  border: 1px solid rgba(100, 160, 255, 0.3);
+  color: #d0e4ff;
+  border-radius: 3px;
+  padding: 2px 4px;
+}
+
+.vn-char-editor input[type="checkbox"] {
+  accent-color: #8ab4ff;
+}
+
+/* ── Animations ─────────────────────────────────── */
+@keyframes vnFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
