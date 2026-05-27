@@ -138,7 +138,7 @@
          style="left: {{this.x}}px; top: {{this.y}}px;
                 transform: scale({{this.scale}}) {{#if this.flip}}scaleX(-1){{/if}};
                 z-index: {{@index}};">
-      <div class="vn-portrait-frame {{#unless this.speaking}}vn-dimmed{{/unless}} {{#if this.speaking}}vn-speaking{{/if}}">
+      <div class="vn-portrait-frame {{#unless this.speaking}}vn-dimmed{{/unless}}">
         {{#if this.image}}
         <img class="vn-portrait-img" src="{{this.image}}" alt="{{this.name}}">
         {{else}}
