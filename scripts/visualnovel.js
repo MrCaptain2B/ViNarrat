@@ -33,7 +33,7 @@ async function _saveData(data) {
 class VisualNovelApp extends AppBase {
   static DEFAULT_OPTIONS = {
     id: "free-visual-novel",
-    title: "Visual Novel Dialogues",
+    title: "Free Visual Dialogs",
     template: "modules/free-visual-novel/templates/visualnovel.hbs",
     window: {
       width: window.innerWidth,
@@ -668,14 +668,14 @@ Hooks.on("getSceneControlButtons", (t) => {
   if (!canvas) return;
   const group = {
     name: "freevisualnovel",
-    title: "Visual Novel Dialogues",
+    title: "Free Visual Dialogs",
     icon: "fas fa-comment-dots",
     layer: "Canvas",
     order: 90,
     tools: {
       launch: {
         name: "launch",
-        title: "Open Visual Novel Dialogues",
+        title: "Open Free Visual Dialogs",
         icon: "fas fa-play",
         button: true,
         visible: true
