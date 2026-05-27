@@ -175,13 +175,13 @@ class VisualNovelApp extends AppBase {
         this._showPanel = "presets";
         this.render();
       });
-      html.querySelector(".vn-btn-save-preset")?.addEventListener("click", async () => {
-        const name = prompt("Preset name:");
-        if (!name) return;
-        await this._savePreset(name);
-        ui.notifications?.info(`Preset "${name}" saved`);
-        this.render();
-      });
+      // html.querySelector(".vn-btn-save-preset")?.addEventListener("click", async () => {
+      //   const name = prompt("Preset name:");
+      //   if (!name) return;
+      //   await this._savePreset(name);
+      //   ui.notifications?.info(`Preset "${name}" saved`);
+      //   this.render();
+      // });
       html.querySelector(".vn-btn-toggle-ui")?.addEventListener("click", () => {
         this._hideUI = !this._hideUI;
         this.render();
@@ -604,7 +604,17 @@ class VisualNovelApp extends AppBase {
     const container = html;
     const onDown = (ev) => {
       const el = ev.target.closest(".vn-portrait");
-      if (!el) return;
+      if (!el) {
+        container.querySelectorAll(".vn-portrait.vn-selected").forEach(p => p.classList.remove("vn-selected"));
+        return;
+      }
+
+      if (!ev.target.closest(".vn-portrait-overlay")) {
+        const wasSelected = el.classList.contains("vn-selected");
+        container.querySelectorAll(".vn-portrait.vn-selected").forEach(p => p.classList.remove("vn-selected"));
+        if (!wasSelected) el.classList.add("vn-selected");
+      }
+
       const idx = parseInt(el.dataset.portIdx);
       if (isNaN(idx)) return;
       const portrait = this._portraits[idx];
@@ -887,7 +897,7 @@ function _openVN() {
   _vnOpening = false;
 }
 
-function _showPresetPicker() {
+/* function _showPresetPicker() {
   _loadData().then(data => {
     if (!data.presets.length) {
       ui.notifications?.warn("No presets available. Open New Dialogue and save a preset first.");
@@ -933,7 +943,7 @@ function _showPresetPicker() {
     });
     dialog.render(true);
   });
-}
+} */
 
 Hooks.on("getSceneControlButtons", (t) => {
   if (!canvas) return;
@@ -952,14 +962,14 @@ Hooks.on("getSceneControlButtons", (t) => {
         visible: true,
         onClick: () => _openVN()
       },
-      presets: {
-        name: "presets",
-        title: "Presets",
-        icon: "fas fa-bookmark",
-        button: true,
-        visible: true,
-        onClick: () => _showPresetPicker()
-      }
+      // presets: {
+      //   name: "presets",
+      //   title: "Presets",
+      //   icon: "fas fa-bookmark",
+      //   button: true,
+      //   visible: true,
+      //   onClick: () => _showPresetPicker()
+      // }
     }
   };
   t.freevisualnovel = group;
