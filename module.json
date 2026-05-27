@@ -3,7 +3,7 @@
   "name": "FreeVisualNovel",
   "title": "Free Visual Novel",
   "description": "A visual novel module for Foundry VTT 13 with multiple characters, positioning, and dialogue.",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "authors": [
     {
       "name": "Your Name"

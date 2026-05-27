@@ -393,34 +393,29 @@ function _openVN() {
   }
 }
 
-Hooks.on("getSceneControlButtons", (controls) => {
-  const group = {
+Hooks.on("getSceneControlButtons", (t) => {
+  if (!canvas) return;
+  t.freevisualnovel = {
     name: "freevisualnovel",
     title: "Free Visual Novel",
     icon: "fas fa-book-open",
     layer: "Canvas",
-    tools: [
-      {
+    order: 90,
+    tools: {
+      launch: {
         name: "launch",
         title: "Open Visual Novel",
         icon: "fas fa-play",
-        onClick: _openVN
+        button: true,
+        visible: true,
+        onChange: (_event, active) => {
+          if (active === false) return;
+          _openVN();
+        }
       }
-    ]
+    },
+    activeTool: "launch"
   };
-  if (controls instanceof Map) controls.set("freevisualnovel", group);
-  else controls["freevisualnovel"] = group;
-});
-
-Hooks.on("renderSceneControls", (app, html) => {
-  const btn = html[0]?.querySelector('[data-tool="launch"]');
-  if (btn && !btn.dataset.vnBound) {
-    btn.dataset.vnBound = "1";
-    btn.addEventListener("click", (e) => {
-      e.preventDefault();
-      _openVN();
-    });
-  }
 });
 
 } // end _defineModule
