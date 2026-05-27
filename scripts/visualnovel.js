@@ -175,6 +175,13 @@ class VisualNovelApp extends AppBase {
         this._showPanel = "presets";
         this.render();
       });
+      html.querySelector(".vn-btn-save-preset")?.addEventListener("click", async () => {
+        const name = prompt("Preset name:");
+        if (!name) return;
+        await this._savePreset(name);
+        ui.notifications?.info(`Preset "${name}" saved`);
+        this.render();
+      });
       html.querySelector(".vn-btn-toggle-ui")?.addEventListener("click", () => {
         this._hideUI = !this._hideUI;
         this.render();
@@ -261,6 +268,28 @@ class VisualNovelApp extends AppBase {
 
   _broadcast() {
     _broadcastVNState(this);
+  }
+
+  async _savePreset(name) {
+    const preset = {
+      id: String(this._data.nextPresetId++),
+      name,
+      bg: this._bg,
+      portraits: JSON.parse(JSON.stringify(this._portraits)),
+      speaker: this._speaker
+    };
+    this._data.presets.push(preset);
+    await _saveData(this._data);
+  }
+
+  _loadPreset(id) {
+    const preset = this._data?.presets.find(p => p.id === id);
+    if (!preset) return false;
+    this._bg = preset.bg || "";
+    this._portraits = JSON.parse(JSON.stringify(preset.portraits || []));
+    this._speaker = preset.speaker || "";
+    this._showPanel = null;
+    return true;
   }
 
   /* ─────────────── LOCATION PANEL ─────────────── */
@@ -509,28 +538,14 @@ class VisualNovelApp extends AppBase {
     html.querySelector(".vn-preset-save")?.addEventListener("click", async () => {
       const name = html.querySelector(".vn-preset-name-input")?.value?.trim();
       if (!name) return ui.notifications?.warn("Enter a preset name");
-      const preset = {
-        id: String(this._data.nextPresetId++),
-        name,
-        bg: this._bg,
-        portraits: JSON.parse(JSON.stringify(this._portraits)),
-        speaker: this._speaker
-      };
-      this._data.presets.push(preset);
-      await _saveData(this._data);
+      await this._savePreset(name);
       ui.notifications?.info(`Preset "${name}" saved`);
       this.render();
     });
 
     html.querySelectorAll(".vn-preset-load").forEach(btn => {
       btn.addEventListener("click", () => {
-        const id = btn.dataset.id;
-        const preset = this._data?.presets.find(p => p.id === id);
-        if (!preset) return;
-        this._bg = preset.bg || "";
-        this._portraits = JSON.parse(JSON.stringify(preset.portraits || []));
-        this._speaker = preset.speaker || "";
-        this._showPanel = null;
+        if (!this._loadPreset(btn.dataset.id)) return;
         this.render();
         this._broadcast();
       });
@@ -558,28 +573,14 @@ class VisualNovelApp extends AppBase {
     html.querySelector(".vn-presets-save-btn")?.addEventListener("click", async () => {
       const name = html.querySelector(".vn-presets-name-input")?.value?.trim();
       if (!name) return ui.notifications?.warn("Enter a preset name");
-      const preset = {
-        id: String(this._data.nextPresetId++),
-        name,
-        bg: this._bg,
-        portraits: JSON.parse(JSON.stringify(this._portraits)),
-        speaker: this._speaker
-      };
-      this._data.presets.push(preset);
-      await _saveData(this._data);
+      await this._savePreset(name);
       ui.notifications?.info(`Preset "${name}" saved`);
       this.render();
     });
 
     html.querySelectorAll(".vn-presets-load").forEach(btn => {
       btn.addEventListener("click", () => {
-        const id = btn.dataset.id;
-        const preset = this._data?.presets.find(p => p.id === id);
-        if (!preset) return;
-        this._bg = preset.bg || "";
-        this._portraits = JSON.parse(JSON.stringify(preset.portraits || []));
-        this._speaker = preset.speaker || "";
-        this._showPanel = null;
+        if (!this._loadPreset(btn.dataset.id)) return;
         this.render();
         this._broadcast();
       });
@@ -886,6 +887,54 @@ function _openVN() {
   _vnOpening = false;
 }
 
+function _showPresetPicker() {
+  _loadData().then(data => {
+    if (!data.presets.length) {
+      ui.notifications?.warn("No presets available. Open New Dialogue and save a preset first.");
+      return;
+    }
+    const items = data.presets.map(p =>
+      `<button class="vn-preset-pick" data-id="${p.id}" style="display:block;width:100%;margin:4px 0;padding:6px 12px;text-align:left">${p.name}</button>`
+    ).join("");
+    const dialog = new Dialog({
+      title: "Load Preset",
+      content: `<div style="padding:8px;max-height:400px;overflow-y:auto">${items}</div>`,
+      buttons: { close: { label: "Cancel" } },
+      default: "close",
+      render: (html) => {
+        html[0].querySelectorAll(".vn-preset-pick").forEach(el => {
+          el.addEventListener("click", async () => {
+            const id = el.dataset.id;
+            dialog.close();
+            if (ui.freevisualnovel?.rendered) {
+              const app = ui.freevisualnovel;
+              if (app._loadPreset(id)) {
+                app.render(true);
+                app._broadcast();
+                ui.notifications?.info("Preset loaded");
+              }
+            } else {
+              try {
+                const app = new VisualNovelApp();
+                await app._initialize();
+                if (app._loadPreset(id)) {
+                  ui.freevisualnovel = app;
+                  app.render(true);
+                  app._broadcast();
+                }
+              } catch(e) {
+                console.error("FreeVisualNovel | Failed to open preset:", e);
+                ui.notifications?.error("Failed to load preset");
+              }
+            }
+          });
+        });
+      }
+    });
+    dialog.render(true);
+  });
+}
+
 Hooks.on("getSceneControlButtons", (t) => {
   if (!canvas) return;
   const group = {
@@ -902,6 +951,14 @@ Hooks.on("getSceneControlButtons", (t) => {
         button: true,
         visible: true,
         onClick: () => _openVN()
+      },
+      presets: {
+        name: "presets",
+        title: "Presets",
+        icon: "fas fa-bookmark",
+        button: true,
+        visible: true,
+        onClick: () => _showPresetPicker()
       }
     }
   };
