@@ -1,8 +1,9 @@
 const _AppBase = foundry.applications?.api?.Application || foundry.applications?.api?.ApplicationV2;
+const _Mixin = foundry.applications?.api?.HandlebarsApplicationMixin;
 if (!_AppBase) {
   console.error("FreeVisualNovel | Application class not found. Requires Foundry V13+.");
 } else {
-  _defineModule(_AppBase);
+  _defineModule(_Mixin ? _Mixin(_AppBase) : _AppBase);
 }
 
 function _defineModule(AppBase) {
