@@ -1,16 +1,17 @@
-class VisualNovelApp extends Application {
-  static get defaultOptions() {
-    return foundry.utils.mergeObject(super.defaultOptions, {
-      id: "free-visual-novel",
-      title: "Free Visual Novel",
-      template: "modules/FreeVisualNovel/templates/visualnovel.hbs",
-      popOut: true,
+class VisualNovelApp extends foundry.applications.api.ApplicationV2 {
+  static DEFAULT_OPTIONS = {
+    id: "free-visual-novel",
+    title: "Free Visual Novel",
+    template: "modules/FreeVisualNovel/templates/visualnovel.hbs",
+    window: {
       width: 1000,
       height: 700,
       resizable: true,
-      classes: ["free-visual-novel"]
-    });
-  }
+      positioned: true
+    },
+    classes: ["free-visual-novel"],
+    form: { submitOnChange: false, closeOnSubmit: false }
+  };
 
   constructor(scenes, options = {}) {
     super(options);
@@ -19,6 +20,15 @@ class VisualNovelApp extends Application {
     this.history = [];
     this.state = this._prepareScene(0);
     this._dragState = null;
+  }
+
+  /* ── Context ──────────────────────────────────────── */
+  _prepareContext() {
+    return {
+      state: this.state,
+      current: this.currentScene,
+      total: this.scenes.length - 1
+    };
   }
 
   _prepareScene(index) {
@@ -57,37 +67,36 @@ class VisualNovelApp extends Application {
     };
   }
 
-  activateListeners(html) {
-    html.find(".choice-btn").on("click", (ev) => {
-      const index = parseInt(ev.currentTarget.dataset.index);
-      const choice = this.state.choices[index];
-      if (choice && choice.next !== undefined) {
-        this.goToScene(choice.next);
-      }
+  /* ── Events ───────────────────────────────────────── */
+  _onRender(context, options) {
+    const html = this.element;
+    html.querySelectorAll(".choice-btn").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const index = parseInt(ev.currentTarget.dataset.index);
+        const choice = this.state.choices[index];
+        if (choice && choice.next !== undefined) {
+          this.goToScene(choice.next);
+        }
+      });
     });
-    html.find(".vn-next").on("click", () => {
-      if (this.state.choices.length === 0 && this.state.next !== undefined) {
-        this.goToScene(this.state.next);
-      }
-    });
-    html.find(".vn-backlog").on("click", () => {
+    const nextBtn = html.querySelector(".vn-next");
+    if (nextBtn) {
+      nextBtn.addEventListener("click", () => {
+        if (this.state.choices.length === 0 && this.state.next !== undefined) {
+          this.goToScene(this.state.next);
+        }
+      });
+    }
+    html.querySelector(".vn-backlog")?.addEventListener("click", () => {
       this._showBacklog();
     });
-    html.find(".vn-edit-chars").on("click", () => {
+    html.querySelector(".vn-edit-chars")?.addEventListener("click", () => {
       this._editCharacters();
     });
-    html.find(".vn-manage-images").on("click", () => {
+    html.querySelector(".vn-manage-images")?.addEventListener("click", () => {
       this._manageImages();
     });
     this._initDrag(html);
-  }
-
-  getData() {
-    return {
-      state: this.state,
-      current: this.currentScene,
-      total: this.scenes.length - 1
-    };
   }
 
   goToScene(index) {
@@ -101,7 +110,7 @@ class VisualNovelApp extends Application {
   /* ── Drag & Drop ─────────────────────────────────── */
   _initDrag(html) {
     if (this._dragCleanup) this._dragCleanup();
-    const container = html[0];
+    const container = html;
     const onDown = (ev) => {
       const wrapper = ev.target.closest(".vn-char-wrapper");
       if (!wrapper) return;
@@ -205,7 +214,7 @@ class VisualNovelApp extends Application {
     }).render(true);
   }
 
-  /* ── Image Manager (Background & Sprites) ──────────── */
+  /* ── Image Manager ──────────────────────────────── */
   _manageImages() {
     const scene = this.scenes[this.currentScene];
     if (!scene) return;
@@ -288,9 +297,7 @@ class VisualNovelApp extends Application {
     new FilePicker({
       type: "image",
       current: current || "",
-      callback: (path) => {
-        callback(path);
-      }
+      callback: (path) => { callback(path); }
     }).render(true);
   }
 
@@ -361,43 +368,78 @@ class VisualNovelApp extends Application {
   }
 }
 
+/* ── Hook: store default scenes ────────────────────── */
 Hooks.on("init", function() {
   game.freevisualnovel = {
     scenes: VisualNovelApp._createDefaultScenes()
   };
 });
 
+/* ── Hook: create singleton instance ───────────────── */
 Hooks.on("ready", function() {
   if (!ui.freevisualnovel) {
     ui.freevisualnovel = new VisualNovelApp(game.freevisualnovel.scenes);
   }
 });
 
-/* Add button to scene controls toolbar */
-function _addControlButton() {
+/* ── Add scene toolbar button (v13 compat) ─────────── */
+function _injectToolbarButton() {
   if (!ui.controls || !ui.controls.controls) return;
-  /* Check if already added */
-  if (ui.controls.controls.some(c => c.name === "freevisualnovel")) return;
-  ui.controls.controls.push({
-    name: "freevisualnovel",
-    title: "Free Visual Novel",
-    icon: "fas fa-book-open",
-    layer: "FreeVisualNovel",
-    tools: [
-      {
-        name: "launch",
-        title: "Open Visual Novel",
-        icon: "fas fa-play",
-        onClick: () => ui.freevisualnovel.render(true)
-      }
-    ]
-  });
-  try { ui.controls.render(); } catch(e) { /* ignore */ }
+  const controls = ui.controls.controls;
+  if (controls instanceof Map) {
+    if (controls.has("freevisualnovel")) return;
+    controls.set("freevisualnovel", {
+      name: "freevisualnovel",
+      title: "Free Visual Novel",
+      icon: "fas fa-book-open",
+      layer: "FreeVisualNovel",
+      tools: [
+        {
+          name: "launch",
+          title: "Open Visual Novel",
+          icon: "fas fa-play",
+          onClick: () => ui.freevisualnovel.render(true)
+        }
+      ]
+    });
+  } else if (Array.isArray(controls)) {
+    if (controls.some(c => c.name === "freevisualnovel")) return;
+    controls.push({
+      name: "freevisualnovel",
+      title: "Free Visual Novel",
+      icon: "fas fa-book-open",
+      layer: "FreeVisualNovel",
+      tools: [
+        {
+          name: "launch",
+          title: "Open Visual Novel",
+          icon: "fas fa-play",
+          onClick: () => ui.freevisualnovel.render(true)
+        }
+      ]
+    });
+  }
+  ui.controls.render();
 }
 
-/* Try standard hook first (v12), fall back to direct injection */
 Hooks.on("getSceneControlButtons", (controls) => {
-  if (Array.isArray(controls)) {
+  if (controls instanceof Map) {
+    if (controls.has("freevisualnovel")) return;
+    controls.set("freevisualnovel", {
+      name: "freevisualnovel",
+      title: "Free Visual Novel",
+      icon: "fas fa-book-open",
+      layer: "FreeVisualNovel",
+      tools: [
+        {
+          name: "launch",
+          title: "Open Visual Novel",
+          icon: "fas fa-play",
+          onClick: () => ui.freevisualnovel.render(true)
+        }
+      ]
+    });
+  } else if (Array.isArray(controls)) {
     controls.push({
       name: "freevisualnovel",
       title: "Free Visual Novel",
@@ -415,5 +457,4 @@ Hooks.on("getSceneControlButtons", (controls) => {
   }
 });
 
-Hooks.on("ready", () => _addControlButton());
-Hooks.on("renderSceneControls", () => _addControlButton());
+Hooks.on("renderSceneControls", () => _injectToolbarButton());
