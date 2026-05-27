@@ -91,6 +91,8 @@ class VisualNovelApp extends AppBase {
     const allPortraits = this._data?.portraits || [];
     const locGroups = [...new Set(allLocations.map(l => l.group || "").filter(Boolean))];
     const portGroups = [...new Set(allPortraits.map(p => p.group || "").filter(Boolean))];
+    const role = game.user?.role || 0;
+    const canManage = role >= 3;
     return {
       bg: this._hideBg ? "" : this._bg,
       hideUI: this._hideUI,
@@ -100,6 +102,7 @@ class VisualNovelApp extends AppBase {
       broadcasting: this._broadcasting,
       requests: this._requests,
       isGM: game.user?.isGM,
+      canManage,
       showPanel: this._showPanel,
       locations: allLocations,
       allPortraits,
@@ -140,7 +143,7 @@ class VisualNovelApp extends AppBase {
   _bindMainUI() {
     const html = this._el();
 
-    if (game.user?.isGM) {
+    if (game.user?.role >= 3) {
       html.querySelector(".vn-btn-locations")?.addEventListener("click", () => {
         this._showPanel = "locations";
         this.render();
@@ -573,7 +576,7 @@ class VisualNovelApp extends AppBase {
 const SOCKET = "module.free-visual-novel";
 
 function _broadcastVNState(app, force) {
-  if (!game.user?.isGM) return;
+  if (!game.user || game.user.role < 3) return;
   if (!app._broadcasting && !force) return;
   game.socket?.emit(SOCKET, {
     type: "state",
@@ -585,7 +588,7 @@ function _broadcastVNState(app, force) {
 }
 
 function _applyVNState(data) {
-  if (game.user?.isGM) return;
+  if (!game.user || game.user.role >= 3) return;
   if (!data.broadcasting) {
     ui.freevisualnovel?.close();
     return;

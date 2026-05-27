@@ -145,7 +145,7 @@
         <div class="vn-portrait-placeholder">{{this.name}}</div>
         {{/if}}
       </div>
-      {{#if isGM}}
+      {{#if canManage}}
       <div class="vn-portrait-overlay">
         <div class="vn-port-controls">
           <input class="vn-port-scale-inline" type="range" min="0.3" max="2" step="0.1" value="{{this.scale}}" data-port-idx="{{@index}}">
@@ -167,8 +167,8 @@
 
   {{/unless}}
 
-  {{!-- Requests (inactive queue at top, GM only) --}}
-  {{#if isGM}}
+  {{!-- Requests queue (managers only) --}}
+  {{#if canManage}}
   {{#if requests.length}}
   <div class="vn-requests">
     {{#each requests}}
@@ -181,8 +181,8 @@
   {{/if}}
   {{/if}}
 
-  {{!-- GM Speaker Selector --}}
-  {{#if isGM}}
+  {{!-- Speaker Selector (managers only) --}}
+  {{#if canManage}}
   {{#if portraits.length}}
   <div class="vn-speaker-bar">
     {{#each portraits}}
@@ -194,8 +194,8 @@
   {{/if}}
   {{/if}}
 
-  {{!-- GM Toolbar --}}
-  {{#if isGM}}
+  {{!-- Manager Toolbar --}}
+  {{#if canManage}}
   <div class="vn-gm-toolbar">
     <button class="vn-btn-locations" title="Locations"><i class="fas fa-map-marked-alt"></i></button>
     <button class="vn-btn-portraits" title="Portraits"><i class="fas fa-users"></i></button>
