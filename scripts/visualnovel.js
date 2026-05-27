@@ -380,13 +380,6 @@ Hooks.once("init", function() {
   };
 });
 
-Hooks.once("ready", function() {
-  if (!ui.freevisualnovel) {
-    ui.freevisualnovel = new VisualNovelApp(game.freevisualnovel.scenes);
-  }
-  game.freevisualnovel.app = ui.freevisualnovel;
-});
-
 Hooks.on("getSceneControlButtons", (controls) => {
   const group = {
     name: "freevisualnovel",
@@ -398,7 +391,12 @@ Hooks.on("getSceneControlButtons", (controls) => {
         name: "launch",
         title: "Open Visual Novel",
         icon: "fas fa-play",
-        onClick: () => ui.freevisualnovel?.render(true)
+        onClick: () => {
+          if (!ui.freevisualnovel) {
+            ui.freevisualnovel = new VisualNovelApp(game.freevisualnovel.scenes);
+          }
+          ui.freevisualnovel.render(true);
+        }
       }
     ]
   };
