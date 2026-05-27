@@ -66,6 +66,7 @@ class VisualNovelApp extends AppBase {
     this._dragCleanup = null;
     this._selectedPortrait = null;
     this._currentLocationId = null;
+    this._hideDialogue = false;
   }
 
   /* ── Init ── */
@@ -87,6 +88,7 @@ class VisualNovelApp extends AppBase {
     return {
       bg: this._hideBg ? "" : this._bg,
       hideUI: this._hideUI,
+      hideDialogue: this._hideDialogue,
       portraits,
       speaker: this._speaker,
       dialogue: this._dialogue,
@@ -149,6 +151,10 @@ class VisualNovelApp extends AppBase {
       });
       html.querySelector(".vn-btn-toggle-ui")?.addEventListener("click", () => {
         this._hideUI = !this._hideUI;
+        this.render();
+      });
+      html.querySelector(".vn-btn-toggle-dialogue")?.addEventListener("click", () => {
+        this._hideDialogue = !this._hideDialogue;
         this.render();
       });
     }
@@ -218,7 +224,7 @@ class VisualNovelApp extends AppBase {
     const form = html.querySelector(".vn-loc-form");
     if (!btn || !form) return;
     btn.addEventListener("click", () => {
-      form.style.display = form.style.display === "none" ? "block" : "none";
+      form.classList.toggle("vn-hidden");
     });
     form.querySelector(".vn-loc-save")?.addEventListener("click", async () => {
       const name = form.querySelector(".vn-loc-f-name")?.value?.trim();
@@ -238,13 +244,16 @@ class VisualNovelApp extends AppBase {
       form.querySelector(".vn-loc-f-tags").value = "";
       form.querySelector(".vn-loc-f-parent").value = "";
       form.querySelector(".vn-loc-f-weather").value = "";
-      form.style.display = "none";
+      form.classList.add("vn-hidden");
       this.render();
     });
     form.querySelector(".vn-loc-fp")?.addEventListener("click", () => {
-      new FilePicker({ type: "image", current: "", callback: (path) => {
-        form.querySelector(".vn-loc-f-bg").value = path;
-      }}).render(true);
+      try {
+        const fp = new FilePicker({ type: "image", current: "", callback: (path) => {
+          form.querySelector(".vn-loc-f-bg").value = path;
+        }});
+        fp.render(true);
+      } catch(e) { console.error("FilePicker error:", e); }
     });
   }
 
@@ -298,7 +307,7 @@ class VisualNovelApp extends AppBase {
     const form = html.querySelector(".vn-port-form");
     if (!btn || !form) return;
     btn.addEventListener("click", () => {
-      form.style.display = form.style.display === "none" ? "block" : "none";
+      form.classList.toggle("vn-hidden");
     });
     form.querySelector(".vn-port-save")?.addEventListener("click", async () => {
       const name = form.querySelector(".vn-port-f-name")?.value?.trim();
@@ -316,13 +325,16 @@ class VisualNovelApp extends AppBase {
       form.querySelector(".vn-port-f-title").value = "";
       form.querySelector(".vn-port-f-img").value = "";
       form.querySelector(".vn-port-f-actor").value = "";
-      form.style.display = "none";
+      form.classList.add("vn-hidden");
       this.render();
     });
     form.querySelector(".vn-port-fp")?.addEventListener("click", () => {
-      new FilePicker({ type: "image", current: "", callback: (path) => {
-        form.querySelector(".vn-port-f-img").value = path;
-      }}).render(true);
+      try {
+        const fp = new FilePicker({ type: "image", current: "", callback: (path) => {
+          form.querySelector(".vn-port-f-img").value = path;
+        }});
+        fp.render(true);
+      } catch(e) { console.error("FilePicker error:", e); }
     });
   }
 
@@ -584,7 +596,12 @@ async function _importActorPortraits(folderPath) {
     folderPath = game.settings?.get("free-visual-novel", "defaultPortraitFolder");
   }
   if (!folderPath) {
-    ui.notifications?.warn("Set a default portrait folder in module settings first");
+    try {
+      const fp = new FilePicker({ type: "folder", current: "", callback: (path) => {
+        _importActorPortraits(path);
+      }});
+      fp.render(true);
+    } catch(e) { console.error("FilePicker error:", e); }
     return;
   }
 

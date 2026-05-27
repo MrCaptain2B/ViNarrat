@@ -22,7 +22,7 @@
       {{/each}}
     </div>
     <button class="vn-loc-add">+ New Location</button>
-    <div class="vn-loc-form" style="display:none">
+    <div class="vn-loc-form vn-hidden">
       <input class="vn-loc-f-name" type="text" placeholder="Location name">
       <div style="display:flex;gap:4px">
         <input class="vn-loc-f-bg" type="text" placeholder="Background image path">
@@ -59,7 +59,7 @@
     </div>
     <button class="vn-port-import">Import from Actors</button>
     <button class="vn-port-add">+ New Portrait</button>
-    <div class="vn-port-form" style="display:none">
+    <div class="vn-port-form vn-hidden">
       <input class="vn-port-f-name" type="text" placeholder="Portrait name">
       <input class="vn-port-f-title" type="text" placeholder="Title (optional)">
       <div style="display:flex;gap:4px">
@@ -145,6 +145,7 @@
     {{/each}}
   </div>
 
+  {{#unless hideDialogue}}
   <div class="vn-dialogue-box">
     {{#if speaker}}
     <div class="vn-dialogue-speaker">{{speaker}}</div>
@@ -162,6 +163,7 @@
     </div>
     {{/if}}
   </div>
+  {{/unless}}
 
   {{/unless}}
 
@@ -186,7 +188,8 @@
     <button class="vn-btn-portraits" title="Portraits"><i class="fas fa-users"></i></button>
     <button class="vn-btn-scene" title="Scene Control"><i class="fas fa-sliders-h"></i></button>
     <button class="vn-btn-toggle-bg" title="Toggle Background"><i class="fas fa-image"></i></button>
-    <button class="vn-btn-toggle-ui" title="Toggle UI"><i class="fas fa-eye-slash"></i></button>
+    <button class="vn-btn-toggle-dialogue" title="Toggle Dialogue"><i class="fas fa-comment"></i></button>
+    <button class="vn-btn-toggle-ui" title="Toggle Full UI"><i class="fas fa-eye-slash"></i></button>
     <button class="vn-btn-close" title="Close"><i class="fas fa-times"></i></button>
   </div>
   {{else}}
