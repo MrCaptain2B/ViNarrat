@@ -260,11 +260,12 @@ class VisualNovelApp extends AppBase {
       this._interactiveEl = el;
     }
     this._interactiveEl.innerHTML = "";
-    const html = this._el();
+    const appEl = this.element;
+    if (!appEl) return;
     for (const sel of [".vn-gm-toolbar", ".vn-speaker-bar", ".vn-requests",
                        ".vn-panel", ".vn-portrait",
                        ".vn-dialog-box", ".vn-speaker-indicator"]) {
-      for (const child of html.querySelectorAll(sel)) {
+      for (const child of appEl.querySelectorAll(sel)) {
         this._interactiveEl.appendChild(child);
       }
     }
@@ -1176,6 +1177,12 @@ class VisualNovelApp extends AppBase {
   _onFirstRender(context, options) {
     super._onFirstRender?.(context, options);
     this.element?.classList.add("vn-fullscreen-active");
+    if (!this._interactiveEl) {
+      const el = document.createElement("div");
+      el.className = "vn-interactive-layer";
+      document.body.appendChild(el);
+      this._interactiveEl = el;
+    }
     this._onRender(context, options);
   }
 
