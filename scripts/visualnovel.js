@@ -503,16 +503,29 @@ class VisualNovelApp extends AppBase {
       const list = form.querySelector(".vn-emotion-list");
       if (list) list.innerHTML = "";
     }
+    function bindEmotionRow(el) {
+      el.querySelector(".vn-emotion-remove")?.addEventListener("click", (ev) => {
+        const row = ev.currentTarget.closest(".vn-emotion-row");
+        row?.parentElement?.removeChild(row);
+        const list = form.querySelector(".vn-emotion-list");
+        list?.querySelectorAll(".vn-emotion-idx").forEach((s, i) => s.textContent = (i + 1) + ".");
+      });
+      el.querySelector(".vn-emotion-fp")?.addEventListener("click", () => {
+        try {
+          const inp = el.querySelector(".vn-emotion-path");
+          const fp = new FilePicker({ type: "image", current: "", callback: (path) => {
+            if (inp) inp.value = path;
+          }});
+          fp.render(true);
+        } catch(e) { console.error("FilePicker error:", e); }
+      });
+    }
     form.querySelector(".vn-emotion-add")?.addEventListener("click", () => {
       const list = form.querySelector(".vn-emotion-list");
       const tpl = form.querySelector(".vn-emotion-row-tpl");
       if (!list || !tpl) return;
       const el = tpl.content.cloneNode(true);
-      el.querySelector(".vn-emotion-remove")?.addEventListener("click", (ev) => {
-        const row = ev.currentTarget.closest(".vn-emotion-row");
-        row?.parentElement?.removeChild(row);
-        list.querySelectorAll(".vn-emotion-idx").forEach((s, i) => s.textContent = (i + 1) + ".");
-      });
+      bindEmotionRow(el);
       list.appendChild(el);
       list.querySelectorAll(".vn-emotion-idx").forEach((s, i) => s.textContent = (i + 1) + ".");
     });
