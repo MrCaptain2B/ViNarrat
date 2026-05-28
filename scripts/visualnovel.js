@@ -17,7 +17,9 @@ function _defaultData() {
     presets: [],
     nextLocId: 1,
     nextPortId: 1,
-    nextPresetId: 1
+    nextPresetId: 1,
+    themeBg: "#0d0d1a",
+    themeAccent: "#f0c040"
   };
 }
 
@@ -95,6 +97,8 @@ class VisualNovelApp extends AppBase {
   /* ── Init ── */
   async _initialize() {
     this._data = await _loadData();
+    this._themeBg = this._data.themeBg || "#0d0d1a";
+    this._themeAccent = this._data.themeAccent || "#f0c040";
     this._ready = true;
   }
 
@@ -811,10 +815,12 @@ class VisualNovelApp extends AppBase {
 
     html.querySelector(".vn-theme-bg")?.addEventListener("input", (ev) => {
       this._themeBg = ev.target.value;
+      if (this._data) { this._data.themeBg = this._themeBg; _saveData(this._data); }
       this._applyTheme();
     });
     html.querySelector(".vn-theme-accent")?.addEventListener("input", (ev) => {
       this._themeAccent = ev.target.value;
+      if (this._data) { this._data.themeAccent = this._themeAccent; _saveData(this._data); }
       this._applyTheme();
     });
 
