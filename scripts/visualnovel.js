@@ -1053,12 +1053,15 @@ class VisualNovelApp extends AppBase {
         this.render();
         return;
       }
+      // Only GM can select portraits
+      if (game.user?.role < 3) return;
       const idx = parseInt(el.dataset.portIdx);
       this._selectedPortraitIdx = this._selectedPortraitIdx === idx ? null : idx;
       this.render();
     };
 
     const onDown = (ev) => {
+      if (game.user?.role < 3) return;
       const el = ev.target.closest(".vn-portrait");
       if (!el) return;
       const idx = parseInt(el.dataset.portIdx);
