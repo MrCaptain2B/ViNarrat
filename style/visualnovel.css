@@ -413,6 +413,14 @@
 }
 .vn-loc-tags { color: rgba(255,255,255,0.35); font-size: 0.75em; margin-left: 6px; }
 .vn-port-tags { display: block; color: rgba(255,255,255,0.3); font-size: 0.7em; margin-top: 2px; }
+.vn-list-count { color: rgba(255,255,255,0.35); font-size: 0.7em; padding: 2px 0 6px; }
+.vn-show-more {
+  display: block; width: 100%; margin-top: 6px; padding: 6px;
+  text-align: center; background: rgba(255,255,255,0.06);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 6px;
+  cursor: pointer; color: rgba(255,255,255,0.6);
+}
+.vn-show-more:hover { background: rgba(255,255,255,0.1); color: #fff; }
 .vn-loc-search, .vn-port-search { flex: 1; }
 .vn-item-group {
   display: inline-block;

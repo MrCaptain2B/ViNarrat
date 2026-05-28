@@ -26,9 +26,10 @@
         {{/each}}
       </select>
     </div>
+    <div class="vn-list-count">{{locations.length}} of {{locTotal}}</div>
     <div class="vn-loc-list">
       {{#each locations}}
-      <div class="vn-loc-item" data-search="{{this.name}} {{this.tags}} {{this.group}}" data-tags="{{this.tags}}" data-group="{{this.group}}">
+      <div class="vn-loc-item">
         <div class="vn-loc-info">
           <strong>{{this.name}}</strong>
           {{#if this.group}}<span class="vn-item-group">{{this.group}}</span>{{/if}}
@@ -41,6 +42,7 @@
       </div>
       {{/each}}
     </div>
+    {{#if locRemaining}}<button class="vn-loc-show-more vn-show-more">Show {{locRemaining}} more</button>{{/if}}
     <div class="vn-loc-form">
       <div class="vn-form-row">
         <input class="vn-loc-f-name" type="text" placeholder="Location name">
@@ -74,11 +76,12 @@
         {{/each}}
       </select>
     </div>
+    <div class="vn-list-count">{{allPortraits.length}} of {{portTotal}}</div>
     <div class="vn-port-list">
       {{#each allPortraits}}
-      <div class="vn-port-item" data-search="{{this.name}} {{this.title}} {{this.group}} {{this.tags}}" data-tags="{{this.tags}}" data-group="{{this.group}}">
+      <div class="vn-port-item">
         <div class="vn-port-avatar">
-          {{#if this.image}}<img src="{{this.image}}">{{/if}}
+          {{#if this.image}}<img src="{{this.image}}" loading="lazy">{{/if}}
         </div>
         <div class="vn-port-info">
           <strong>{{this.name}}</strong>
@@ -91,6 +94,7 @@
       </div>
       {{/each}}
     </div>
+    {{#if portRemaining}}<button class="vn-port-show-more vn-show-more">Show {{portRemaining}} more</button>{{/if}}
     <button class="vn-port-import">Import from Actors</button>
     <div class="vn-port-form">
       <div class="vn-form-row">
