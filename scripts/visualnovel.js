@@ -1321,46 +1321,49 @@ class VisualNovelApp extends AppBase {
     menu.className = "vn-invite-menu";
     menu.style.display = "none";
 
-    const label = document.createElement("div");
-    label.className = "vn-broadcast-label";
-    label.textContent = "Online Players";
-    menu.appendChild(label);
+    function _rebuildMenu() {
+      menu.innerHTML = "";
+      const label = document.createElement("div");
+      label.className = "vn-broadcast-label";
+      label.textContent = "Online Players";
+      menu.appendChild(label);
 
-    const users = [...game.users].filter(u => u.active && !u.isGM && !_roleCan(u.role, "permManage"));
-    if (users.length) {
-      for (const u of users) {
-        const pb = document.createElement("button");
-        pb.className = "vn-invite-player";
-        pb.dataset.userId = u.id;
-        pb.textContent = u.name;
-        pb.addEventListener("mouseenter", () => { pb.style.background = "rgba(255,255,255,0.08)"; pb.style.color = "#fff"; });
-        pb.addEventListener("mouseleave", () => { pb.style.background = "none"; pb.style.color = "rgba(255,255,255,0.7)"; });
-        pb.addEventListener("click", () => {
-          const payload = {
-            type: "state", broadcasting: true, inviteMode: this._inviteMode || "all",
-            bg: this._bg, portraits: this._portraits,
-            speaker: this._speaker, claimed: this._claimed || {}
-          };
-          game.socket?.emit(SOCKET, { ...payload, targetUser: u.id });
-          game.socket?.emit(SOCKET, { type: "invite", userId: u.id });
-          menu.style.display = "none";
-        });
-        menu.appendChild(pb);
+      const users = [...game.users].filter(u => u.active && !u.isGM && !_roleCan(u.role, "permManage"));
+      if (users.length) {
+        for (const u of users) {
+          const pb = document.createElement("button");
+          pb.className = "vn-invite-player";
+          pb.dataset.userId = u.id;
+          pb.textContent = u.name;
+          pb.addEventListener("mouseenter", () => { pb.style.background = "rgba(255,255,255,0.08)"; pb.style.color = "#fff"; });
+          pb.addEventListener("mouseleave", () => { pb.style.background = "none"; pb.style.color = "rgba(255,255,255,0.7)"; });
+          pb.addEventListener("click", () => {
+            const payload = {
+              type: "state", broadcasting: true, inviteMode: this._inviteMode || "all",
+              bg: this._bg, portraits: this._portraits,
+              speaker: this._speaker, claimed: this._claimed || {}
+            };
+            game.socket?.emit(SOCKET, { ...payload, targetUser: u.id });
+            game.socket?.emit(SOCKET, { type: "invite", userId: u.id });
+            menu.style.display = "none";
+          });
+          menu.appendChild(pb);
+        }
+      } else {
+        const empty = document.createElement("div");
+        empty.className = "vn-broadcast-empty";
+        empty.textContent = "No players online";
+        menu.appendChild(empty);
       }
-    } else {
-      const empty = document.createElement("div");
-      empty.className = "vn-broadcast-empty";
-      empty.textContent = "No players online";
-      menu.appendChild(empty);
     }
+    _rebuildMenu();
 
     toolbar.appendChild(menu);
 
     btn.addEventListener("click", (ev) => {
       ev.stopPropagation();
-      console.log("FreeVN | invite btn clicked, menu display was:", menu.style.display);
+      _rebuildMenu();
       menu.style.display = menu.style.display === "none" ? "block" : "none";
-      console.log("FreeVN | menu display now:", menu.style.display);
     });
 
     const closer = (ev) => {
