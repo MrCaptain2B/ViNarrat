@@ -164,9 +164,13 @@ class VisualNovelApp extends AppBase {
       locations,
       locTotal,
       locRemaining,
+      locSearchValue: this._locSearch,
+      locTagSearchValue: this._locTagSearch,
       allPortraits: filteredPortraits,
       portTotal,
       portRemaining,
+      portSearchValue: this._portSearch,
+      portTagSearchValue: this._portTagSearch,
       locGroups,
       portGroups,
       presets: this._data?.presets || [],
@@ -377,19 +381,15 @@ class VisualNovelApp extends AppBase {
   _bindLocationPanel() {
     const html = this._el();
 
-    const locSearch = html.querySelector(".vn-loc-search");
-    if (locSearch) locSearch.value = this._locSearch;
-    const locTag = html.querySelector(".vn-loc-tag-filter");
-    if (locTag) locTag.value = this._locTagSearch;
     const locGroup = html.querySelector(".vn-loc-group-filter");
     if (locGroup) locGroup.value = this._locGroupFilter;
 
-    locSearch?.addEventListener("input", (ev) => {
+    html.querySelector(".vn-loc-search")?.addEventListener("input", (ev) => {
       this._locSearch = ev.target.value;
       clearTimeout(this._locSearchTimer);
       this._locSearchTimer = setTimeout(() => this.render(), 150);
     });
-    locTag?.addEventListener("input", (ev) => {
+    html.querySelector(".vn-loc-tag-filter")?.addEventListener("input", (ev) => {
       this._locTagSearch = ev.target.value;
       clearTimeout(this._locTagTimer);
       this._locTagTimer = setTimeout(() => this.render(), 150);
@@ -402,7 +402,6 @@ class VisualNovelApp extends AppBase {
       this._locListLimit += 30;
       this.render();
     });
-    html.querySelector(".vn-loc-tag-filter")?.addEventListener("input", (ev) => {
       this._locTagSearch = ev.target.value;
       this.render();
     });
@@ -488,19 +487,15 @@ class VisualNovelApp extends AppBase {
   _bindPortraitPanel() {
     const html = this._el();
 
-    const portSearch = html.querySelector(".vn-port-search");
-    if (portSearch) portSearch.value = this._portSearch;
-    const portTag = html.querySelector(".vn-port-tag-filter");
-    if (portTag) portTag.value = this._portTagSearch;
     const portGroup = html.querySelector(".vn-port-group-filter");
     if (portGroup) portGroup.value = this._portGroupFilter;
 
-    portSearch?.addEventListener("input", (ev) => {
+    html.querySelector(".vn-port-search")?.addEventListener("input", (ev) => {
       this._portSearch = ev.target.value;
       clearTimeout(this._portSearchTimer);
       this._portSearchTimer = setTimeout(() => this.render(), 150);
     });
-    portTag?.addEventListener("input", (ev) => {
+    html.querySelector(".vn-port-tag-filter")?.addEventListener("input", (ev) => {
       this._portTagSearch = ev.target.value;
       clearTimeout(this._portTagTimer);
       this._portTagTimer = setTimeout(() => this.render(), 150);

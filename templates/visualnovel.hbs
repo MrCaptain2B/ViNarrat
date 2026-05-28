@@ -17,8 +17,8 @@
       <button class="vn-loc-back"><i class="fas fa-arrow-left"></i> Back</button>
     </div>
     <div class="vn-filter-row">
-      <input class="vn-loc-search" type="text" placeholder="Search...">
-      <input class="vn-loc-tag-filter" type="text" placeholder="Filter by tag...">
+      <input class="vn-loc-search" type="text" placeholder="Search..." value="{{locSearchValue}}">
+      <input class="vn-loc-tag-filter" type="text" placeholder="Filter by tag..." value="{{locTagSearchValue}}">
       <select class="vn-loc-group-filter">
         <option value="">All groups</option>
         {{#each locGroups}}
@@ -67,8 +67,8 @@
       <button class="vn-port-back"><i class="fas fa-arrow-left"></i> Back</button>
     </div>
     <div class="vn-filter-row">
-      <input class="vn-port-search" type="text" placeholder="Search...">
-      <input class="vn-port-tag-filter" type="text" placeholder="Filter by tag...">
+      <input class="vn-port-search" type="text" placeholder="Search..." value="{{portSearchValue}}">
+      <input class="vn-port-tag-filter" type="text" placeholder="Filter by tag..." value="{{portTagSearchValue}}">
       <select class="vn-port-group-filter">
         <option value="">All groups</option>
         {{#each portGroups}}
