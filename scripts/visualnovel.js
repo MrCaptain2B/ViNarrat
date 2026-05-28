@@ -557,6 +557,7 @@ class VisualNovelApp extends AppBase {
       if (list) list.innerHTML = "";
     }
     function bindEmotionRow(el) {
+      const inp = el.querySelector(".vn-emotion-path");
       el.querySelector(".vn-emotion-remove")?.addEventListener("click", (ev) => {
         const row = ev.currentTarget.closest(".vn-emotion-row");
         row?.parentElement?.removeChild(row);
@@ -565,7 +566,6 @@ class VisualNovelApp extends AppBase {
       });
       el.querySelector(".vn-emotion-fp")?.addEventListener("click", () => {
         try {
-          const inp = el.querySelector(".vn-emotion-path");
           const fp = new FilePicker({ type: "image", current: "", callback: (path) => {
             if (inp) inp.value = path;
           }});
