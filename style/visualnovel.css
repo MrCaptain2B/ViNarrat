@@ -126,8 +126,8 @@
 .vn-portrait-frame.vn-dimmed img {
   filter: brightness(0.55);
 }
-.vn-portrait-frame:not(.vn-dimmed) .vn-portrait-img {
-  filter: drop-shadow(0 0 14px rgba(var(--vn-accent-rgb), 0.7));
+.vn-portrait.vn-claimed .vn-portrait-img {
+  filter: drop-shadow(0 0 16px rgba(var(--vn-accent-rgb), 0.8));
 }
 
 .vn-portrait-img {
@@ -321,7 +321,7 @@
 .vn-gm-toolbar button:hover { background: rgba(255,255,255,0.1); color: #fff; }
 .vn-broadcast-active { color: #2ecc71 !important; }
 .vn-broadcast-active:hover { background: rgba(46,204,113,0.15) !important; }
-.vn-broadcast-wrapper { position: relative; display: inline-flex; }
+.vn-broadcast-wrapper { position: relative; display: inline-flex; margin-left: auto; }
 .vn-broadcast-toggle {
   background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
   border-left: none; border-radius: 0 6px 6px 0; padding: 8px 4px; cursor: pointer;

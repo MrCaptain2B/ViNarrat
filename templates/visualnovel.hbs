@@ -270,7 +270,7 @@
         {{#if this.isMyPortrait}}
         <button class="vn-attention-btn {{#if this.isClaimed}}vn-attention-active{{/if}}" data-port-idx="{{this.index}}" title="Attention">{{#if this.isClaimed}}<i class="fas fa-check-circle"></i>{{else}}<i class="fas fa-hand-paper"></i>{{/if}}</button>
         {{/if}}
-        {{#if isGM}}
+        {{#if canManage}}
         {{#if this.isClaimed}}
         <button class="vn-approve-btn" data-port-idx="{{this.index}}" title="Approve as speaker"><i class="fas fa-check"></i></button>
         {{/if}}
