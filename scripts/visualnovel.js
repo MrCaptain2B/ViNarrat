@@ -260,15 +260,20 @@ class VisualNovelApp extends AppBase {
       document.body.appendChild(el);
       this._interactiveEl = el;
     }
-    this._interactiveEl.innerHTML = "";
     const appEl = this.element;
     if (!appEl) return;
+    const found = [];
     for (const sel of [".vn-gm-toolbar", ".vn-speaker-bar", ".vn-requests",
                        ".vn-panel", ".vn-portrait",
                        ".vn-dialog-box", ".vn-speaker-indicator"]) {
       for (const child of appEl.querySelectorAll(sel)) {
-        this._interactiveEl.appendChild(child);
+        found.push(child);
       }
+    }
+    if (!found.length) return;
+    this._interactiveEl.innerHTML = "";
+    for (const child of found) {
+      this._interactiveEl.appendChild(child);
     }
   }
 
@@ -1187,7 +1192,7 @@ class VisualNovelApp extends AppBase {
       document.body.appendChild(el);
       this._interactiveEl = el;
     }
-    this._onRender(context, options);
+    Promise.resolve().then(() => this._onRender(context, options));
   }
 
   _onClose(options) {
