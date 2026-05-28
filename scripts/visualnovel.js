@@ -373,7 +373,7 @@ class VisualNovelApp extends AppBase {
         const val = parseFloat(ev.currentTarget.value);
         if (this._portraits[idx]) {
           this._portraits[idx].scale = val;
-          const el = html.querySelector(`.vn-portrait[data-port-idx="${idx}"]`);
+          const el = document.querySelector(`.vn-portrait[data-port-idx="${idx}"]`);
           if (el) {
             const flip = this._portraits[idx].flip ? "scaleX(-1)" : "";
             el.style.transform = `scale(${val}) ${flip}`;
@@ -396,7 +396,7 @@ class VisualNovelApp extends AppBase {
         const emo = parseInt(ev.currentTarget.dataset.emotion);
         if (this._portraits[idx] && !isNaN(emo)) {
           this._portraits[idx]._currentEmotion = emo;
-          const frame = html.querySelector(`.vn-portrait[data-port-idx="${idx}"] .vn-portrait-frame`);
+          const frame = document.querySelector(`.vn-portrait[data-port-idx="${idx}"] .vn-portrait-frame`);
           const oldImg = frame?.querySelector(".vn-portrait-img");
           const imgs = this._portraits[idx].images || [this._portraits[idx].image];
           if (oldImg && imgs[emo]) {
@@ -460,7 +460,7 @@ class VisualNovelApp extends AppBase {
         const idx = parseInt(ev.currentTarget.dataset.portIdx);
         if (this._portraits[idx]) {
           this._portraits[idx].flip = !this._portraits[idx].flip;
-          const el = html.querySelector(`.vn-portrait[data-port-idx="${idx}"]`);
+          const el = document.querySelector(`.vn-portrait[data-port-idx="${idx}"]`);
           if (el) {
             const p = this._portraits[idx];
             el.style.transform = `scale(${p.scale}) ${p.flip ? "scaleX(-1)" : ""}`;
@@ -549,7 +549,7 @@ class VisualNovelApp extends AppBase {
       const sq = this._locSearch.toLowerCase();
       const tq = this._locTagSearch.toLowerCase();
       const gv = this._locGroupFilter;
-      html.querySelectorAll(".vn-loc-item").forEach(el => {
+      document.querySelectorAll(".vn-loc-item").forEach(el => {
         const name = (el.dataset.name || "").toLowerCase();
         const tags = (el.dataset.tags || "").toLowerCase();
         const group = (el.dataset.group || "").toLowerCase();
@@ -687,7 +687,7 @@ class VisualNovelApp extends AppBase {
       const sq = this._portSearch.toLowerCase();
       const tq = this._portTagSearch.toLowerCase();
       const gv = this._portGroupFilter;
-      html.querySelectorAll(".vn-port-item").forEach(el => {
+      document.querySelectorAll(".vn-port-item").forEach(el => {
         const name = (el.dataset.name || "").toLowerCase();
         const tags = (el.dataset.tags || "").toLowerCase();
         const group = (el.dataset.group || "").toLowerCase();
@@ -1110,20 +1110,20 @@ class VisualNovelApp extends AppBase {
       if (!p) return;
       p.x = Math.round(ev.clientX - rect.left - this._dragState.ox);
       p.y = Math.round(ev.clientY - rect.top - this._dragState.oy);
-      const el = container.querySelector(`.vn-portrait[data-port-idx="${this._dragState.index}"]`);
+      const el = document.querySelector(`.vn-portrait[data-port-idx="${this._dragState.index}"]`);
       if (el) {
         el.style.left = p.x + "px";
         el.style.top = p.y + "px";
       }
     };
     const onUp = () => { this._dragState = null; };
-    container.addEventListener("click", onClick);
-    container.addEventListener("pointerdown", onDown);
+    document.addEventListener("click", onClick);
+    document.addEventListener("pointerdown", onDown);
     document.addEventListener("pointermove", onMove);
     document.addEventListener("pointerup", onUp);
     this._dragCleanup = () => {
-      container.removeEventListener("click", onClick);
-      container.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("click", onClick);
+      document.removeEventListener("pointerdown", onDown);
       document.removeEventListener("pointermove", onMove);
       document.removeEventListener("pointerup", onUp);
     };
