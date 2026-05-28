@@ -47,7 +47,7 @@
 .vn-interactive-layer {
   position: fixed;
   top: 0; left: 0; width: 100%; height: 100%;
-  z-index: 90;
+  z-index: 75;
   pointer-events: none;
 }
 .vn-interactive-layer.vn-fading-out {
@@ -183,7 +183,7 @@
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 10px;
   padding: 8px 14px;
-  z-index: 75;
+  z-index: 5;
   pointer-events: auto;
   white-space: nowrap;
 }
