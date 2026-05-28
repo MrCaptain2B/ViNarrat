@@ -316,9 +316,6 @@
   right: 0;
   display: flex;
   gap: 4px;
-  background: rgba(10,10,20,0.7);
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid rgba(255,255,255,0.08);
   padding: 6px 12px;
   justify-content: center;
   pointer-events: none;
