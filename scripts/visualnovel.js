@@ -1354,11 +1354,13 @@ class VisualNovelApp extends AppBase {
       menu.appendChild(empty);
     }
 
-    toolbar.parentElement.insertBefore(menu, toolbar.nextSibling);
+    toolbar.appendChild(menu);
 
     btn.addEventListener("click", (ev) => {
       ev.stopPropagation();
-      menu.style.display = menu.style.display === "none" ? "" : "none";
+      console.log("FreeVN | invite btn clicked, menu display was:", menu.style.display);
+      menu.style.display = menu.style.display === "none" ? "block" : "none";
+      console.log("FreeVN | menu display now:", menu.style.display);
     });
 
     const closer = (ev) => {
