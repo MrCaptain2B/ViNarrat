@@ -244,13 +244,13 @@ class VisualNovelApp extends AppBase {
   _onRender(context, options) {
     super._onRender?.(context, options);
     this._applyTheme();
-    this._ensureInteractiveLayer();
     if (this._dragCleanup) this._dragCleanup();
     if (this._showPanel === "locations") this._bindLocationPanel();
     else if (this._showPanel === "portraits") this._bindPortraitPanel();
     else if (this._showPanel === "scene") this._bindScenePanel();
     else if (this._showPanel === "presets") this._bindPresetsPanel();
     else this._bindMainUI();
+    this._ensureInteractiveLayer();
   }
 
   _ensureInteractiveLayer() {
