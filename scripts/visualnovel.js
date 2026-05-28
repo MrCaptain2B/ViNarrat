@@ -238,18 +238,19 @@ class VisualNovelApp extends AppBase {
   _replaceHTML(result, content, options) {
     content.innerHTML = result;
     this._contentEl = content;
+    this._onRender(this._context, options);
   }
 
   _onRender(context, options) {
     super._onRender?.(context, options);
     this._applyTheme();
+    this._ensureInteractiveLayer();
     if (this._dragCleanup) this._dragCleanup();
     if (this._showPanel === "locations") this._bindLocationPanel();
     else if (this._showPanel === "portraits") this._bindPortraitPanel();
     else if (this._showPanel === "scene") this._bindScenePanel();
     else if (this._showPanel === "presets") this._bindPresetsPanel();
     else this._bindMainUI();
-    this._ensureInteractiveLayer();
   }
 
   _ensureInteractiveLayer() {
@@ -272,7 +273,7 @@ class VisualNovelApp extends AppBase {
   }
 
   _el() {
-    return this._contentEl || this.element;
+    return this._interactiveEl || this._contentEl || this.element;
   }
 
   /* ─────────────── MAIN UI ─────────────── */
@@ -1176,6 +1177,7 @@ class VisualNovelApp extends AppBase {
   /* ── Lifecycle ── */
   _onFirstRender(context, options) {
     super._onFirstRender?.(context, options);
+    this._context = context;
     this.element?.classList.add("vn-fullscreen-active");
     if (!this._interactiveEl) {
       const el = document.createElement("div");
@@ -1183,7 +1185,6 @@ class VisualNovelApp extends AppBase {
       document.body.appendChild(el);
       this._interactiveEl = el;
     }
-    this._onRender(context, options);
   }
 
   _onClose(options) {
