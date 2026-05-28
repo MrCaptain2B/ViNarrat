@@ -190,6 +190,11 @@
         <input class="vn-dialog-fontsize" type="range" min="10" max="36" step="1" value="{{dialog.fontSize}}">
         <span class="vn-dialog-val">{{dialog.fontSize}}px</span>
       </div>
+      <div class="vn-dialog-setting">
+        <span>Speaker size</span>
+        <input class="vn-dialog-speaker-fontsize" type="range" min="10" max="36" step="1" value="{{dialog.speakerFontSize}}">
+        <span class="vn-dialog-val">{{dialog.speakerFontSize}}px</span>
+      </div>
     </div>
   </div>
   {{/if}}
@@ -279,7 +284,7 @@
   <div class="vn-dialog-box" style="width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; text-align: {{dialog.align}}; font-size: {{dialog.fontSize}}px;">
     {{#if dialog.showSpeaker}}
     {{#if speaker}}
-    <div class="vn-dialog-speaker">{{speaker}}</div>
+    <div class="vn-dialog-speaker" style="font-size: {{dialog.speakerFontSize}}px;">{{speaker}}</div>
     {{/if}}
     {{/if}}
     <div class="vn-dialog-content">{{dialog.text}}</div>

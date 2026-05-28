@@ -90,7 +90,8 @@ class VisualNovelApp extends AppBase {
       align: "left",
       text: "",
       showSpeaker: true,
-      fontSize: 16
+      fontSize: 16,
+      speakerFontSize: 14
     };
   }
 
@@ -106,7 +107,8 @@ class VisualNovelApp extends AppBase {
       align: game.settings?.get("free-visual-novel", "dialogAlign") || "left",
       text: "",
       showSpeaker: game.settings?.get("free-visual-novel", "dialogShowSpeaker") !== false,
-      fontSize: parseInt(game.settings?.get("free-visual-novel", "dialogFontSize")) || 16
+      fontSize: parseInt(game.settings?.get("free-visual-novel", "dialogFontSize")) || 16,
+      speakerFontSize: parseInt(game.settings?.get("free-visual-novel", "dialogSpeakerFontSize")) || 14
     };
     this._ready = true;
   }
@@ -901,6 +903,16 @@ class VisualNovelApp extends AppBase {
       const box = document.querySelector(".vn-dialog-box");
       if (box) box.style.fontSize = this._dialog.fontSize + "px";
     });
+
+    // Speaker font size
+    html.querySelector(".vn-dialog-speaker-fontsize")?.addEventListener("input", (ev) => {
+      this._dialog.speakerFontSize = parseInt(ev.target.value) || 14;
+      _saveDialogSetting("dialogSpeakerFontSize", this._dialog.speakerFontSize);
+      const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
+      if (val) val.textContent = this._dialog.speakerFontSize + "px";
+      const box = document.querySelector(".vn-dialog-speaker");
+      if (box) box.style.fontSize = this._dialog.speakerFontSize + "px";
+    });
   }
 
   /* ─────────────── PRESETS PANEL ─────────────── */
@@ -1148,7 +1160,8 @@ Hooks.once("init", async function() {
     { key: "dialogOpacity", name: "Dialogue Box Opacity", hint: "Opacity from 0.2 to 1.0", default: 0.85, type: Number },
     { key: "dialogAlign", name: "Dialogue Text Align", hint: "left, center, or right", default: "left", type: String },
     { key: "dialogShowSpeaker", name: "Show Speaker Name", hint: "Whether to display the speaker name in the dialogue box", default: true, type: Boolean },
-    { key: "dialogFontSize", name: "Dialogue Font Size", hint: "Font size in pixels (10-36)", default: 16, type: Number }
+    { key: "dialogFontSize", name: "Dialogue Font Size", hint: "Font size in pixels (10-36)", default: 16, type: Number },
+    { key: "dialogSpeakerFontSize", name: "Speaker Name Font Size", hint: "Font size in pixels (10-36)", default: 14, type: Number }
   ];
   for (const s of dialogSettings) {
     game.settings?.register("free-visual-novel", s.key, {
