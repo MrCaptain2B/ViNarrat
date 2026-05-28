@@ -96,7 +96,10 @@ class VisualNovelApp extends AppBase {
       align: "left",
       text: "",
       showSpeaker: true,
-      fontSize: 16
+      fontSize: 16,
+      mode: 1,
+      yOffset: 100,
+      leftText: ""
     };
   }
 
@@ -577,6 +580,40 @@ class VisualNovelApp extends AppBase {
         this._requests = this._requests.filter(r => r.id !== id);
         this.render();
       });
+    });
+
+    // Inline dialog editing
+    document.addEventListener("click", (ev) => {
+      const content = ev.target.closest(".vn-dialog-content");
+      if (!content || content.getAttribute("contenteditable") === "true") return;
+      if (!_userCan("permManage")) return;
+      ev.stopPropagation();
+      content.setAttribute("contenteditable", "true");
+      content.focus();
+      const range = document.createRange();
+      range.selectNodeContents(content);
+      const sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+    });
+    document.addEventListener("blur", (ev) => {
+      const content = ev.target.closest?.(".vn-dialog-content");
+      if (!content || content.getAttribute("contenteditable") !== "true") return;
+      content.removeAttribute("contenteditable");
+      const side = content.dataset.side;
+      if (side === "left") this._dialog.leftText = content.textContent;
+      else this._dialog.text = content.textContent;
+    }, true);
+    document.addEventListener("keydown", (ev) => {
+      const content = ev.target.closest?.(".vn-dialog-content");
+      if (!content || content.getAttribute("contenteditable") !== "true") return;
+      if (ev.key === "Escape") {
+        content.textContent = content.dataset.side === "left" ? this._dialog.leftText : this._dialog.text;
+        content.blur();
+      } else if (ev.key === "Enter" && !ev.shiftKey) {
+        ev.preventDefault();
+        content.blur();
+      }
     });
   }
 
@@ -1088,6 +1125,29 @@ class VisualNovelApp extends AppBase {
       if (val) val.textContent = this._speakerFontSize + "px";
       const box = document.querySelector(".vn-speaker-name");
       if (box) box.style.fontSize = this._speakerFontSize + "px";
+    });
+
+    // Dialogue Mode toggle
+    html.querySelector(".vn-dialog-mode-toggle")?.addEventListener("click", (ev) => {
+      this._dialog.mode = this._dialog.mode === 2 ? 1 : 2;
+      ev.currentTarget.textContent = this._dialog.mode === 2 ? "Dual (2 boxes)" : "Single + Speaker";
+      this.render();
+    });
+
+    // Y Offset
+    html.querySelector(".vn-dialog-yoffset")?.addEventListener("input", (ev) => {
+      this._dialog.yOffset = parseInt(ev.target.value) || 100;
+      const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
+      if (val) val.textContent = this._dialog.yOffset + "px";
+      const container = document.querySelector(".vn-dialog-dual") || document.querySelector(".vn-dialog-box");
+      if (container) container.style.bottom = this._dialog.yOffset + "px";
+    });
+
+    // Left text (dual mode)
+    html.querySelector(".vn-dialog-lefttext")?.addEventListener("input", (ev) => {
+      this._dialog.leftText = ev.target.value;
+      const box = document.querySelector(".vn-dialog-left .vn-dialog-content");
+      if (box) box.textContent = this._dialog.leftText;
     });
   }
 

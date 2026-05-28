@@ -214,6 +214,24 @@
         <span class="vn-dialog-val">{{speakerFontSize}}px</span>
       </div>
     </div>
+    <div class="vn-scene-section">
+      <label>Dialogue Mode</label>
+      <div class="vn-dialog-setting">
+        <span>Mode</span>
+        <button class="vn-dialog-mode-toggle">{{#if (eq dialog.mode 2)}}Dual (2 boxes){{else}}Single + Speaker{{/if}}</button>
+      </div>
+      <div class="vn-dialog-setting">
+        <span>Y Offset</span>
+        <input class="vn-dialog-yoffset" type="range" min="20" max="300" step="5" value="{{dialog.yOffset}}">
+        <span class="vn-dialog-val">{{dialog.yOffset}}px</span>
+      </div>
+      {{#if (eq dialog.mode 2)}}
+      <div class="vn-dialog-setting">
+        <span>Left Text</span>
+        <textarea class="vn-dialog-lefttext" rows="3" placeholder="Type dialogue here...">{{dialog.leftText}}</textarea>
+      </div>
+      {{/if}}
+    </div>
   </div>
   {{/if}}
 
@@ -308,10 +326,25 @@
   {{/if}}
   {{/if}}
 
-  {{#if dialog.text}}
-  <div class="vn-dialog-box" style="width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; text-align: {{dialog.align}}; font-size: {{dialog.fontSize}}px;">
-    <div class="vn-dialog-content">{{dialog.text}}</div>
+  {{#if (eq dialog.mode 2)}}
+  <div class="vn-dialog-dual" style="bottom: {{dialog.yOffset}}px;">
+    {{#if dialog.leftText}}
+    <div class="vn-dialog-box vn-dialog-left" style="width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px;">
+      <div class="vn-dialog-content" data-side="left">{{dialog.leftText}}</div>
+    </div>
+    {{/if}}
+    {{#if dialog.text}}
+    <div class="vn-dialog-box vn-dialog-right" style="width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px;">
+      <div class="vn-dialog-content" data-side="right">{{dialog.text}}</div>
+    </div>
+    {{/if}}
   </div>
+  {{else}}
+  {{#if dialog.text}}
+  <div class="vn-dialog-box" style="width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; text-align: {{dialog.align}}; font-size: {{dialog.fontSize}}px; bottom: {{dialog.yOffset}}px;">
+    <div class="vn-dialog-content" data-side="single">{{dialog.text}}</div>
+  </div>
+  {{/if}}
   {{/if}}
 
   {{/unless}}
