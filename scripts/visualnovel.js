@@ -99,6 +99,15 @@ class VisualNovelApp extends AppBase {
     this._data = await _loadData();
     this._themeBg = game.settings?.get("free-visual-novel", "themeBg") || this._data.themeBg || "#0d0d1a";
     this._themeAccent = game.settings?.get("free-visual-novel", "themeAccent") || this._data.themeAccent || "#f0c040";
+    this._dialog = {
+      width: parseInt(game.settings?.get("free-visual-novel", "dialogWidth")) || 65,
+      height: parseInt(game.settings?.get("free-visual-novel", "dialogHeight")) || 160,
+      opacity: parseFloat(game.settings?.get("free-visual-novel", "dialogOpacity")) || 0.85,
+      align: game.settings?.get("free-visual-novel", "dialogAlign") || "left",
+      text: "",
+      showSpeaker: game.settings?.get("free-visual-novel", "dialogShowSpeaker") !== false,
+      fontSize: parseInt(game.settings?.get("free-visual-novel", "dialogFontSize")) || 16
+    };
     this._ready = true;
   }
 
@@ -826,9 +835,14 @@ class VisualNovelApp extends AppBase {
       this._applyTheme();
     });
 
+    const _saveDialogSetting = (key, value) => {
+      game.settings?.set("free-visual-novel", key, value);
+    };
+
     // Dialog width
     html.querySelector(".vn-dialog-width")?.addEventListener("input", (ev) => {
       this._dialog.width = parseInt(ev.target.value) || 65;
+      _saveDialogSetting("dialogWidth", this._dialog.width);
       const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
       if (val) val.textContent = this._dialog.width + "%";
     });
@@ -836,6 +850,7 @@ class VisualNovelApp extends AppBase {
     // Dialog height
     html.querySelector(".vn-dialog-height")?.addEventListener("input", (ev) => {
       this._dialog.height = parseInt(ev.target.value) || 160;
+      _saveDialogSetting("dialogHeight", this._dialog.height);
       const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
       if (val) val.textContent = this._dialog.height + "px";
     });
@@ -843,6 +858,7 @@ class VisualNovelApp extends AppBase {
     // Dialog opacity
     html.querySelector(".vn-dialog-opacity")?.addEventListener("input", (ev) => {
       this._dialog.opacity = parseFloat(ev.target.value) || 0.85;
+      _saveDialogSetting("dialogOpacity", this._dialog.opacity);
       const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
       if (val) val.textContent = this._dialog.opacity;
     });
@@ -851,6 +867,7 @@ class VisualNovelApp extends AppBase {
     html.querySelectorAll(".vn-dialog-align").forEach(btn => {
       btn.addEventListener("click", (ev) => {
         this._dialog.align = ev.currentTarget.dataset.align;
+        _saveDialogSetting("dialogAlign", this._dialog.align);
         this.render();
       });
     });
@@ -858,7 +875,6 @@ class VisualNovelApp extends AppBase {
     // Dialog text input (live update)
     html.querySelector(".vn-dialog-text")?.addEventListener("input", (ev) => {
       this._dialog.text = ev.target.value;
-      // update the dialogue box on the main stage live without full re-render
       const box = document.querySelector(".vn-dialog-box");
       if (box) {
         const txt = box.querySelector(".vn-dialog-content");
@@ -869,6 +885,7 @@ class VisualNovelApp extends AppBase {
     // Speaker toggle
     html.querySelector(".vn-dialog-speaker-toggle")?.addEventListener("click", (ev) => {
       this._dialog.showSpeaker = !this._dialog.showSpeaker;
+      _saveDialogSetting("dialogShowSpeaker", this._dialog.showSpeaker);
       ev.currentTarget.textContent = this._dialog.showSpeaker ? "Show" : "Hide";
       const box = document.querySelector(".vn-dialog-box");
       const sp = box?.querySelector(".vn-dialog-speaker");
@@ -878,6 +895,7 @@ class VisualNovelApp extends AppBase {
     // Font size
     html.querySelector(".vn-dialog-fontsize")?.addEventListener("input", (ev) => {
       this._dialog.fontSize = parseInt(ev.target.value) || 16;
+      _saveDialogSetting("dialogFontSize", this._dialog.fontSize);
       const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
       if (val) val.textContent = this._dialog.fontSize + "px";
       const box = document.querySelector(".vn-dialog-box");
@@ -1123,6 +1141,21 @@ Hooks.once("init", async function() {
     name: "Theme Accent Color",
     hint: "Accent/highlight color (e.g. #f0c040)"
   });
+
+  const dialogSettings = [
+    { key: "dialogWidth", name: "Dialogue Box Width", hint: "Width in percent (30-100)", default: 65, type: Number },
+    { key: "dialogHeight", name: "Dialogue Box Height", hint: "Height in pixels (80-350)", default: 160, type: Number },
+    { key: "dialogOpacity", name: "Dialogue Box Opacity", hint: "Opacity from 0.2 to 1.0", default: 0.85, type: Number },
+    { key: "dialogAlign", name: "Dialogue Text Align", hint: "left, center, or right", default: "left", type: String },
+    { key: "dialogShowSpeaker", name: "Show Speaker Name", hint: "Whether to display the speaker name in the dialogue box", default: true, type: Boolean },
+    { key: "dialogFontSize", name: "Dialogue Font Size", hint: "Font size in pixels (10-36)", default: 16, type: Number }
+  ];
+  for (const s of dialogSettings) {
+    game.settings?.register("free-visual-novel", s.key, {
+      scope: "world", type: s.type, default: s.default, config: true,
+      name: s.name, hint: s.hint
+    });
+  }
 
   const hasEpicRolls = game.modules?.get("epic-rolls")?.active ?? false;
   const hasSequencer = game.modules?.get("sequencer")?.active ?? false;
