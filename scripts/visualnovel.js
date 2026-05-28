@@ -157,6 +157,9 @@ class VisualNovelApp extends AppBase {
 
     // Filter and paginate portraits
     let filteredPorts = allPortraits;
+    if (!canManage) {
+      filteredPorts = filteredPorts.filter(p => p.userId === game.user?.id);
+    }
     if (this._portSearch) {
       const q = this._portSearch.toLowerCase();
       filteredPorts = filteredPorts.filter(p => (p.name + " " + (p.title||"") + " " + (p.tags||[]).join(" ") + " " + (p.group||"")).toLowerCase().includes(q));
@@ -267,10 +270,6 @@ class VisualNovelApp extends AppBase {
         this._showPanel = "locations";
         this.render();
       });
-      html.querySelector(".vn-btn-portraits")?.addEventListener("click", () => {
-        this._showPanel = "portraits";
-        this.render();
-      });
       html.querySelector(".vn-btn-scene")?.addEventListener("click", () => {
         this._showPanel = "scene";
         this.render();
@@ -328,6 +327,12 @@ class VisualNovelApp extends AppBase {
       setTimeout(() => document.addEventListener("click", menuCloser), 0);
       this._broadcastMenuCleanup = () => document.removeEventListener("click", menuCloser);
     }
+
+    // Portraits button (all users)
+    html.querySelector(".vn-btn-portraits")?.addEventListener("click", () => {
+      this._showPanel = "portraits";
+      this.render();
+    });
 
     html.querySelector(".vn-btn-close")?.addEventListener("click", () => this.close());
 
@@ -845,7 +850,8 @@ class VisualNovelApp extends AppBase {
       const extra = this._readEmotions();
       const allImgs = extra.length ? [mainImg, ...extra.filter(p => p !== mainImg)] : (mainImg ? [mainImg] : []);
       const tagsRaw = form.querySelector(".vn-port-f-tags")?.value?.trim() || "";
-      const userId = form.querySelector(".vn-port-f-user")?.value || "";
+      const isPlayer = game.user?.role < 3;
+      const userId = isPlayer ? (game.user?.id || "") : (form.querySelector(".vn-port-f-user")?.value || "");
       let tags = tagsRaw ? tagsRaw.split(",").map(s => s.trim()).filter(Boolean) : [];
       if (userId) {
         const user = game.users?.get(userId);
@@ -1425,13 +1431,20 @@ Hooks.on("chatMessage", (message, text) => {
     ui.notifications?.info("Usage: /vnreq <your request text>");
     return false;
   }
+  if (text === "/vnportrait" || text === "/vnedit") {
+    _openVN("portraits");
+    return false;
+  }
 });
 
 let _vnOpening = false;
-function _openVN() {
+function _openVN(openPanel) {
   if (_vnOpening) return;
   _vnOpening = true;
   if (ui.freevisualnovel?.rendered) {
+    if (openPanel) {
+      ui.freevisualnovel._showPanel = openPanel;
+    }
     ui.freevisualnovel.render(true);
     _vnOpening = false;
     return;
@@ -1439,6 +1452,9 @@ function _openVN() {
   try {
     const app = new VisualNovelApp();
     ui.freevisualnovel = app;
+    if (openPanel) {
+      app._showPanel = openPanel;
+    }
     app.render(true);
   } catch(e) {
     console.error("FreeVisualNovel | Failed to open:", e);
@@ -1497,22 +1513,33 @@ function _openVN() {
 
 Hooks.on("getSceneControlButtons", (t) => {
   if (!canvas) return;
+  const role = game.user?.role || 0;
   const group = {
     name: "freevisualnovel",
     title: "Free Visual Dialogs",
     icon: "fas fa-comment-dots",
     layer: "Canvas",
     order: 90,
-    tools: {
-      launch: {
-        name: "launch",
-        title: "New Dialogue",
-        icon: "fas fa-play",
-        button: true,
-        visible: true,
-        onChange: () => _openVN()
-      },
-    }
+    visible: role >= CONST.USER_ROLES?.PLAYER || true,
+    tools: {}
+  };
+  if (role >= 3) {
+    group.tools.launch = {
+      name: "launch",
+      title: "New Dialogue",
+      icon: "fas fa-play",
+      button: true,
+      visible: true,
+      onChange: () => _openVN()
+    };
+  }
+  group.tools.portrait = {
+    name: "portrait",
+    title: "My Portrait",
+    icon: "fas fa-user-circle",
+    button: true,
+    visible: true,
+    onChange: () => _openVN("portraits")
   };
   t.freevisualnovel = group;
 });

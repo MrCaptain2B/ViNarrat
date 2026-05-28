@@ -91,14 +91,18 @@
           {{#if this.title}}<span class="vn-port-title">{{this.title}}</span>{{/if}}
           {{#if this.tags.length}}<span class="vn-port-tags">{{this.tags}}</span>{{/if}}
         </div>
+        {{#if ../canManage}}
         <button class="vn-port-add-to-stage" data-id="{{this.id}}">Add to Stage</button>
+        {{/if}}
         <button class="vn-port-edit" data-id="{{this.id}}" title="Edit"><i class="fas fa-pen"></i></button>
+        {{#if ../canManage}}
         <button class="vn-port-delete" data-id="{{this.id}}" title="Delete"><i class="fas fa-trash"></i></button>
+        {{/if}}
       </div>
       {{/each}}
     </div>
     {{#if portRemaining}}<button class="vn-port-show-more vn-show-more">Show {{portRemaining}} more</button>{{/if}}
-    <button class="vn-port-import">Import from Actors</button>
+    {{#if canManage}}<button class="vn-port-import">Import from Actors</button>{{/if}}
     <div class="vn-port-form">
       <div class="vn-form-row">
         <input class="vn-port-f-name" type="text" placeholder="Portrait name">
@@ -126,6 +130,7 @@
         </template>
       </div>
       <input class="vn-port-f-actor" type="text" placeholder="Actor ID (optional)">
+      {{#if canManage}}
       <div class="vn-form-row">
         <span>Player</span>
         <select class="vn-port-f-user">
@@ -135,6 +140,7 @@
           {{/each}}
         </select>
       </div>
+      {{/if}}
       <button class="vn-port-save">{{#if editingPortId}}Update{{else}}Save{{/if}} Portrait</button>
     </div>
   </div>
@@ -364,6 +370,7 @@
   {{else}}
   <div class="vn-gm-toolbar vn-player-bar">
     <span class="vn-player-label">Free Visual Dialogs</span>
+    <button class="vn-btn-portraits" title="Portraits"><i class="fas fa-users"></i></button>
     <button class="vn-btn-close" title="Close"><i class="fas fa-times"></i></button>
   </div>
   {{/if}}
