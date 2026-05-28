@@ -115,7 +115,10 @@ class VisualNovelApp extends AppBase {
       align: game.settings?.get("free-visual-novel", "dialogAlign") || "left",
       text: "",
       showSpeaker: game.settings?.get("free-visual-novel", "dialogShowSpeaker") !== false,
-      fontSize: parseInt(game.settings?.get("free-visual-novel", "dialogFontSize")) || 16
+      fontSize: parseInt(game.settings?.get("free-visual-novel", "dialogFontSize")) || 16,
+      mode: 1,
+      yOffset: 100,
+      leftText: ""
     };
     this._speakerFontSize = parseInt(game.settings?.get("free-visual-novel", "speakerFontSize")) || 20;
     await this._restoreSession();
@@ -158,7 +161,7 @@ class VisualNovelApp extends AppBase {
     this._bgBrightness = state.bgBrightness ?? 1;
     this._themeBg = state.themeBg || this._themeBg;
     this._themeAccent = state.themeAccent || this._themeAccent;
-    this._dialog = state.dialog || this._dialog;
+    this._dialog = Object.assign({}, this._dialog, state.dialog);
     this._speakerFontSize = state.speakerFontSize || this._speakerFontSize;
     this._currentLocationId = state.currentLocationId || null;
   }
