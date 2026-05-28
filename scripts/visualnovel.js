@@ -155,6 +155,9 @@ class VisualNovelApp extends AppBase {
     const locRemaining = Math.max(0, locTotal - this._locListLimit);
     const locations = filteredLocs.slice(0, this._locListLimit);
 
+    const role = game.user?.role || 0;
+    const canManage = role >= 3;
+
     // Filter and paginate portraits
     let filteredPorts = allPortraits;
     if (!canManage) {
@@ -178,8 +181,6 @@ class VisualNovelApp extends AppBase {
     const locGroups = [...new Set(allLocations.map(l => l.group || "").filter(Boolean))];
     const portGroups = [...new Set(allPortraits.map(p => p.group || "").filter(Boolean))];
     const users = [...game.users].map(u => ({ id: u.id, name: u.name }));
-    const role = game.user?.role || 0;
-    const canManage = role >= 3;
     return {
       bg: this._hideBg ? "" : this._bg,
       hideUI: this._hideUI,
