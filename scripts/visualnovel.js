@@ -1204,7 +1204,6 @@ class VisualNovelApp extends AppBase {
       this._interactiveEl = el;
     }
   }
-  }
 
   _onClose(options) {
     if (this._dragCleanup) this._dragCleanup();
