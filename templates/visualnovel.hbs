@@ -349,9 +349,18 @@
     {{! <button class="vn-btn-save-preset" title="Quick Save Preset"><i class="fas fa-save"></i></button> }}
     <button class="vn-btn-toggle-bg" title="Toggle Background"><i class="fas fa-image"></i></button>
     <button class="vn-btn-toggle-ui" title="Toggle UI"><i class="fas fa-eye-slash"></i></button>
-    <button class="vn-btn-broadcast {{#if broadcasting}}vn-broadcast-active{{/if}}" title="{{#if broadcasting}}Stop{{else}}Start{{/if}} Broadcast">
-      <i class="fas {{#if broadcasting}}fa-stop-circle{{else}}fa-play-circle{{/if}}"></i>
-    </button>
+    <div class="vn-broadcast-wrapper">
+      <button class="vn-btn-broadcast {{#if broadcasting}}vn-broadcast-active{{/if}}" title="{{#if broadcasting}}Stop{{else}}Start{{/if}} Broadcast">
+        <i class="fas {{#if broadcasting}}fa-stop-circle{{else}}fa-play-circle{{/if}}"></i>
+      </button>
+      <button class="vn-broadcast-toggle" title="Broadcast mode"><i class="fas fa-caret-down"></i></button>
+      {{#if showBroadcastMenu}}
+      <div class="vn-broadcast-menu">
+        <button class="vn-broadcast-option {{#if (eq inviteMode 'all')}}vn-broadcast-option-active{{/if}}" data-mode="all">All Online</button>
+        <button class="vn-broadcast-option {{#if (eq inviteMode 'stage')}}vn-broadcast-option-active{{/if}}" data-mode="stage">Stage Only</button>
+      </div>
+      {{/if}}
+    </div>
     <button class="vn-btn-close" title="Close"><i class="fas fa-times"></i></button>
   </div>
   {{else}}

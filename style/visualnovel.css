@@ -317,6 +317,26 @@
 .vn-gm-toolbar button:hover { background: rgba(255,255,255,0.1); color: #fff; }
 .vn-broadcast-active { color: #2ecc71 !important; }
 .vn-broadcast-active:hover { background: rgba(46,204,113,0.15) !important; }
+.vn-broadcast-wrapper { position: relative; display: inline-flex; }
+.vn-broadcast-toggle {
+  background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12);
+  border-left: none; border-radius: 0 6px 6px 0; padding: 8px 4px; cursor: pointer;
+  color: rgba(255,255,255,0.6); font-size: 10px; display: flex; align-items: center;
+}
+.vn-broadcast-toggle:hover { background: rgba(255,255,255,0.14); }
+.vn-gm-toolbar .vn-btn-broadcast { border-radius: 6px 0 0 6px !important; border-right: none !important; }
+.vn-broadcast-menu {
+  position: absolute; top: 100%; right: 0; margin-top: 4px;
+  background: rgba(20,20,30,0.95); border: 1px solid rgba(255,255,255,0.15);
+  border-radius: 8px; overflow: hidden; z-index: 30; min-width: 140px;
+}
+.vn-broadcast-option {
+  display: block; width: 100%; padding: 8px 14px; border: none; background: none;
+  color: rgba(255,255,255,0.7); cursor: pointer; text-align: left; font-size: 0.82em;
+  transition: background 0.1s;
+}
+.vn-broadcast-option:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.vn-broadcast-option-active { color: var(--vn-accent); background: rgba(255,255,255,0.05); }
 .vn-player-bar {
   left: 0;
   right: 0;

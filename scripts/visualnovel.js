@@ -84,6 +84,8 @@ class VisualNovelApp extends AppBase {
     this._themeBg = "#0d0d1a";
     this._themeAccent = "#f0c040";
     this._claimed = {};
+    this._inviteMode = "all";
+    this._showBroadcastMenu = false;
     this._dialog = {
       width: 65,
       height: 160,
@@ -204,6 +206,8 @@ class VisualNovelApp extends AppBase {
       users,
       selectedPortrait: selPort,
       bgBrightness: this._bgBrightness,
+      inviteMode: this._inviteMode,
+      showBroadcastMenu: this._showBroadcastMenu,
       dialog: this._dialog,
       speakerFontSize: this._speakerFontSize,
       themeBg: this._themeBg,
@@ -297,8 +301,28 @@ class VisualNovelApp extends AppBase {
         } else {
           game.socket?.emit(SOCKET, { type: "stop" });
         }
+        this._showBroadcastMenu = false;
         this.render();
       });
+      html.querySelector(".vn-broadcast-toggle")?.addEventListener("click", (ev) => {
+        ev.stopPropagation();
+        this._showBroadcastMenu = !this._showBroadcastMenu;
+        this.render();
+      });
+      html.querySelectorAll(".vn-broadcast-option").forEach(btn => {
+        btn.addEventListener("click", (ev) => {
+          this._inviteMode = ev.currentTarget.dataset.mode;
+          this._showBroadcastMenu = false;
+          this.render();
+        });
+      });
+      // Close menu on click outside
+      document.addEventListener("click", () => {
+        if (this._showBroadcastMenu) {
+          this._showBroadcastMenu = false;
+          this.render();
+        }
+      }, { once: true });
     }
 
     html.querySelector(".vn-btn-close")?.addEventListener("click", () => this.close());
@@ -1148,6 +1172,7 @@ function _broadcastVNState(app, force) {
   game.socket?.emit(SOCKET, {
     type: "state",
     broadcasting: app._broadcasting,
+    inviteMode: app._inviteMode || "all",
     bg: app._bg,
     portraits: app._portraits,
     speaker: app._speaker,
@@ -1160,6 +1185,14 @@ function _applyVNState(data) {
   if (!data.broadcasting) {
     ui.freevisualnovel?.close();
     return;
+  }
+  // Filter by invite mode
+  if (data.inviteMode === "stage") {
+    const hasPortraitOnStage = (data.portraits || []).some(p => p.userId === game.user?.id);
+    if (!hasPortraitOnStage) {
+      ui.freevisualnovel?.close();
+      return;
+    }
   }
   try {
     let app = ui.freevisualnovel;
