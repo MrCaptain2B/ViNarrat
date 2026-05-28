@@ -300,6 +300,7 @@ class VisualNovelApp extends AppBase {
           _broadcastVNState(this, true);
         } else {
           game.socket?.emit(SOCKET, { type: "stop" });
+          this._claimed = {};
         }
         this._showBroadcastMenu = false;
         this.render();
