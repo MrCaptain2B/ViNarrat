@@ -331,28 +331,32 @@ class VisualNovelApp extends AppBase {
   }
 
   /* ─────────────── LOCATION PANEL ─────────────── */
+  _filterLocations() {
+    const html = this._el();
+    const searchQ = html.querySelector(".vn-loc-search")?.value?.toLowerCase() || "";
+    const tagQ = html.querySelector(".vn-loc-tag-filter")?.value?.toLowerCase() || "";
+    const groupV = html.querySelector(".vn-loc-group-filter")?.value || "";
+    html.querySelectorAll(".vn-loc-item").forEach(el => {
+      const searchMatch = !searchQ || el.dataset.search?.toLowerCase().includes(searchQ);
+      const tagMatch = !tagQ || el.dataset.tags?.toLowerCase().includes(tagQ);
+      const groupMatch = !groupV || el.dataset.group === groupV;
+      el.style.display = (searchMatch && tagMatch && groupMatch) ? "" : "none";
+    });
+  }
+
   _bindLocationPanel() {
     const html = this._el();
 
-    const searchInput = html.querySelector(".vn-loc-search");
-    if (searchInput) {
-      searchInput.addEventListener("input", (ev) => {
-        const q = ev.target.value.toLowerCase();
-        html.querySelectorAll(".vn-loc-item").forEach(el => {
-          const match = el.dataset.search?.toLowerCase().includes(q);
-          el.style.display = match ? "" : "none";
-        });
-      });
-    }
-
-    const groupSelect = html.querySelector(".vn-loc-group-filter");
-    if (groupSelect) {
-      groupSelect.value = this._locGroupFilter;
-      groupSelect.addEventListener("change", (ev) => {
-        this._locGroupFilter = ev.target.value;
-        this.render();
-      });
-    }
+    const groupSel = html.querySelector(".vn-loc-group-filter");
+    if (groupSel) groupSel.value = this._locGroupFilter;
+    const onFilter = () => {
+      this._locGroupFilter = html.querySelector(".vn-loc-group-filter")?.value || "";
+      this._filterLocations();
+    };
+    html.querySelector(".vn-loc-search")?.addEventListener("input", onFilter);
+    html.querySelector(".vn-loc-tag-filter")?.addEventListener("input", onFilter);
+    groupSel?.addEventListener("change", onFilter);
+    this._filterLocations();
 
     html.querySelectorAll(".vn-loc-select").forEach(btn => {
       btn.addEventListener("click", (ev) => {
@@ -424,28 +428,32 @@ class VisualNovelApp extends AppBase {
   }
 
   /* ─────────────── PORTRAIT PANEL ─────────────── */
+  _filterPortraits() {
+    const html = this._el();
+    const searchQ = html.querySelector(".vn-port-search")?.value?.toLowerCase() || "";
+    const tagQ = html.querySelector(".vn-port-tag-filter")?.value?.toLowerCase() || "";
+    const groupV = html.querySelector(".vn-port-group-filter")?.value || "";
+    html.querySelectorAll(".vn-port-item").forEach(el => {
+      const searchMatch = !searchQ || el.dataset.search?.toLowerCase().includes(searchQ);
+      const tagMatch = !tagQ || el.dataset.tags?.toLowerCase().includes(tagQ);
+      const groupMatch = !groupV || el.dataset.group === groupV;
+      el.style.display = (searchMatch && tagMatch && groupMatch) ? "" : "none";
+    });
+  }
+
   _bindPortraitPanel() {
     const html = this._el();
 
-    const searchInput = html.querySelector(".vn-port-search");
-    if (searchInput) {
-      searchInput.addEventListener("input", (ev) => {
-        const q = ev.target.value.toLowerCase();
-        html.querySelectorAll(".vn-port-item").forEach(el => {
-          const match = el.dataset.search?.toLowerCase().includes(q);
-          el.style.display = match ? "" : "none";
-        });
-      });
-    }
-
-    const groupSelect = html.querySelector(".vn-port-group-filter");
-    if (groupSelect) {
-      groupSelect.value = this._portGroupFilter;
-      groupSelect.addEventListener("change", (ev) => {
-        this._portGroupFilter = ev.target.value;
-        this.render();
-      });
-    }
+    const portGroupSel = html.querySelector(".vn-port-group-filter");
+    if (portGroupSel) portGroupSel.value = this._portGroupFilter;
+    const onFilter = () => {
+      this._portGroupFilter = html.querySelector(".vn-port-group-filter")?.value || "";
+      this._filterPortraits();
+    };
+    html.querySelector(".vn-port-search")?.addEventListener("input", onFilter);
+    html.querySelector(".vn-port-tag-filter")?.addEventListener("input", onFilter);
+    portGroupSel?.addEventListener("change", onFilter);
+    this._filterPortraits();
 
     html.querySelectorAll(".vn-port-add-to-stage").forEach(btn => {
       btn.addEventListener("click", (ev) => {

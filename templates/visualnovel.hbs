@@ -17,7 +17,8 @@
       <button class="vn-loc-back"><i class="fas fa-arrow-left"></i> Back</button>
     </div>
     <div class="vn-filter-row">
-      <input class="vn-loc-search" type="text" placeholder="Search locations...">
+      <input class="vn-loc-search" type="text" placeholder="Search...">
+      <input class="vn-loc-tag-filter" type="text" placeholder="Filter by tag...">
       <select class="vn-loc-group-filter">
         <option value="">All groups</option>
         {{#each locGroups}}
@@ -27,7 +28,7 @@
     </div>
     <div class="vn-loc-list">
       {{#each locations}}
-      <div class="vn-loc-item" data-search="{{this.name}} {{this.tags}} {{this.group}}">
+      <div class="vn-loc-item" data-search="{{this.name}} {{this.tags}} {{this.group}}" data-tags="{{this.tags}}" data-group="{{this.group}}">
         <div class="vn-loc-info">
           <strong>{{this.name}}</strong>
           {{#if this.group}}<span class="vn-item-group">{{this.group}}</span>{{/if}}
@@ -64,7 +65,8 @@
       <button class="vn-port-back"><i class="fas fa-arrow-left"></i> Back</button>
     </div>
     <div class="vn-filter-row">
-      <input class="vn-port-search" type="text" placeholder="Search portraits...">
+      <input class="vn-port-search" type="text" placeholder="Search...">
+      <input class="vn-port-tag-filter" type="text" placeholder="Filter by tag...">
       <select class="vn-port-group-filter">
         <option value="">All groups</option>
         {{#each portGroups}}
@@ -74,7 +76,7 @@
     </div>
     <div class="vn-port-list">
       {{#each allPortraits}}
-      <div class="vn-port-item" data-search="{{this.name}} {{this.title}} {{this.group}} {{this.tags}}">
+      <div class="vn-port-item" data-search="{{this.name}} {{this.title}} {{this.group}} {{this.tags}}" data-tags="{{this.tags}}" data-group="{{this.group}}">
         <div class="vn-port-avatar">
           {{#if this.image}}<img src="{{this.image}}">{{/if}}
         </div>

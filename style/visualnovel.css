@@ -383,10 +383,18 @@
   display: flex;
   gap: 6px;
 }
+.vn-filter-row input[type="text"] {
+  flex: 1;
+  min-width: 0;
+}
 .vn-filter-row select {
   flex: 0 0 auto;
   width: auto;
-  min-width: 100px;
+  min-width: 90px;
+}
+.vn-loc-tag-filter, .vn-port-tag-filter {
+  flex: 0 0 130px;
+  min-width: 0;
 }
 
 /* ── Item lists ── */
