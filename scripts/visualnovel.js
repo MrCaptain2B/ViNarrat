@@ -103,7 +103,7 @@ class VisualNovelApp extends AppBase {
       selected: this._selectedPortraitIdx === i,
       currentImg: (p.images && p.images.length) ? p.images[p._currentEmotion || 0] : p.image,
       hasEmotions: (p.images && p.images.length > 1),
-      images: p.images || [],
+      images: (p.images || []).slice(0, 6),
       emotionIdx: p._currentEmotion || 0
     }));
 
@@ -574,17 +574,29 @@ class VisualNovelApp extends AppBase {
     const form = html.querySelector(".vn-port-form");
     if (!form) return;
 
+    const MAX_EMOTIONS = 5;
+    function emotionCount() {
+      return form.querySelectorAll(".vn-emotion-row").length;
+    }
+    function updateEmotionAddBtn() {
+      const btn = form.querySelector(".vn-emotion-add");
+      if (!btn) return;
+      const count = emotionCount();
+      btn.disabled = count >= MAX_EMOTIONS;
+      btn.textContent = count >= MAX_EMOTIONS ? `Max ${MAX_EMOTIONS} emotions` : `Add emotion (${count}/${MAX_EMOTIONS})`;
+    }
     function readEmotions() {
       const paths = [];
       form.querySelectorAll(".vn-emotion-path").forEach(inp => {
         const v = inp.value.trim();
         if (v) paths.push(v);
       });
-      return paths;
+      return paths.slice(0, MAX_EMOTIONS);
     }
     function resetEmotions() {
       const list = form.querySelector(".vn-emotion-list");
       if (list) list.innerHTML = "";
+      updateEmotionAddBtn();
     }
     function bindEmotionRow(el) {
       const inp = el.querySelector(".vn-emotion-path");
@@ -593,6 +605,7 @@ class VisualNovelApp extends AppBase {
         row?.parentElement?.removeChild(row);
         const list = form.querySelector(".vn-emotion-list");
         list?.querySelectorAll(".vn-emotion-idx").forEach((s, i) => s.textContent = (i + 1) + ".");
+        updateEmotionAddBtn();
       });
       el.querySelector(".vn-emotion-fp")?.addEventListener("click", () => {
         try {
@@ -607,11 +620,17 @@ class VisualNovelApp extends AppBase {
       const list = form.querySelector(".vn-emotion-list");
       const tpl = form.querySelector(".vn-emotion-row-tpl");
       if (!list || !tpl) return;
+      if (emotionCount() >= MAX_EMOTIONS) {
+        ui.notifications?.warn(`Maximum ${MAX_EMOTIONS} emotions allowed`);
+        return;
+      }
       const el = tpl.content.cloneNode(true);
       bindEmotionRow(el);
       list.appendChild(el);
       list.querySelectorAll(".vn-emotion-idx").forEach((s, i) => s.textContent = (i + 1) + ".");
+      updateEmotionAddBtn();
     });
+    updateEmotionAddBtn();
 
     form.querySelector(".vn-port-save")?.addEventListener("click", async () => {
       if (this._saving) return;
