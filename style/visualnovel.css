@@ -129,10 +129,6 @@
 .vn-portrait.vn-claimed .vn-portrait-frame.vn-dimmed img {
   filter: brightness(0.55) drop-shadow(0 0 16px rgba(var(--vn-accent-rgb), 0.8));
 }
-.vn-portrait.vn-claimed .vn-portrait-wrapper {
-  animation: vn-pulse-claim 1s ease-in-out infinite;
-  border-radius: 4px;
-}
 @keyframes vn-pulse-claim {
   0%, 100% { box-shadow: 0 0 0 0 rgba(255,160,0,0); }
   50% { box-shadow: 0 0 14px 4px rgba(255,160,0,0.45); }
