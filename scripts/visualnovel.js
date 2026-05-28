@@ -79,6 +79,8 @@ class VisualNovelApp extends AppBase {
     this._portGroupFilter = "";
     this._portListLimit = 30;
     this._bgBrightness = 1;
+    this._themeBg = "#0d0d1a";
+    this._themeAccent = "#f0c040";
     this._dialog = {
       width: 65,
       height: 160,
@@ -182,8 +184,18 @@ class VisualNovelApp extends AppBase {
       presets: this._data?.presets || [],
       selectedPortrait: selPort,
       bgBrightness: this._bgBrightness,
-      dialog: this._dialog
+      dialog: this._dialog,
+      themeBg: this._themeBg,
+      themeAccent: this._themeAccent
     };
+  }
+
+  _applyTheme() {
+    const root = this.element?.querySelector(".vn-root") || this.element;
+    if (root) {
+      root.style.setProperty("--vn-bg", this._themeBg);
+      root.style.setProperty("--vn-accent", this._themeAccent);
+    }
   }
 
   async _renderHTML(context, options) {
@@ -202,6 +214,7 @@ class VisualNovelApp extends AppBase {
   _onRender(context, options) {
     super._onRender?.(context, options);
     this._adjustForSidebar();
+    this._applyTheme();
     if (this._dragCleanup) this._dragCleanup();
     if (this._showPanel === "locations") this._bindLocationPanel();
     else if (this._showPanel === "portraits") this._bindPortraitPanel();
@@ -794,6 +807,15 @@ class VisualNovelApp extends AppBase {
       this._bgBrightness = parseFloat(ev.target.value) || 1;
       const bg = html.querySelector(".vn-bg");
       if (bg) bg.style.filter = `brightness(${this._bgBrightness})`;
+    });
+
+    html.querySelector(".vn-theme-bg")?.addEventListener("input", (ev) => {
+      this._themeBg = ev.target.value;
+      this._applyTheme();
+    });
+    html.querySelector(".vn-theme-accent")?.addEventListener("input", (ev) => {
+      this._themeAccent = ev.target.value;
+      this._applyTheme();
     });
 
     // Dialog width

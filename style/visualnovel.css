@@ -1,3 +1,8 @@
+:root {
+  --vn-bg: #0d0d1a;
+  --vn-accent: #f0c040;
+  --vn-accent-rgb: 240,192,64;
+}
 @keyframes vn-fade-in {
   from { opacity: 0; }
   to   { opacity: 1; }
@@ -54,7 +59,7 @@
   transition: background-image 0.5s;
 }
 .vn-bg-default {
-  background: linear-gradient(135deg, #0d0d1a 0%, #1a1030 40%, #162040 100%);
+  background: linear-gradient(135deg, var(--vn-bg) 0%, #1a1030 40%, #162040 100%);
 }
 
 /* ── Stage Area ── */
@@ -78,7 +83,7 @@
 .vn-portrait:active { cursor: grabbing; }
 .vn-portrait.vn-portrait-locked { cursor: default; }
 .vn-portrait.vn-portrait-locked:active { cursor: default; }
-.vn-portrait.vn-selected { outline: 2px solid #f0c040; outline-offset: 3px; border-radius: 4px; }
+.vn-portrait.vn-selected { outline: 2px solid var(--vn-accent); outline-offset: 3px; border-radius: 4px; }
 
 .vn-portrait-frame {
   position: relative;
@@ -110,7 +115,7 @@
   transition: border-color 0.15s;
 }
 .vn-emotion-thumb:hover { border-color: rgba(255,255,255,0.6); }
-.vn-emotion-thumb.vn-emotion-active { border-color: #f0c040; }
+.vn-emotion-thumb.vn-emotion-active { border-color: var(--vn-accent); }
 .vn-emotion-thumb img {
   width: 100%;
   height: 100%;
@@ -162,13 +167,13 @@
 .vn-controls-name {
   font-size: 0.95em;
   font-weight: 600;
-  color: #f0c040;
+  color: var(--vn-accent);
   margin-right: 6px;
 }
 .vn-port-scale-inline {
   width: 80px;
   height: 5px;
-  accent-color: #f0c040;
+  accent-color: var(--vn-accent);
   cursor: pointer;
 }
 .vn-portrait-controls button {
@@ -188,7 +193,7 @@
 }
 .vn-portrait-controls button:hover { color: #fff; background: rgba(255,255,255,0.12); }
 .vn-portrait-controls .vn-port-remove:hover { color: #e74c3c; background: rgba(231,76,60,0.15); }
-.vn-portrait-controls .vn-locked { color: #f0c040; }
+.vn-portrait-controls .vn-locked { color: var(--vn-accent); }
 .vn-portrait-placeholder {
   width: 140px;
   height: 200px;
@@ -220,8 +225,8 @@
 .vn-speaker-name {
   font-size: 1.15em;
   font-weight: 600;
-  color: #f0c040;
-  text-shadow: 0 0 10px rgba(240,192,64,0.35);
+  color: var(--vn-accent);
+  text-shadow: 0 0 10px rgba(var(--vn-accent-rgb),0.35);
 }
 
 /* ── GM Speaker Bar ── */
@@ -249,11 +254,11 @@
 }
 .vn-speaker-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
 .vn-speaker-active {
-  background: rgba(240,192,64,0.2);
-  border-color: #f0c040;
-  color: #f0c040;
+  background: rgba(var(--vn-accent-rgb),0.2);
+  border-color: var(--vn-accent);
+  color: var(--vn-accent);
   font-weight: 600;
-  box-shadow: 0 0 10px rgba(240,192,64,0.15);
+  box-shadow: 0 0 10px rgba(var(--vn-accent-rgb),0.15);
 }
 
 /* ── GM Toolbar ── */
@@ -383,7 +388,7 @@
 .vn-panel input[type="text"]:focus,
 .vn-panel textarea:focus,
 .vn-panel select:focus {
-  border-color: rgba(240,192,64,0.4);
+  border-color: rgba(var(--vn-accent-rgb),0.4);
   outline: none;
 }
 .vn-panel input::placeholder { color: rgba(255,255,255,0.25); }
@@ -451,8 +456,8 @@
 .vn-loc-search, .vn-port-search { flex: 1; }
 .vn-item-group {
   display: inline-block;
-  background: rgba(240,192,64,0.12);
-  color: #d4a843;
+  background: rgba(var(--vn-accent-rgb),0.12);
+  color: var(--vn-accent);
   font-size: 0.7em;
   padding: 1px 6px;
   border-radius: 4px;
@@ -523,7 +528,7 @@
   padding: 4px 8px;
 }
 .vn-scene-port-name { min-width: 70px; font-size: 0.82em; }
-.vn-scene-port-scale { flex: 1; max-width: 80px; height: 4px; accent-color: #f0c040; }
+.vn-scene-port-scale { flex: 1; max-width: 80px; height: 4px; accent-color: var(--vn-accent); }
 .vn-scene-port-actions { display: flex; gap: 4px; }
 .vn-scene-port-row button {
   width: 24px;
@@ -570,7 +575,7 @@
 }
 .vn-scene-brightness {
   width: 100%;
-  accent-color: #f0c040;
+  accent-color: var(--vn-accent);
 }
 .vn-dialog-setting {
   display: flex;
@@ -584,13 +589,13 @@
 }
 .vn-dialog-setting input[type="range"] {
   flex: 1;
-  accent-color: #f0c040;
+  accent-color: var(--vn-accent);
 }
 .vn-dialog-val {
   width: 50px;
   text-align: right;
   font-size: 0.8em;
-  color: #f0c040;
+  color: var(--vn-accent);
   font-weight: 600;
 }
 .vn-dialog-align-group {
@@ -608,7 +613,8 @@
   transition: all 0.15s;
 }
 .vn-dialog-align:hover { background: rgba(255,255,255,0.12); color: #fff; }
-.vn-dialog-align.vn-align-active { background: rgba(240,192,64,0.2); border-color: #f0c040; color: #f0c040; }
+.vn-dialog-align.vn-align-active { background: rgba(var(--vn-accent-rgb),0.2); border-color: var(--vn-accent); color: var(--vn-accent); }
+.vn-theme-bg, .vn-theme-accent { width: 48px; height: 32px; padding: 0; border: 1px solid rgba(255,255,255,0.15); border-radius: 4px; background: none; cursor: pointer; }
 .vn-dialog-text {
   width: 100%;
   background: rgba(0,0,0,0.4);
@@ -639,9 +645,9 @@
 .vn-dialog-speaker {
   font-size: 0.85em;
   font-weight: 600;
-  color: #f0c040;
+  color: var(--vn-accent);
   margin-bottom: 6px;
-  text-shadow: 0 0 6px rgba(240,192,64,0.3);
+  text-shadow: 0 0 6px rgba(var(--vn-accent-rgb),0.3);
 }
 .vn-dialog-content {
   font-size: 1em;
