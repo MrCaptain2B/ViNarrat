@@ -209,6 +209,7 @@
         {{/if}}
       </div>
       {{#if this.hasEmotions}}
+      {{#if this.selected}}
       <div class="vn-emotion-strip">
         {{#each this.images}}
         <button class="vn-emotion-thumb {{#if (eq @index ../this.emotionIdx)}}vn-emotion-active{{/if}}" data-port-idx="{{../this.index}}" data-emotion="{{@index}}">
@@ -216,6 +217,7 @@
         </button>
         {{/each}}
       </div>
+      {{/if}}
       {{/if}}
     </div>
     {{/each}}
