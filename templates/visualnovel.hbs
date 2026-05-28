@@ -126,6 +126,15 @@
         </template>
       </div>
       <input class="vn-port-f-actor" type="text" placeholder="Actor ID (optional)">
+      <div class="vn-form-row">
+        <span>Player</span>
+        <select class="vn-port-f-user">
+          <option value="">— None —</option>
+          {{#each users}}
+          <option value="{{this.id}}">{{this.name}}</option>
+          {{/each}}
+        </select>
+      </div>
       <button class="vn-port-save">{{#if editingPortId}}Update{{else}}Save{{/if}} Portrait</button>
     </div>
   </div>
@@ -235,13 +244,13 @@
   {{#unless hideUI}}
   <div class="vn-stage-area">
     {{#each portraits}}
-    <div class="vn-portrait {{#if this.locked}}vn-portrait-locked{{/if}} {{#if this.selected}}vn-selected{{/if}}" data-port-idx="{{@index}}"
+    <div class="vn-portrait {{#if this.locked}}vn-portrait-locked{{/if}} {{#if this.selected}}vn-selected{{/if}} {{#if this.isClaimed}}vn-claimed{{/if}}" data-port-idx="{{@index}}"
          style="left: {{this.x}}px; top: {{this.y}}px;
                 transform: scale({{this.scale}}) {{#if this.flip}}scaleX(-1){{/if}};
                 z-index: {{@index}};">
       <div class="vn-portrait-wrapper">
         {{#if this.hasEmotions}}
-        {{#if this.selected}}
+        {{#if (or this.selected this.isMyPortrait)}}
         <div class="vn-emotion-strip">
           {{#each this.images}}
           <button class="vn-emotion-thumb {{#if (eq @index ../this.emotionIdx)}}vn-emotion-active{{/if}}" data-port-idx="{{../this.index}}" data-emotion="{{@index}}">
@@ -258,6 +267,14 @@
           <div class="vn-portrait-placeholder">{{this.name}}</div>
           {{/if}}
         </div>
+        {{#if this.isMyPortrait}}
+        <button class="vn-attention-btn {{#if this.isClaimed}}vn-attention-active{{/if}}" data-port-idx="{{this.index}}" title="Attention">{{#if this.isClaimed}}<i class="fas fa-check-circle"></i>{{else}}<i class="fas fa-hand-paper"></i>{{/if}}</button>
+        {{/if}}
+        {{#if isGM}}
+        {{#if this.isClaimed}}
+        <button class="vn-approve-btn" data-port-idx="{{this.index}}" title="Approve as speaker"><i class="fas fa-check"></i></button>
+        {{/if}}
+        {{/if}}
       </div>
     </div>
     {{/each}}
@@ -272,6 +289,7 @@
   {{/if}}
 
   {{#if selectedPortrait}}
+  {{#if isGM}}
   <div class="vn-portrait-controls">
     <span class="vn-controls-name">{{selectedPortrait.name}}</span>
     <input class="vn-port-scale-inline" type="range" min="0.3" max="3" step="0.1" value="{{selectedPortrait.scale}}" data-port-idx="{{selectedPortrait.index}}">
@@ -283,6 +301,7 @@
     </button>
     <button class="vn-port-remove" data-port-idx="{{selectedPortrait.index}}" title="Remove"><i class="fas fa-times"></i></button>
   </div>
+  {{/if}}
   {{/if}}
 
   {{#if dialog.text}}

@@ -83,6 +83,7 @@ class VisualNovelApp extends AppBase {
     this._bgBrightness = 1;
     this._themeBg = "#0d0d1a";
     this._themeAccent = "#f0c040";
+    this._claimed = {};
     this._dialog = {
       width: 65,
       height: 160,
@@ -116,6 +117,7 @@ class VisualNovelApp extends AppBase {
   async _prepareContext() {
     if (!this._ready) await this._initialize();
 
+    const playableEnabled = game.settings?.get("free-visual-novel", "playablePortraits") !== false;
     const portraits = this._portraits.map((p, i) => ({
       ...p,
       index: i,
@@ -124,7 +126,9 @@ class VisualNovelApp extends AppBase {
       currentImg: (p.images && p.images.length) ? p.images[p._currentEmotion || 0] : p.image,
       hasEmotions: (p.images && p.images.length > 1),
       images: (p.images || []).slice(0, 6),
-      emotionIdx: p._currentEmotion || 0
+      emotionIdx: p._currentEmotion || 0,
+      isMyPortrait: playableEnabled && p.userId === game.user?.id,
+      isClaimed: !!this._claimed[p.id]
     }));
 
     const speakerPortrait = this._portraits.find(p => p.id === this._speaker);
@@ -168,6 +172,7 @@ class VisualNovelApp extends AppBase {
 
     const locGroups = [...new Set(allLocations.map(l => l.group || "").filter(Boolean))];
     const portGroups = [...new Set(allPortraits.map(p => p.group || "").filter(Boolean))];
+    const users = [...game.users].map(u => ({ id: u.id, name: u.name }));
     const role = game.user?.role || 0;
     const canManage = role >= 3;
     return {
@@ -196,6 +201,7 @@ class VisualNovelApp extends AppBase {
       locGroups,
       portGroups,
       presets: this._data?.presets || [],
+      users,
       selectedPortrait: selPort,
       bgBrightness: this._bgBrightness,
       dialog: this._dialog,
@@ -361,7 +367,12 @@ class VisualNovelApp extends AppBase {
               oldImg.style.transition = "";
             }, 400);
           }
-          this._broadcast();
+          if (game.user?.role >= 3) {
+            this._broadcast();
+          } else {
+            const p = this._portraits[idx];
+            if (p) game.socket?.emit(SOCKET, { type: "emotion", portraitId: p.id, emotionIdx: emo });
+          }
         }
       });
     });
@@ -408,6 +419,37 @@ class VisualNovelApp extends AppBase {
       });
     });
 
+    // Attention button (player claims attention)
+    html.querySelectorAll(".vn-attention-btn").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.portIdx);
+        const p = this._portraits[idx];
+        if (!p) return;
+        const newClaim = !this._claimed[p.id];
+        if (newClaim) {
+          this._claimed[p.id] = true;
+        } else {
+          delete this._claimed[p.id];
+        }
+        this.render();
+        // Notify GM about claim change
+        game.socket?.emit(SOCKET, { type: "claim", portraitId: p.id, claimed: newClaim });
+      });
+    });
+
+    // Approve button (GM accepts claim)
+    html.querySelectorAll(".vn-approve-btn").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.portIdx);
+        const p = this._portraits[idx];
+        if (!p) return;
+        this._speaker = p.id;
+        delete this._claimed[p.id];
+        this.render();
+        this._broadcast();
+      });
+    });
+
     // Request resolve
     html.querySelectorAll(".vn-request-resolve")?.forEach(btn => {
       btn.addEventListener("click", (ev) => {
@@ -440,6 +482,7 @@ class VisualNovelApp extends AppBase {
     this._bg = preset.bg || "";
     this._portraits = JSON.parse(JSON.stringify(preset.portraits || []));
     this._speaker = preset.speaker || "";
+    this._claimed = {};
     this._showPanel = null;
     return true;
   }
@@ -682,6 +725,8 @@ class VisualNovelApp extends AppBase {
           f.querySelector(".vn-port-f-tags").value = (port.tags || []).join(", ");
           f.querySelector(".vn-port-f-img").value = port.image || "";
           f.querySelector(".vn-port-f-actor").value = port.actorId || "";
+          const us = f.querySelector(".vn-port-f-user");
+          if (us) us.value = port.userId || "";
           // Load emotion rows
           const list = f.querySelector(".vn-emotion-list");
           const tpl = f.querySelector(".vn-emotion-row-tpl");
@@ -772,14 +817,25 @@ class VisualNovelApp extends AppBase {
       const extra = this._readEmotions();
       const allImgs = extra.length ? [mainImg, ...extra.filter(p => p !== mainImg)] : (mainImg ? [mainImg] : []);
       const tagsRaw = form.querySelector(".vn-port-f-tags")?.value?.trim() || "";
+      const userId = form.querySelector(".vn-port-f-user")?.value || "";
+      let tags = tagsRaw ? tagsRaw.split(",").map(s => s.trim()).filter(Boolean) : [];
+      if (userId) {
+        const user = game.users?.get(userId);
+        const userTag = "player:" + (user?.name || userId);
+        tags = tags.filter(t => !t.startsWith("player:"));
+        tags.push(userTag);
+      } else {
+        tags = tags.filter(t => !t.startsWith("player:"));
+      }
       const data = {
         name,
         title: form.querySelector(".vn-port-f-title")?.value?.trim() || "",
         group: form.querySelector(".vn-port-f-group")?.value?.trim() || "",
-        tags: tagsRaw ? tagsRaw.split(",").map(s => s.trim()).filter(Boolean) : [],
+        tags,
         image: mainImg,
         images: allImgs,
-        actorId: form.querySelector(".vn-port-f-actor")?.value?.trim() || ""
+        actorId: form.querySelector(".vn-port-f-actor")?.value?.trim() || "",
+        userId
       };
       if (this._editingPortId) {
         const idx = this._data.portraits.findIndex(p => p.id === this._editingPortId);
@@ -795,6 +851,8 @@ class VisualNovelApp extends AppBase {
       form.querySelector(".vn-port-f-tags").value = "";
       form.querySelector(".vn-port-f-img").value = "";
       form.querySelector(".vn-port-f-actor").value = "";
+      const userSel = form.querySelector(".vn-port-f-user");
+      if (userSel) userSel.value = "";
       this._resetEmotions();
       this.render();
     });
@@ -960,6 +1018,8 @@ class VisualNovelApp extends AppBase {
       if (ev.target.closest(".vn-panel")) return;
       if (ev.target.closest("select")) return;
       if (ev.target.closest(".vn-emotion-strip")) return;
+      if (ev.target.closest(".vn-attention-btn")) return;
+      if (ev.target.closest(".vn-approve-btn")) return;
       const el = ev.target.closest(".vn-portrait");
       if (!el) {
         this._selectedPortraitIdx = null;
@@ -1055,6 +1115,7 @@ class VisualNovelApp extends AppBase {
     this._bg = "";
     this._portraits = [];
     this._speaker = "";
+    this._claimed = {};
     if (this.rendered) { this.render(); this._broadcast(); }
   }
 
@@ -1089,7 +1150,8 @@ function _broadcastVNState(app, force) {
     broadcasting: app._broadcasting,
     bg: app._bg,
     portraits: app._portraits,
-    speaker: app._speaker
+    speaker: app._speaker,
+    claimed: app._claimed || {}
   });
 }
 
@@ -1107,12 +1169,16 @@ function _applyVNState(data) {
   app._bg = data.bg || "";
   app._portraits = data.portraits || [];
   app._speaker = data.speaker || "";
+  app._claimed = data.claimed || {};
   app.render(true);
 }
 
 /* ─────────────── Handlebars Helpers ─────────────── */
 Handlebars.registerHelper("eq", function(v1, v2) {
   return v1 === v2;
+});
+Handlebars.registerHelper("or", function(v1, v2) {
+  return v1 || v2;
 });
 
 /* ─────────────── Hooks ─────────────── */
@@ -1166,6 +1232,12 @@ Hooks.once("init", async function() {
     });
   }
 
+  game.settings?.register("free-visual-novel", "playablePortraits", {
+    scope: "world", type: Boolean, default: true, config: true,
+    name: "Player Portrait Control",
+    hint: "Allow players to control their own portraits (emotions, Attention button) on stage"
+  });
+
   const speakerSettings = [
     { key: "speakerFontSize", name: "Speaker Name Font Size", hint: "Font size in pixels (12-60)", default: 20, type: Number }
   ];
@@ -1182,6 +1254,25 @@ Hooks.once("init", async function() {
   game.socket?.on(SOCKET, (data) => {
     if (data?.type === "state") _applyVNState(data);
     else if (data?.type === "stop") { ui.freevisualnovel?.close(); }
+    else if (data?.type === "claim") {
+      const app = ui.freevisualnovel;
+      if (app && game.user?.role >= 3) {
+        if (data.claimed) app._claimed[data.portraitId] = true;
+        else delete app._claimed[data.portraitId];
+        app.render();
+      }
+    }
+    else if (data?.type === "emotion") {
+      const app = ui.freevisualnovel;
+      if (app && game.user?.role >= 3) {
+        const p = app._portraits.find(port => port.id === data.portraitId);
+        if (p && !isNaN(data.emotionIdx)) {
+          p._currentEmotion = data.emotionIdx;
+          app.render();
+          _broadcastVNState(app);
+        }
+      }
+    }
   });
 
   game.freevisualnovel = {
