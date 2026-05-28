@@ -390,15 +390,27 @@ class VisualNovelApp extends AppBase {
     const locGroup = html.querySelector(".vn-loc-group-filter");
     if (locGroup) locGroup.value = this._locGroupFilter;
 
+    const _filterLocDOM = () => {
+      const sq = this._locSearch.toLowerCase();
+      const tq = this._locTagSearch.toLowerCase();
+      const gv = this._locGroupFilter;
+      html.querySelectorAll(".vn-loc-item").forEach(el => {
+        const name = (el.dataset.name || "").toLowerCase();
+        const tags = (el.dataset.tags || "").toLowerCase();
+        const group = (el.dataset.group || "").toLowerCase();
+        const sOk = !sq || name.includes(sq) || tags.includes(sq) || group.includes(sq);
+        const tOk = !tq || tags.includes(tq);
+        const gOk = !gv || group === gv;
+        el.style.display = (sOk && tOk && gOk) ? "" : "none";
+      });
+    };
     html.querySelector(".vn-loc-search")?.addEventListener("input", (ev) => {
       this._locSearch = ev.target.value;
-      clearTimeout(this._locSearchTimer);
-      this._locSearchTimer = setTimeout(() => this.render(), 150);
+      _filterLocDOM();
     });
     html.querySelector(".vn-loc-tag-filter")?.addEventListener("input", (ev) => {
       this._locTagSearch = ev.target.value;
-      clearTimeout(this._locTagTimer);
-      this._locTagTimer = setTimeout(() => this.render(), 150);
+      _filterLocDOM();
     });
     locGroup?.addEventListener("change", (ev) => {
       this._locGroupFilter = ev.target.value;
@@ -485,15 +497,27 @@ class VisualNovelApp extends AppBase {
     const portGroup = html.querySelector(".vn-port-group-filter");
     if (portGroup) portGroup.value = this._portGroupFilter;
 
+    const _filterPortDOM = () => {
+      const sq = this._portSearch.toLowerCase();
+      const tq = this._portTagSearch.toLowerCase();
+      const gv = this._portGroupFilter;
+      html.querySelectorAll(".vn-port-item").forEach(el => {
+        const name = (el.dataset.name || "").toLowerCase();
+        const tags = (el.dataset.tags || "").toLowerCase();
+        const group = (el.dataset.group || "").toLowerCase();
+        const sOk = !sq || name.includes(sq) || tags.includes(sq) || group.includes(sq);
+        const tOk = !tq || tags.includes(tq);
+        const gOk = !gv || group === gv;
+        el.style.display = (sOk && tOk && gOk) ? "" : "none";
+      });
+    };
     html.querySelector(".vn-port-search")?.addEventListener("input", (ev) => {
       this._portSearch = ev.target.value;
-      clearTimeout(this._portSearchTimer);
-      this._portSearchTimer = setTimeout(() => this.render(), 150);
+      _filterPortDOM();
     });
     html.querySelector(".vn-port-tag-filter")?.addEventListener("input", (ev) => {
       this._portTagSearch = ev.target.value;
-      clearTimeout(this._portTagTimer);
-      this._portTagTimer = setTimeout(() => this.render(), 150);
+      _filterPortDOM();
     });
     portGroup?.addEventListener("change", (ev) => {
       this._portGroupFilter = ev.target.value;

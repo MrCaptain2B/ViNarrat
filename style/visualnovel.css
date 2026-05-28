@@ -72,6 +72,9 @@
   user-select: none;
   max-width: 220px;
 }
+.vn-portrait-wrapper {
+  position: relative;
+}
 .vn-portrait:active { cursor: grabbing; }
 .vn-portrait.vn-portrait-locked { cursor: default; }
 .vn-portrait.vn-portrait-locked:active { cursor: default; }
@@ -85,10 +88,15 @@
 
 /* ── Emotion Strip ── */
 .vn-emotion-strip {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%);
   display: flex;
   gap: 3px;
   justify-content: center;
-  margin-bottom: 4px;
+  padding-bottom: 4px;
+  z-index: 5;
 }
 .vn-emotion-thumb {
   width: 36px;

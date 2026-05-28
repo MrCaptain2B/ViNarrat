@@ -29,7 +29,7 @@
     <div class="vn-list-count">{{locations.length}} of {{locTotal}}</div>
     <div class="vn-loc-list">
       {{#each locations}}
-      <div class="vn-loc-item">
+      <div class="vn-loc-item" data-name="{{this.name}}" data-tags="{{this.tags}}" data-group="{{this.group}}">
         <div class="vn-loc-info">
           <strong>{{this.name}}</strong>
           {{#if this.group}}<span class="vn-item-group">{{this.group}}</span>{{/if}}
@@ -79,7 +79,7 @@
     <div class="vn-list-count">{{allPortraits.length}} of {{portTotal}}</div>
     <div class="vn-port-list">
       {{#each allPortraits}}
-      <div class="vn-port-item">
+      <div class="vn-port-item" data-name="{{this.name}}" data-title="{{this.title}}" data-tags="{{this.tags}}" data-group="{{this.group}}">
         <div class="vn-port-avatar">
           {{#if this.image}}<img src="{{this.image}}" loading="lazy">{{/if}}
         </div>
@@ -208,23 +208,25 @@
          style="left: {{this.x}}px; top: {{this.y}}px;
                 transform: scale({{this.scale}}) {{#if this.flip}}scaleX(-1){{/if}};
                 z-index: {{@index}};">
-      {{#if this.hasEmotions}}
-      {{#if this.selected}}
-      <div class="vn-emotion-strip">
-        {{#each this.images}}
-        <button class="vn-emotion-thumb {{#if (eq @index ../this.emotionIdx)}}vn-emotion-active{{/if}}" data-port-idx="{{../this.index}}" data-emotion="{{@index}}">
-          <img src="{{this}}" alt="">
-        </button>
-        {{/each}}
-      </div>
-      {{/if}}
-      {{/if}}
-      <div class="vn-portrait-frame {{#unless this.speaking}}vn-dimmed{{/unless}}">
-        {{#if this.currentImg}}
-        <img class="vn-portrait-img" src="{{this.currentImg}}" alt="{{this.name}}">
-        {{else}}
-        <div class="vn-portrait-placeholder">{{this.name}}</div>
+      <div class="vn-portrait-wrapper">
+        {{#if this.hasEmotions}}
+        {{#if this.selected}}
+        <div class="vn-emotion-strip">
+          {{#each this.images}}
+          <button class="vn-emotion-thumb {{#if (eq @index ../this.emotionIdx)}}vn-emotion-active{{/if}}" data-port-idx="{{../this.index}}" data-emotion="{{@index}}">
+            <img src="{{this}}" alt="">
+          </button>
+          {{/each}}
+        </div>
         {{/if}}
+        {{/if}}
+        <div class="vn-portrait-frame {{#unless this.speaking}}vn-dimmed{{/unless}}">
+          {{#if this.currentImg}}
+          <img class="vn-portrait-img" src="{{this.currentImg}}" alt="{{this.name}}">
+          {{else}}
+          <div class="vn-portrait-placeholder">{{this.name}}</div>
+          {{/if}}
+        </div>
       </div>
     </div>
     {{/each}}
