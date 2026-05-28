@@ -126,7 +126,7 @@
   display: block;
   max-height: 400px;
   width: auto;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease;
 }
 .vn-portrait-overlay {
   position: absolute;
@@ -138,7 +138,7 @@
   object-position: top left;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s ease;
 }
 
 /* ── Portrait Controls Panel ── */

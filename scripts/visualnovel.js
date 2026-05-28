@@ -319,10 +319,13 @@ class VisualNovelApp extends AppBase {
               overlay.style.opacity = 1;
             });
             setTimeout(() => {
+              oldImg.style.transition = "none";
               oldImg.src = imgs[emo];
               oldImg.style.opacity = 1;
               overlay.remove();
-            }, 300);
+              oldImg.offsetHeight;
+              oldImg.style.transition = "";
+            }, 400);
           }
           this._broadcast();
         }
