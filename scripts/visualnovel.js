@@ -249,6 +249,25 @@ class VisualNovelApp extends AppBase {
     else if (this._showPanel === "scene") this._bindScenePanel();
     else if (this._showPanel === "presets") this._bindPresetsPanel();
     else this._bindMainUI();
+    this._ensureInteractiveLayer();
+  }
+
+  _ensureInteractiveLayer() {
+    if (!this._interactiveEl) {
+      const el = document.createElement("div");
+      el.className = "vn-interactive-layer";
+      document.body.appendChild(el);
+      this._interactiveEl = el;
+    }
+    this._interactiveEl.innerHTML = "";
+    const html = this._el();
+    for (const sel of [".vn-gm-toolbar", ".vn-speaker-bar", ".vn-requests",
+                       ".vn-panel", ".vn-portrait",
+                       ".vn-dialog-box", ".vn-speaker-indicator"]) {
+      for (const child of html.querySelectorAll(sel)) {
+        this._interactiveEl.appendChild(child);
+      }
+    }
   }
 
   _el() {
@@ -1163,6 +1182,8 @@ class VisualNovelApp extends AppBase {
   _onClose(options) {
     if (this._dragCleanup) this._dragCleanup();
     this._broadcastMenuCleanup?.();
+    this._interactiveEl?.remove();
+    this._interactiveEl = null;
     this.element?.classList.remove("vn-fullscreen-active");
   }
 
