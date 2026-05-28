@@ -1236,6 +1236,11 @@ class VisualNovelApp extends AppBase {
     if (this.rendered) { this.render(); this._broadcast(); }
   }
 
+  async _clearSession() {
+    if (!game.user || game.user.role < 3) return;
+    await game.user.setFlag("free-visual-novel", "sessionState", null);
+  }
+
   /* ── Lifecycle ── */
   _onFirstRender(context, options) {
     super._onFirstRender?.(context, options);
@@ -1434,12 +1439,7 @@ Hooks.once("init", async function() {
     addRequest(text, priority) {
       ui.freevisualnovel?.addRequest(text, priority);
     },
-  async _clearSession() {
-    if (!game.user || game.user.role < 3) return;
-    await game.user.setFlag("free-visual-novel", "sessionState", null);
-  }
-
-  clearStage() {
+    clearStage() {
       ui.freevisualnovel?.clearStage();
     },
     importActorPortraits(folderPath) {
