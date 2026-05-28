@@ -408,17 +408,6 @@ class VisualNovelApp extends AppBase {
       this._locListLimit += 30;
       this.render();
     });
-      this._locTagSearch = ev.target.value;
-      this.render();
-    });
-    html.querySelector(".vn-loc-group-filter")?.addEventListener("change", (ev) => {
-      this._locGroupFilter = ev.target.value;
-      this.render();
-    });
-    html.querySelector(".vn-loc-show-more")?.addEventListener("click", () => {
-      this._locListLimit += 30;
-      this.render();
-    });
 
     html.querySelectorAll(".vn-loc-select").forEach(btn => {
       btn.addEventListener("click", (ev) => {
