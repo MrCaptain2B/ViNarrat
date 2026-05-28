@@ -249,7 +249,6 @@ class VisualNovelApp extends AppBase {
     else if (this._showPanel === "scene") this._bindScenePanel();
     else if (this._showPanel === "presets") this._bindPresetsPanel();
     else this._bindMainUI();
-    this._ensureInteractiveLayer();
   }
 
   _ensureInteractiveLayer() {
@@ -1182,15 +1181,12 @@ class VisualNovelApp extends AppBase {
   _onClose(options) {
     if (this._dragCleanup) this._dragCleanup();
     this._broadcastMenuCleanup?.();
-    this._interactiveEl?.remove();
-    this._interactiveEl = null;
     this.element?.classList.remove("vn-fullscreen-active");
   }
 
   async close(options) {
     if (!this.element) return super.close(options);
     this.element.classList.add("vn-fading-out");
-    this._interactiveEl?.classList.add("vn-fading-out");
     await new Promise(r => setTimeout(r, 250));
     return super.close(options);
   }
