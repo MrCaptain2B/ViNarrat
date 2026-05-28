@@ -285,7 +285,6 @@
 .vn-speaker-claimed {
   border-color: rgba(var(--vn-accent-rgb), 0.5);
   box-shadow: 0 0 8px rgba(var(--vn-accent-rgb), 0.3);
-  animation: vn-pulse-claim 2s ease-in-out infinite;
 }
 .vn-speaker-active {
   background: rgba(var(--vn-accent-rgb),0.2);
