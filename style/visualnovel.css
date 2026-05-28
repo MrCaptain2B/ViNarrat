@@ -404,6 +404,7 @@
   background: rgba(255,255,255,0.06);
 }
 .vn-loc-tags { color: rgba(255,255,255,0.35); font-size: 0.75em; margin-left: 6px; }
+.vn-port-tags { display: block; color: rgba(255,255,255,0.3); font-size: 0.7em; margin-top: 2px; }
 .vn-loc-search, .vn-port-search { flex: 1; }
 .vn-item-group {
   display: inline-block;
