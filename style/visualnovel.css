@@ -359,7 +359,7 @@
 .vn-gm-toolbar .vn-broadcast-option:hover { background: rgba(255,255,255,0.08); color: #fff; }
 .vn-gm-toolbar .vn-broadcast-option-active { color: var(--vn-accent); background: rgba(255,255,255,0.05); }
 .vn-btn-invite { margin-left: 4px; }
-.vn-invite-menu { position: absolute; top: 100%; right: 48px; margin-top: 4px; background: rgba(20,20,30,0.95); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; overflow: hidden; z-index: 30; min-width: 200px; white-space: nowrap; pointer-events: auto; }
+.vn-invite-menu { position: absolute; top: 100%; right: 48px; margin-top: 4px; background: rgba(20,20,30,0.95); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; z-index: 30; min-width: 240px; white-space: nowrap; pointer-events: auto; }
 .vn-invite-player { display: block; width: 100%; padding: 6px 14px; border: none; background: none; color: rgba(255,255,255,0.7); cursor: pointer; text-align: left; font-size: 0.85em; height: auto; border-radius: 0; min-width: 0; }
 .vn-invite-player:hover { background: rgba(255,255,255,0.08); color: #fff; }
 .vn-broadcast-label { padding: 4px 14px; font-size: 0.75em; color: rgba(255,255,255,0.4); text-transform: uppercase; letter-spacing: 0.5px; }
