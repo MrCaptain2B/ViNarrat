@@ -1065,6 +1065,7 @@ class VisualNovelApp extends AppBase {
     const container = html;
 
     const onClick = (ev) => {
+      if (!this.element?.contains(ev.target) && !this._interactiveEl?.contains(ev.target)) return;
       if (ev.target.closest(".vn-portrait-controls")) return;
       if (ev.target.closest(".vn-dialog-box")) return;
       if (ev.target.closest(".vn-panel")) return;
@@ -1086,6 +1087,7 @@ class VisualNovelApp extends AppBase {
     };
 
     const onDown = (ev) => {
+      if (!this.element?.contains(ev.target) && !this._interactiveEl?.contains(ev.target)) return;
       if (game.user?.role < 3) return;
       const el = ev.target.closest(".vn-portrait");
       if (!el) return;
