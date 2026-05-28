@@ -1,4 +1,5 @@
 const _AppBase = foundry.applications?.api?.Application || foundry.applications?.api?.ApplicationV2;
+console.log("FreeVN | script LOADED, AppBase:", _AppBase?.name);
 if (!_AppBase) {
   console.error("FreeVisualNovel | Application class not found.");
 } else {
@@ -54,6 +55,7 @@ class VisualNovelApp extends AppBase {
 
   constructor(options = {}) {
     super(options);
+    console.log("FreeVN | constructor");
     this._ready = false;
     this._data = null;
 
@@ -86,6 +88,7 @@ class VisualNovelApp extends AppBase {
     this._claimed = {};
     this._inviteMode = "all";
     this._showBroadcastMenu = false;
+    this._showInviteMenu = false;
     this._dialog = {
       width: 65,
       height: 160,
@@ -117,7 +120,7 @@ class VisualNovelApp extends AppBase {
   }
 
   async _saveSession() {
-    if (!game.user || game.user.role < 3) return;
+    if (!game.user || !_userCan("permManage")) return;
     if (!this._broadcasting) return;
     await game.user.setFlag("free-visual-novel", "sessionState", {
       portraits: this._portraits,
@@ -138,7 +141,7 @@ class VisualNovelApp extends AppBase {
   }
 
   async _restoreSession() {
-    if (!game.user || game.user.role < 3) return;
+    if (!game.user || !_userCan("permManage")) return;
     const state = await game.user.getFlag("free-visual-novel", "sessionState");
     if (!state) return;
     this._portraits = state.portraits || [];
@@ -198,7 +201,7 @@ class VisualNovelApp extends AppBase {
     const locations = filteredLocs.slice(0, this._locListLimit);
 
     const role = game.user?.role || 0;
-    const canManage = role >= 3;
+    const canManage = _userCan("permManage");
 
     // Filter and paginate portraits
     let filteredPorts = allPortraits;
@@ -223,6 +226,7 @@ class VisualNovelApp extends AppBase {
     const locGroups = [...new Set(allLocations.map(l => l.group || "").filter(Boolean))];
     const portGroups = [...new Set(allPortraits.map(p => p.group || "").filter(Boolean))];
     const users = [...game.users].map(u => ({ id: u.id, name: u.name }));
+    const onlinePlayers = [...game.users].filter(u => u.active && !u.isGM && !_roleCan(u.role, "permManage")).map(u => ({ id: u.id, name: u.name }));
     return {
       bg: this._hideBg ? "" : this._bg,
       hideUI: this._hideUI,
@@ -250,10 +254,12 @@ class VisualNovelApp extends AppBase {
       portGroups,
       presets: this._data?.presets || [],
       users,
+      onlinePlayers,
       selectedPortrait: selPort,
       bgBrightness: this._bgBrightness,
       inviteMode: this._inviteMode,
       showBroadcastMenu: this._showBroadcastMenu,
+      showInviteMenu: this._showInviteMenu,
       dialog: this._dialog,
       speakerFontSize: this._speakerFontSize,
       themeBg: this._themeBg,
@@ -274,7 +280,9 @@ class VisualNovelApp extends AppBase {
     const resp = await fetch(path);
     const source = await resp.text();
     const template = Handlebars.compile(source);
-    return template(context);
+    const html = template(context);
+    console.log("FreeVN | _renderHTML, has btn-invite:", html.includes("vn-btn-invite"));
+    return html;
   }
 
   _replaceHTML(result, content, options) {
@@ -287,11 +295,12 @@ class VisualNovelApp extends AppBase {
     super._onRender?.(context, options);
     this._applyTheme();
     if (this._dragCleanup) this._dragCleanup();
+    this._bindMainUI();
     if (this._showPanel === "locations") this._bindLocationPanel();
     else if (this._showPanel === "portraits") this._bindPortraitPanel();
     else if (this._showPanel === "scene") this._bindScenePanel();
     else if (this._showPanel === "presets") this._bindPresetsPanel();
-    else this._bindMainUI();
+    this._buildInviteUI();
     if (this._broadcasting) this._broadcast();
   }
 
@@ -338,7 +347,7 @@ class VisualNovelApp extends AppBase {
   _bindMainUI() {
     const html = this._el();
 
-    if (game.user?.role >= 3) {
+    if (_userCan("permManage")) {
       html.querySelector(".vn-btn-locations")?.addEventListener("click", () => {
         this._showPanel = "locations";
         this.render();
@@ -374,6 +383,7 @@ class VisualNovelApp extends AppBase {
           game.socket?.emit(SOCKET, { type: "stop" });
           this._claimed = {};
           this._clearSession();
+          game.settings?.set("free-visual-novel", "broadcastStore", null);
         }
         this._showBroadcastMenu = false;
         this.render();
@@ -477,7 +487,7 @@ class VisualNovelApp extends AppBase {
               oldImg.style.transition = "";
             }, 400);
           }
-          if (game.user?.role >= 3) {
+    if (_userCan("permManage")) {
             this._broadcast();
           } else {
             const p = this._portraits[idx];
@@ -927,7 +937,7 @@ class VisualNovelApp extends AppBase {
       const extra = this._readEmotions();
       const allImgs = extra.length ? [mainImg, ...extra.filter(p => p !== mainImg)] : (mainImg ? [mainImg] : []);
       const tagsRaw = form.querySelector(".vn-port-f-tags")?.value?.trim() || "";
-      const isPlayer = game.user?.role < 3;
+      const isPlayer = !_userCan("permManage");
       const userId = isPlayer ? (game.user?.id || "") : (form.querySelector(".vn-port-f-user")?.value || "");
       let tags = tagsRaw ? tagsRaw.split(",").map(s => s.trim()).filter(Boolean) : [];
       if (userId) {
@@ -1138,8 +1148,8 @@ class VisualNovelApp extends AppBase {
         this.render();
         return;
       }
-      // Only GM can select portraits
-      if (game.user?.role < 3) return;
+      // Only managers can select portraits
+      if (!_userCan("permManage")) return;
       const idx = parseInt(el.dataset.portIdx);
       this._selectedPortraitIdx = this._selectedPortraitIdx === idx ? null : idx;
       this.render();
@@ -1147,7 +1157,7 @@ class VisualNovelApp extends AppBase {
 
     const onDown = (ev) => {
       if (!this.element?.contains(ev.target) && !this._interactiveEl?.contains(ev.target)) return;
-      if (game.user?.role < 3) return;
+      if (!_userCan("permManage")) return;
       const el = ev.target.closest(".vn-portrait");
       if (!el) return;
       const idx = parseInt(el.dataset.portIdx);
@@ -1237,7 +1247,7 @@ class VisualNovelApp extends AppBase {
   }
 
   async _clearSession() {
-    if (!game.user || game.user.role < 3) return;
+    if (!game.user || !_userCan("permManage")) return;
     await game.user.setFlag("free-visual-novel", "sessionState", null);
   }
 
@@ -1255,20 +1265,111 @@ class VisualNovelApp extends AppBase {
   }
 
   _onClose(options) {
-    if (this._dragCleanup) this._dragCleanup();
-    this._broadcastMenuCleanup?.();
-    this._interactiveEl?.remove();
-    this._interactiveEl = null;
     this.element?.classList.remove("vn-fullscreen-active");
   }
 
   async close(options) {
-    if (!this.element) return super.close(options);
+    if (!this.element) {
+      this._broadcastMenuCleanup?.();
+      this._inviteMenuCleanup?.();
+      this._inviteBtn?.remove();
+      this._inviteBtn = null;
+      this._inviteMenu?.remove();
+      this._inviteMenu = null;
+      this._interactiveEl?.remove();
+      this._interactiveEl = null;
+      return super.close(options);
+    }
     this.element.classList.add("vn-fading-out");
     this._interactiveEl?.classList.add("vn-fading-out");
     await new Promise(r => setTimeout(r, 250));
     await this._saveSession();
+    if (this._dragCleanup) this._dragCleanup();
+    this._broadcastMenuCleanup?.();
+    this._inviteMenuCleanup?.();
+    this._inviteBtn?.remove();
+    this._inviteBtn = null;
+    this._inviteMenu?.remove();
+    this._inviteMenu = null;
+    this._interactiveEl?.remove();
+    this._interactiveEl = null;
+    this._portraits = [];
+    if (!_userCan("permManage") && _lastBroadcastState) {
+      _whisperInvite();
+    }
     return super.close(options);
+  }
+
+  _buildInviteUI() {
+    console.log("FreeVN | _buildInviteUI called, canManage:", _userCan("permManage"), "interactiveEl:", !!this._interactiveEl);
+    if (!_userCan("permManage") || !this._interactiveEl) return;
+    if (this._inviteBtn) { this._inviteBtn.remove(); this._inviteBtn = null; }
+    if (this._inviteMenu) { this._inviteMenu.remove(); this._inviteMenu = null; }
+    this._inviteMenuCleanup?.();
+
+    const toolbar = this._interactiveEl.querySelector(".vn-gm-toolbar");
+    console.log("FreeVN | toolbar found:", !!toolbar, "interactiveEl children:", this._interactiveEl.children.length);
+    if (!toolbar) return;
+
+    const btn = document.createElement("button");
+    btn.className = "vn-btn-invite";
+    btn.title = "Invite Player";
+    btn.innerHTML = '<i class="fas fa-user-plus"></i>';
+    toolbar.insertBefore(btn, toolbar.querySelector(".vn-btn-close"));
+
+    const menu = document.createElement("div");
+    menu.className = "vn-invite-menu";
+    menu.style.display = "none";
+
+    const label = document.createElement("div");
+    label.className = "vn-broadcast-label";
+    label.textContent = "Online Players";
+    menu.appendChild(label);
+
+    const users = [...game.users].filter(u => u.active && !u.isGM && !_roleCan(u.role, "permManage"));
+    if (users.length) {
+      for (const u of users) {
+        const pb = document.createElement("button");
+        pb.className = "vn-invite-player";
+        pb.dataset.userId = u.id;
+        pb.textContent = u.name;
+        pb.addEventListener("mouseenter", () => { pb.style.background = "rgba(255,255,255,0.08)"; pb.style.color = "#fff"; });
+        pb.addEventListener("mouseleave", () => { pb.style.background = "none"; pb.style.color = "rgba(255,255,255,0.7)"; });
+        pb.addEventListener("click", () => {
+          const payload = {
+            type: "state", broadcasting: true, inviteMode: this._inviteMode || "all",
+            bg: this._bg, portraits: this._portraits,
+            speaker: this._speaker, claimed: this._claimed || {}
+          };
+          game.socket?.emit(SOCKET, { ...payload, targetUser: u.id });
+          game.socket?.emit(SOCKET, { type: "invite", userId: u.id });
+          menu.style.display = "none";
+        });
+        menu.appendChild(pb);
+      }
+    } else {
+      const empty = document.createElement("div");
+      empty.className = "vn-broadcast-empty";
+      empty.textContent = "No players online";
+      menu.appendChild(empty);
+    }
+
+    toolbar.parentElement.insertBefore(menu, toolbar.nextSibling);
+
+    btn.addEventListener("click", (ev) => {
+      ev.stopPropagation();
+      menu.style.display = menu.style.display === "none" ? "" : "none";
+    });
+
+    const closer = (ev) => {
+      if (menu.style.display !== "none" && !menu.contains(ev.target) && ev.target !== btn && !btn.contains(ev.target)) {
+        menu.style.display = "none";
+      }
+    };
+    document.addEventListener("click", closer);
+    this._inviteMenuCleanup = () => document.removeEventListener("click", closer);
+    this._inviteBtn = btn;
+    this._inviteMenu = menu;
   }
 }
 
@@ -1276,9 +1377,9 @@ class VisualNovelApp extends AppBase {
 const SOCKET = "module.free-visual-novel";
 
 function _broadcastVNState(app, force) {
-  if (!game.user || game.user.role < 3) return;
+  if (!game.user || !_userCan("permManage")) return;
   if (!app._broadcasting && !force) return;
-  game.socket?.emit(SOCKET, {
+  const payload = {
     type: "state",
     broadcasting: app._broadcasting,
     inviteMode: app._inviteMode || "all",
@@ -1286,23 +1387,32 @@ function _broadcastVNState(app, force) {
     portraits: app._portraits,
     speaker: app._speaker,
     claimed: app._claimed || {}
-  });
+  };
+  game.socket?.emit(SOCKET, payload);
+  if (app._broadcasting) {
+    game.settings?.set("free-visual-novel", "broadcastStore", payload);
+  }
 }
 
 function _applyVNState(data) {
-  if (!game.user || game.user.role >= 3) return;
+  if (!game.user || _userCan("permManage")) return;
   if (!data.broadcasting) {
+    _lastBroadcastState = null;
     ui.freevisualnovel?.close();
     return;
   }
+  // Skip if targeted at a specific user and it's not us
+  if (data.targetUser && data.targetUser !== game.user?.id) return;
   // Filter by invite mode
   if (data.inviteMode === "stage") {
     const hasPortraitOnStage = (data.portraits || []).some(p => p.userId === game.user?.id);
     if (!hasPortraitOnStage) {
+      _lastBroadcastState = null;
       ui.freevisualnovel?.close();
       return;
     }
   }
+  _lastBroadcastState = data;
   try {
     let app = ui.freevisualnovel;
     if (!app || !app.rendered) {
@@ -1326,6 +1436,18 @@ Handlebars.registerHelper("eq", function(v1, v2) {
 Handlebars.registerHelper("or", function(v1, v2) {
   return v1 || v2;
 });
+
+  const roleChoices = { 1: "Player", 2: "Trusted", 3: "Assistant", 4: "GM" };
+  const permDefaults = { permManage: 3, permBroadcast: 3, permApproveClaims: 3, permAddRequests: 1 };
+
+function _userCan(permKey) {
+  const minRole = game.settings?.get("free-visual-novel", permKey) ?? permDefaults[permKey] ?? 3;
+  return (game.user?.role ?? 0) >= minRole;
+}
+function _roleCan(role, permKey) {
+  const minRole = game.settings?.get("free-visual-novel", permKey) ?? permDefaults[permKey] ?? 3;
+  return role >= minRole;
+}
 
 /* ─────────────── Hooks ─────────────── */
 Hooks.once("init", async function() {
@@ -1394,15 +1516,37 @@ Hooks.once("init", async function() {
     });
   }
 
+  game.settings?.register("free-visual-novel", "broadcastStore", {
+    scope: "world", type: Object, default: null, config: false
+  });
+
+  const permSettings = [
+    { key: "permManage", name: "Manage VN", hint: "Minimum role to manage scenes, portraits, and background", min: 3 },
+    { key: "permBroadcast", name: "Broadcast", hint: "Minimum role to start/stop broadcast", min: 3 },
+    { key: "permApproveClaims", name: "Approve Claims", hint: "Minimum role to approve player attention claims", min: 3 },
+    { key: "permAddRequests", name: "Add Requests", hint: "Minimum role to add dialogue requests", min: 1 },
+  ];
+  for (const p of permSettings) {
+    game.settings?.register("free-visual-novel", p.key, {
+      scope: "world", type: Number, default: p.min, config: true,
+      name: p.name, hint: p.hint, choices: roleChoices
+    });
+  }
+
   const hasEpicRolls = game.modules?.get("epic-rolls")?.active ?? false;
   const hasSequencer = game.modules?.get("sequencer")?.active ?? false;
 
   game.socket?.on(SOCKET, (data) => {
     if (data?.type === "state") _applyVNState(data);
-    else if (data?.type === "stop") { ui.freevisualnovel?.close(); }
+    else if (data?.type === "invite") {
+      if (_userCan("permManage")) return;
+      if (data.userId && data.userId !== game.user?.id) return;
+      ui.notifications?.info("🎭 You've been invited to the VN scene!");
+    }
+    else if (data?.type === "stop") { _lastBroadcastState = null; ui.freevisualnovel?.close(); }
     else if (data?.type === "claim") {
       const app = ui.freevisualnovel;
-      if (app && game.user?.role >= 3) {
+      if (app && _userCan("permApproveClaims")) {
         if (data.claimed) app._claimed[data.portraitId] = true;
         else delete app._claimed[data.portraitId];
         app.render();
@@ -1410,7 +1554,7 @@ Hooks.once("init", async function() {
     }
     else if (data?.type === "emotion") {
       const app = ui.freevisualnovel;
-      if (app && game.user?.role >= 3) {
+      if (app && _userCan("permApproveClaims")) {
         const p = app._portraits.find(port => port.id === data.portraitId);
         if (p && !isNaN(data.emotionIdx)) {
           p._currentEmotion = data.emotionIdx;
@@ -1530,9 +1674,14 @@ Hooks.on("chatMessage", (message, text) => {
     _openVN("portraits");
     return false;
   }
+  if (text === "/vnrejoin") {
+    _rejoinVN();
+    return false;
+  }
 });
 
 let _vnOpening = false;
+let _lastBroadcastState = null;
 function _openVN(openPanel) {
   if (_vnOpening) return;
   _vnOpening = true;
@@ -1554,6 +1703,46 @@ function _openVN(openPanel) {
   } catch(e) {
     console.error("FreeVisualNovel | Failed to open:", e);
     ui.notifications?.error("Free Visual Novel: failed to open");
+  }
+  _vnOpening = false;
+}
+
+function _whisperInvite() {
+  ChatMessage.create({
+    user: game.user?.id,
+    whisper: [game.user?.id],
+    content: `🎭 <b>Free Visual Novel</b> broadcast is active!<br>Type <code>/vnrejoin</code> to return to the scene.`
+  });
+}
+
+function _rejoinVN() {
+  if (!_lastBroadcastState) {
+    _openVN();
+    return;
+  }
+  if (_vnOpening) return;
+  _vnOpening = true;
+  if (ui.freevisualnovel?.rendered) {
+    const app = ui.freevisualnovel;
+    app._bg = _lastBroadcastState.bg || "";
+    app._portraits = _lastBroadcastState.portraits || [];
+    app._speaker = _lastBroadcastState.speaker || "";
+    app._claimed = _lastBroadcastState.claimed || {};
+    app.render(true);
+    _vnOpening = false;
+    return;
+  }
+  try {
+    const app = new VisualNovelApp();
+    ui.freevisualnovel = app;
+    app._bg = _lastBroadcastState.bg || "";
+    app._portraits = _lastBroadcastState.portraits || [];
+    app._speaker = _lastBroadcastState.speaker || "";
+    app._claimed = _lastBroadcastState.claimed || {};
+    app.render(true);
+  } catch(e) {
+    console.error("FreeVisualNovel | Failed to rejoin:", e);
+    ui.notifications?.error("Free Visual Novel: failed to rejoin");
   }
   _vnOpening = false;
 }
@@ -1618,7 +1807,7 @@ Hooks.on("getSceneControlButtons", (t) => {
     visible: role >= CONST.USER_ROLES?.PLAYER || true,
     tools: {}
   };
-  if (role >= 3) {
+  if (_userCan("permManage")) {
     group.tools.launch = {
       name: "launch",
       title: "New Dialogue",
@@ -1637,6 +1826,13 @@ Hooks.on("getSceneControlButtons", (t) => {
     onChange: () => _openVN("portraits")
   };
   t.freevisualnovel = group;
+});
+
+Hooks.once("ready", () => {
+  const stored = game.settings?.get("free-visual-novel", "broadcastStore");
+  if (stored && stored.broadcasting) {
+    _applyVNState(stored);
+  }
 });
 
 } // end _defineModule
