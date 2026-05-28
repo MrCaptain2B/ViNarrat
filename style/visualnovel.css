@@ -126,8 +126,16 @@
 .vn-portrait-frame.vn-dimmed img {
   filter: brightness(0.55);
 }
-.vn-portrait.vn-claimed .vn-portrait-img {
-  filter: drop-shadow(0 0 16px rgba(var(--vn-accent-rgb), 0.8));
+.vn-portrait.vn-claimed .vn-portrait-frame.vn-dimmed img {
+  filter: brightness(0.55) drop-shadow(0 0 16px rgba(var(--vn-accent-rgb), 0.8));
+}
+.vn-portrait.vn-claimed .vn-portrait-wrapper {
+  animation: vn-pulse-claim 1s ease-in-out infinite;
+  border-radius: 4px;
+}
+@keyframes vn-pulse-claim {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,160,0,0); }
+  50% { box-shadow: 0 0 14px 4px rgba(255,160,0,0.45); }
 }
 
 .vn-portrait-img {
@@ -334,13 +342,13 @@
   background: rgba(20,20,30,0.95); border: 1px solid rgba(255,255,255,0.15);
   border-radius: 8px; overflow: hidden; z-index: 30; min-width: 200px; white-space: nowrap;
 }
-.vn-broadcast-option {
+.vn-gm-toolbar .vn-broadcast-option {
   display: block; width: 100%; padding: 8px 14px; border: none; background: none;
-  color: rgba(255,255,255,0.7); cursor: pointer; text-align: left; font-size: 0.82em;
-  transition: background 0.1s;
+  color: rgba(255,255,255,0.7); cursor: pointer; text-align: left; font-size: 0.85em;
+  transition: background 0.1s; height: auto; border-radius: 0; min-width: 0;
 }
-.vn-broadcast-option:hover { background: rgba(255,255,255,0.08); color: #fff; }
-.vn-broadcast-option-active { color: var(--vn-accent); background: rgba(255,255,255,0.05); }
+.vn-gm-toolbar .vn-broadcast-option:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.vn-gm-toolbar .vn-broadcast-option-active { color: var(--vn-accent); background: rgba(255,255,255,0.05); }
 .vn-player-bar {
   left: 0;
   right: 0;
