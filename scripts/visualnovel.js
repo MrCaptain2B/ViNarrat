@@ -112,7 +112,48 @@ class VisualNovelApp extends AppBase {
       fontSize: parseInt(game.settings?.get("free-visual-novel", "dialogFontSize")) || 16
     };
     this._speakerFontSize = parseInt(game.settings?.get("free-visual-novel", "speakerFontSize")) || 20;
+    await this._restoreSession();
     this._ready = true;
+  }
+
+  async _saveSession() {
+    if (!game.user || game.user.role < 3) return;
+    await game.user.setFlag("free-visual-novel", "sessionState", {
+      portraits: this._portraits,
+      bg: this._bg,
+      speaker: this._speaker,
+      broadcasting: this._broadcasting,
+      inviteMode: this._inviteMode,
+      claimed: this._claimed,
+      hideBg: this._hideBg,
+      hideUI: this._hideUI,
+      bgBrightness: this._bgBrightness,
+      themeBg: this._themeBg,
+      themeAccent: this._themeAccent,
+      dialog: this._dialog,
+      speakerFontSize: this._speakerFontSize,
+      currentLocationId: this._currentLocationId
+    });
+  }
+
+  async _restoreSession() {
+    if (!game.user || game.user.role < 3) return;
+    const state = await game.user.getFlag("free-visual-novel", "sessionState");
+    if (!state) return;
+    this._portraits = state.portraits || [];
+    this._bg = state.bg || "";
+    this._speaker = state.speaker || "";
+    this._broadcasting = state.broadcasting || false;
+    this._inviteMode = state.inviteMode || "all";
+    this._claimed = state.claimed || {};
+    this._hideBg = !!state.hideBg;
+    this._hideUI = !!state.hideUI;
+    this._bgBrightness = state.bgBrightness ?? 1;
+    this._themeBg = state.themeBg || this._themeBg;
+    this._themeAccent = state.themeAccent || this._themeAccent;
+    this._dialog = state.dialog || this._dialog;
+    this._speakerFontSize = state.speakerFontSize || this._speakerFontSize;
+    this._currentLocationId = state.currentLocationId || null;
   }
 
   /* ── Context ── */
@@ -330,6 +371,7 @@ class VisualNovelApp extends AppBase {
         } else {
           game.socket?.emit(SOCKET, { type: "stop" });
           this._claimed = {};
+          this._clearSession();
         }
         this._showBroadcastMenu = false;
         this.render();
@@ -1188,6 +1230,7 @@ class VisualNovelApp extends AppBase {
     this._portraits = [];
     this._speaker = "";
     this._claimed = {};
+    this._clearSession();
     if (this.rendered) { this.render(); this._broadcast(); }
   }
 
@@ -1205,6 +1248,7 @@ class VisualNovelApp extends AppBase {
   }
 
   _onClose(options) {
+    this._saveSession();
     if (this._dragCleanup) this._dragCleanup();
     this._broadcastMenuCleanup?.();
     this._interactiveEl?.remove();
@@ -1388,7 +1432,12 @@ Hooks.once("init", async function() {
     addRequest(text, priority) {
       ui.freevisualnovel?.addRequest(text, priority);
     },
-    clearStage() {
+  async _clearSession() {
+    if (!game.user || game.user.role < 3) return;
+    await game.user.setFlag("free-visual-novel", "sessionState", null);
+  }
+
+  clearStage() {
       ui.freevisualnovel?.clearStage();
     },
     importActorPortraits(folderPath) {
