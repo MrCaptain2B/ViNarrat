@@ -14,8 +14,9 @@
 
 .free-visual-novel.vn-fullscreen {
   position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  z-index: 9999;
+  top: 0; left: 0; bottom: 0;
+  width: calc(100% - var(--sidebar-w, 0px));
+  z-index: 90;
   background: transparent;
   pointer-events: none;
   display: flex;
@@ -297,12 +298,12 @@
   right: 0;
   display: flex;
   gap: 4px;
-  pointer-events: auto;
   background: rgba(10,10,20,0.7);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid rgba(255,255,255,0.08);
   padding: 6px 12px;
   justify-content: center;
+  pointer-events: auto;
 }
 .vn-gm-toolbar button {
   background: transparent;
@@ -317,6 +318,7 @@
   align-items: center;
   justify-content: center;
   transition: all 0.15s;
+  pointer-events: auto;
 }
 .vn-gm-toolbar button:hover { background: rgba(255,255,255,0.1); color: #fff; }
 .vn-broadcast-active { color: #2ecc71 !important; }
@@ -345,7 +347,6 @@
   left: 0;
   right: 0;
   justify-content: center;
-  pointer-events: auto;
 }
 .vn-player-label {
   font-size: 0.8em;
