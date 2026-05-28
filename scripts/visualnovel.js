@@ -118,6 +118,7 @@ class VisualNovelApp extends AppBase {
 
   async _saveSession() {
     if (!game.user || game.user.role < 3) return;
+    if (!this._broadcasting) return;
     await game.user.setFlag("free-visual-novel", "sessionState", {
       portraits: this._portraits,
       bg: this._bg,
@@ -291,6 +292,7 @@ class VisualNovelApp extends AppBase {
     else if (this._showPanel === "scene") this._bindScenePanel();
     else if (this._showPanel === "presets") this._bindPresetsPanel();
     else this._bindMainUI();
+    if (this._broadcasting) this._broadcast();
   }
 
   _ensureInteractiveLayer() {
@@ -1248,7 +1250,6 @@ class VisualNovelApp extends AppBase {
   }
 
   _onClose(options) {
-    this._saveSession();
     if (this._dragCleanup) this._dragCleanup();
     this._broadcastMenuCleanup?.();
     this._interactiveEl?.remove();
@@ -1261,6 +1262,7 @@ class VisualNovelApp extends AppBase {
     this.element.classList.add("vn-fading-out");
     this._interactiveEl?.classList.add("vn-fading-out");
     await new Promise(r => setTimeout(r, 250));
+    await this._saveSession();
     return super.close(options);
   }
 }
