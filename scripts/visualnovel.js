@@ -359,6 +359,20 @@ class VisualNovelApp extends AppBase {
         this._broadcast();
       });
     });
+    html.querySelectorAll(".vn-port-flip").forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.portIdx);
+        if (this._portraits[idx]) {
+          this._portraits[idx].flip = !this._portraits[idx].flip;
+          const el = html.querySelector(`.vn-portrait[data-port-idx="${idx}"]`);
+          if (el) {
+            const p = this._portraits[idx];
+            el.style.transform = `scale(${p.scale}) ${p.flip ? "scaleX(-1)" : ""}`;
+          }
+          this._broadcast();
+        }
+      });
+    });
 
     // Request resolve
     html.querySelectorAll(".vn-request-resolve")?.forEach(btn => {
