@@ -307,7 +307,13 @@ class VisualNovelApp extends AppBase {
           this._portraits[idx]._currentEmotion = emo;
           const img = html.querySelector(`.vn-portrait[data-port-idx="${idx}"] .vn-portrait-img`);
           const imgs = this._portraits[idx].images || [this._portraits[idx].image];
-          if (img && imgs[emo]) img.src = imgs[emo];
+          if (img && imgs[emo]) {
+            img.style.opacity = 0;
+            setTimeout(() => {
+              img.src = imgs[emo];
+              img.style.opacity = 1;
+            }, 250);
+          }
           this._broadcast();
         }
       });

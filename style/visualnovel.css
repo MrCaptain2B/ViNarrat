@@ -113,11 +113,11 @@
   filter: brightness(0.55);
 }
 
-
 .vn-portrait-img {
   display: block;
   max-height: 400px;
   width: auto;
+  transition: opacity 0.25s ease;
 }
 
 /* ── Portrait Controls Panel ── */
