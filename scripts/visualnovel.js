@@ -258,7 +258,9 @@ class VisualNovelApp extends AppBase {
         const emo = parseInt(ev.currentTarget.dataset.emotion);
         if (this._portraits[idx] && !isNaN(emo)) {
           this._portraits[idx]._currentEmotion = emo;
-          this.render();
+          const img = html.querySelector(`.vn-portrait[data-port-idx="${idx}"] .vn-portrait-img`);
+          const imgs = this._portraits[idx].images || [this._portraits[idx].image];
+          if (img && imgs[emo]) img.src = imgs[emo];
           this._broadcast();
         }
       });
