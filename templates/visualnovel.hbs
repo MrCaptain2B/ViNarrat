@@ -356,8 +356,8 @@
       <button class="vn-broadcast-toggle" title="Broadcast mode"><i class="fas fa-caret-down"></i></button>
       {{#if showBroadcastMenu}}
       <div class="vn-broadcast-menu">
-        <button class="vn-broadcast-option {{#if (eq inviteMode 'all')}}vn-broadcast-option-active{{/if}}" data-mode="all">All Online</button>
-        <button class="vn-broadcast-option {{#if (eq inviteMode 'stage')}}vn-broadcast-option-active{{/if}}" data-mode="stage">Stage Only</button>
+        <button class="vn-broadcast-option {{#if (eq inviteMode 'all')}}vn-broadcast-option-active{{/if}}" data-mode="all">{{#if (eq inviteMode 'all')}}<i class="fas fa-check"></i> {{/if}}All Online</button>
+        <button class="vn-broadcast-option {{#if (eq inviteMode 'stage')}}vn-broadcast-option-active{{/if}}" data-mode="stage">{{#if (eq inviteMode 'stage')}}<i class="fas fa-check"></i> {{/if}}Stage Only</button>
       </div>
       {{/if}}
     </div>
