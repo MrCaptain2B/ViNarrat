@@ -335,7 +335,7 @@
   {{#if portraits.length}}
   <div class="vn-speaker-bar">
     {{#each portraits}}
-    <button class="vn-speaker-btn {{#if this.speaking}}vn-speaker-active{{/if}}" data-id="{{this.id}}">
+    <button class="vn-speaker-btn {{#if this.speaking}}vn-speaker-active{{/if}} {{#if this.isClaimed}}vn-speaker-claimed{{/if}}" data-id="{{this.id}}">
       {{this.name}}
     </button>
     {{/each}}

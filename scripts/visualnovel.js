@@ -353,11 +353,14 @@ class VisualNovelApp extends AppBase {
 
     this._bindPortraitDrag(html);
 
-    // Speaker selector (GM only)
+    // Speaker selector (GM only) — also clears claim if selecting a claimed portrait
     html.querySelectorAll(".vn-speaker-btn").forEach(btn => {
       btn.addEventListener("click", (ev) => {
         const id = ev.currentTarget.dataset.id;
         this._speaker = this._speaker === id ? "" : id;
+        if (id && this._speaker && this._claimed[id]) {
+          delete this._claimed[id];
+        }
         this.render();
         this._broadcast();
       });
