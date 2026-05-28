@@ -264,7 +264,7 @@ class VisualNovelApp extends AppBase {
     if (!appEl) return;
     const found = [];
     for (const sel of [".vn-gm-toolbar", ".vn-speaker-bar", ".vn-requests",
-                       ".vn-panel", ".vn-portrait",
+                       ".vn-panel", ".vn-portrait", ".vn-portrait-controls",
                        ".vn-dialog-box", ".vn-speaker-indicator"]) {
       for (const child of appEl.querySelectorAll(sel)) {
         found.push(child);
@@ -1202,7 +1202,6 @@ class VisualNovelApp extends AppBase {
       document.body.appendChild(el);
       this._interactiveEl = el;
     }
-    Promise.resolve().then(() => this._onRender(context, options));
   }
 
   _onClose(options) {
