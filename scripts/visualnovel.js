@@ -1161,16 +1161,20 @@ function _applyVNState(data) {
     ui.freevisualnovel?.close();
     return;
   }
-  let app = ui.freevisualnovel;
-  if (!app) {
-    app = new VisualNovelApp();
-    ui.freevisualnovel = app;
+  try {
+    let app = ui.freevisualnovel;
+    if (!app || !app.rendered) {
+      app = new VisualNovelApp();
+      ui.freevisualnovel = app;
+    }
+    app._bg = data.bg || "";
+    app._portraits = data.portraits || [];
+    app._speaker = data.speaker || "";
+    app._claimed = data.claimed || {};
+    app.render(true);
+  } catch(e) {
+    console.error("FreeVisualNovel | Failed to apply state:", e);
   }
-  app._bg = data.bg || "";
-  app._portraits = data.portraits || [];
-  app._speaker = data.speaker || "";
-  app._claimed = data.claimed || {};
-  app.render(true);
 }
 
 /* ─────────────── Handlebars Helpers ─────────────── */
