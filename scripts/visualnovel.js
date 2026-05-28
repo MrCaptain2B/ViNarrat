@@ -305,14 +305,24 @@ class VisualNovelApp extends AppBase {
         const emo = parseInt(ev.currentTarget.dataset.emotion);
         if (this._portraits[idx] && !isNaN(emo)) {
           this._portraits[idx]._currentEmotion = emo;
-          const img = html.querySelector(`.vn-portrait[data-port-idx="${idx}"] .vn-portrait-img`);
+          const frame = html.querySelector(`.vn-portrait[data-port-idx="${idx}"] .vn-portrait-frame`);
+          const oldImg = frame?.querySelector(".vn-portrait-img");
           const imgs = this._portraits[idx].images || [this._portraits[idx].image];
-          if (img && imgs[emo]) {
-            img.style.opacity = 0;
+          if (oldImg && imgs[emo]) {
+            const overlay = document.createElement("img");
+            overlay.className = "vn-portrait-overlay";
+            overlay.src = imgs[emo];
+            overlay.alt = oldImg.alt || "";
+            frame.appendChild(overlay);
+            requestAnimationFrame(() => {
+              oldImg.style.opacity = 0;
+              overlay.style.opacity = 1;
+            });
             setTimeout(() => {
-              img.src = imgs[emo];
-              img.style.opacity = 1;
-            }, 250);
+              oldImg.src = imgs[emo];
+              oldImg.style.opacity = 1;
+              overlay.remove();
+            }, 300);
           }
           this._broadcast();
         }
