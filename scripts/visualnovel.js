@@ -108,11 +108,7 @@ class VisualNovelApp extends AppBase {
       showSpeaker: game.settings?.get("free-visual-novel", "dialogShowSpeaker") !== false,
       fontSize: parseInt(game.settings?.get("free-visual-novel", "dialogFontSize")) || 16
     };
-    this._speakerBox = {
-      width: parseInt(game.settings?.get("free-visual-novel", "speakerWidth")) || 280,
-      height: parseInt(game.settings?.get("free-visual-novel", "speakerHeight")) || 44,
-      fontSize: parseInt(game.settings?.get("free-visual-novel", "speakerFontSize")) || 18
-    };
+    this._speakerFontSize = parseInt(game.settings?.get("free-visual-novel", "speakerFontSize")) || 20;
     this._ready = true;
   }
 
@@ -203,7 +199,7 @@ class VisualNovelApp extends AppBase {
       selectedPortrait: selPort,
       bgBrightness: this._bgBrightness,
       dialog: this._dialog,
-      speakerBox: this._speakerBox,
+      speakerFontSize: this._speakerFontSize,
       themeBg: this._themeBg,
       themeAccent: this._themeAccent
     };
@@ -905,38 +901,14 @@ class VisualNovelApp extends AppBase {
       if (box) box.style.fontSize = this._dialog.fontSize + "px";
     });
 
-    const _saveSpeakerSetting = (key, value) => {
-      game.settings?.set("free-visual-novel", key, value);
-    };
-
-    // Speaker box width
-    html.querySelector(".vn-speaker-width")?.addEventListener("input", (ev) => {
-      this._speakerBox.width = parseInt(ev.target.value) || 280;
-      _saveSpeakerSetting("speakerWidth", this._speakerBox.width);
-      const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
-      if (val) val.textContent = this._speakerBox.width + "px";
-      const box = document.querySelector(".vn-speaker-indicator");
-      if (box) box.style.width = this._speakerBox.width + "px";
-    });
-
-    // Speaker box height
-    html.querySelector(".vn-speaker-height")?.addEventListener("input", (ev) => {
-      this._speakerBox.height = parseInt(ev.target.value) || 44;
-      _saveSpeakerSetting("speakerHeight", this._speakerBox.height);
-      const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
-      if (val) val.textContent = this._speakerBox.height + "px";
-      const box = document.querySelector(".vn-speaker-indicator");
-      if (box) box.style.height = this._speakerBox.height + "px";
-    });
-
     // Speaker box font size
     html.querySelector(".vn-speaker-fontsize")?.addEventListener("input", (ev) => {
-      this._speakerBox.fontSize = parseInt(ev.target.value) || 18;
-      _saveSpeakerSetting("speakerFontSize", this._speakerBox.fontSize);
+      this._speakerFontSize = parseInt(ev.target.value) || 20;
+      game.settings?.set("free-visual-novel", "speakerFontSize", this._speakerFontSize);
       const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
-      if (val) val.textContent = this._speakerBox.fontSize + "px";
+      if (val) val.textContent = this._speakerFontSize + "px";
       const box = document.querySelector(".vn-speaker-name");
-      if (box) box.style.fontSize = this._speakerBox.fontSize + "px";
+      if (box) box.style.fontSize = this._speakerFontSize + "px";
     });
   }
 
@@ -1195,9 +1167,7 @@ Hooks.once("init", async function() {
   }
 
   const speakerSettings = [
-    { key: "speakerWidth", name: "Speaker Box Width", hint: "Width in pixels (140-500)", default: 280, type: Number },
-    { key: "speakerHeight", name: "Speaker Box Height", hint: "Height in pixels (28-100)", default: 44, type: Number },
-    { key: "speakerFontSize", name: "Speaker Name Font Size", hint: "Font size in pixels (12-40)", default: 18, type: Number }
+    { key: "speakerFontSize", name: "Speaker Name Font Size", hint: "Font size in pixels (12-60)", default: 20, type: Number }
   ];
   for (const s of speakerSettings) {
     game.settings?.register("free-visual-novel", s.key, {

@@ -194,19 +194,9 @@
     <div class="vn-scene-section">
       <label>Speaker Box</label>
       <div class="vn-dialog-setting">
-        <span>Width</span>
-        <input class="vn-speaker-width" type="range" min="140" max="500" step="5" value="{{speakerBox.width}}">
-        <span class="vn-dialog-val">{{speakerBox.width}}px</span>
-      </div>
-      <div class="vn-dialog-setting">
-        <span>Height</span>
-        <input class="vn-speaker-height" type="range" min="28" max="100" step="2" value="{{speakerBox.height}}">
-        <span class="vn-dialog-val">{{speakerBox.height}}px</span>
-      </div>
-      <div class="vn-dialog-setting">
         <span>Font size</span>
-        <input class="vn-speaker-fontsize" type="range" min="12" max="40" step="1" value="{{speakerBox.fontSize}}">
-        <span class="vn-dialog-val">{{speakerBox.fontSize}}px</span>
+        <input class="vn-speaker-fontsize" type="range" min="12" max="60" step="1" value="{{speakerFontSize}}">
+        <span class="vn-dialog-val">{{speakerFontSize}}px</span>
       </div>
     </div>
   </div>
@@ -275,8 +265,8 @@
 
   {{#if dialog.showSpeaker}}
   {{#if speaker}}
-  <div class="vn-speaker-indicator" style="width: {{speakerBox.width}}px; height: {{speakerBox.height}}px;">
-    <span class="vn-speaker-name" style="font-size: {{speakerBox.fontSize}}px;">{{speaker}}</span>
+  <div class="vn-speaker-indicator">
+    <span class="vn-speaker-name" style="font-size: {{speakerFontSize}}px;">{{speaker}}</span>
   </div>
   {{/if}}
   {{/if}}
