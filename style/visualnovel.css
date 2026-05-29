@@ -715,6 +715,24 @@
   z-index: 70;
   box-shadow: 0 -4px 20px rgba(0,0,0,0.3);
 }
+.vn-dialog-drag {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  cursor: ns-resize;
+  pointer-events: auto;
+  opacity: 0;
+  transition: opacity 0.15s;
+  border-radius: 12px 12px 0 0;
+}
+.vn-dialog-box:hover .vn-dialog-drag {
+  opacity: 0.15;
+  background: rgba(255,255,255,0.15);
+}
+.vn-dialog-box:hover .vn-dialog-drag:hover {
+  opacity: 0.35;
+}
 .vn-dialog-dual {
   position: absolute;
   bottom: 100px;

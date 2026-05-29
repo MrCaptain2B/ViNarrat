@@ -606,6 +606,35 @@ class VisualNovelApp extends AppBase {
       });
     });
 
+    // Dialog Y-axis drag (managers only)
+    if (_userCan("permManage")) {
+      html.querySelectorAll(".vn-dialog-drag").forEach(el => {
+        let startY, startBottom, target;
+        const onDown = (ev) => {
+          target = el.closest(".vn-dialog-dual") || el.closest(".vn-dialog-box");
+          if (!target) return;
+          startBottom = parseFloat(target.style.bottom) || 0;
+          startY = ev.clientY;
+          document.addEventListener("mousemove", onMove);
+          document.addEventListener("mouseup", onUp);
+        };
+        const onMove = (ev) => {
+          const dy = startY - ev.clientY;
+          target.style.bottom = Math.max(0, startBottom + dy) + "px";
+        };
+        const onUp = () => {
+          document.removeEventListener("mousemove", onMove);
+          document.removeEventListener("mouseup", onUp);
+          const val = parseFloat(target.style.bottom) || 0;
+          if (this._dialog.yOffset !== val) {
+            this._dialog.yOffset = val;
+            this._broadcast();
+          }
+        };
+        el.addEventListener("mousedown", onDown);
+      });
+    }
+
     // Inline dialog editing
     if (!this._inlineEditBound) {
       this._inlineEditBound = true;
