@@ -178,40 +178,80 @@
 | Ручное применение (Load) | Автоматический прогон |
 | Нет логики | Есть ветвления и метки |
 
-## Рефакторинг (после завершения прототипирования)
-Код написан быстро и работает, но требует приведения в порядок.
-План рефакторинга:
+## Роадмап (ближайшие шаги)
 
-### 1. Разделение на файлы
-- `scripts/app.js` — класс VisualNovelApp (жизненный цикл, render, close)
-- `scripts/panels/` — отдельные модули для LocationPanel, PortraitPanel, ScenePanel, PresetsPanel
-- `scripts/socket.js` — все сокет-обработчики и функции броадкаста
-- `scripts/settings.js` — регистрация настроек модуля + permissions
-- `scripts/helpers.js` — Handlebars helpers, утилиты (_userCan, _roleCan)
+1. **Фикс визуального пиздеца и нерабочей херни** — правим баги, которые висят
+2. **Диалоговые окна** — доделываем фичу (см. историю ночного разговора)
+3. **Presets** — чистый снепшот сцены (bg + portraits + speaker), без Script Engine
+4. **Рефакторинг** — разделение на файлы, вычистка мёртвого кода
+5. **Script Engine / Сценарии** — создание и загрузка сценариев
 
-### 2. Отказ от inline-стилей в шаблоне
-- Вынести `width/height/opacity/fontSize/yOffset` в CSS-классы или CSS-переменные
-- То же для `.vn-dialog-dual` / `.vn-dialog-box` — стили через классы, не через `style="..."`
-- Упростить переключение режимов (single/dual) через CSS, а не через Handlebars `{{#if}}`
+## Рефакторинг (шаг 4)
 
-### 3. Централизованный биндинг
-- Заменить россыпь `querySelector().addEventListener()` на делегирование через один `document`-обработчик с `data-*` атрибутами
-- Или вынести биндинги каждой панели в её own метод/файл (уже частично сделано: `_bindLocationPanel`, `_bindScenePanel` и т.д.)
+Код написан быстро и работает, но 1900 строк в одном файле — потолок.
+Ориентир — структура популярных модулей Foundry (FXMaster, TokenMagic, Monk's Active Tiles):
 
-### 4. Типизация
-- Добавить JSDoc аннотации к методам и ключевым полям
-- Описать структуру `_dialog`, `_portraits`, `_data`
+```
+scripts/
+  main.js                  <-- оркестратор: imports, Hooks.once("init")
+  app.js                   <-- класс VisualNovelApp
+  settings.js              <-- все game.settings.register() + game.settings.settingsMenu()
+  constants.js             <-- packageId, SOCKET, дефолты
+  socket.js                <-- game.socket.on() + _broadcastVNState, _applyVNState
+  api.js                   <-- game.freevisualnovel публичное API
+  helpers.js               <-- Handlebars.registerHelper, _userCan, _roleCan
+  controls.js              <-- Scene Control кнопки
+  panels/
+    location-panel.js
+    portrait-panel.js
+    scene-panel.js
+    presets-panel.js
+  hooks/
+    index.js               <-- barrel: registerAllHooks()
+    canvas-hooks.js
+    scene-hooks.js
+    token-hooks.js
+    ui-hooks.js
+```
 
-### 5. Слабая связь с Foundry
-- Обернуть `game.settings`, `game.socket`, `game.user` в тонкие адаптеры
-- Чтобы логику можно было тестировать вне Foundry
+**Паттерн импорта (как `from X import Y` в Python):**
+```js
+// settings.js
+export function registerSettings() {
+  game.settings.register("free-visual-novel", "key", { ... });
+}
 
-### 6. Стили
-- Разделить `style/visualnovel.css` на: base (слои, z-index), components (портреты, диалог, спикер), panels (локации, сцена, портреты, пресеты), utilities
-- Убрать дублирование pointer-events цепочки
+// main.js — единственная точка входа в module.json
+import { registerSettings } from "./settings.js";
+import { registerHooks } from "./hooks/index.js";
+import { VisualNovelApp } from "./app.js";
 
-### 7. Вычистить мёртвый код
-- Закомментированные пресеты (Save/Load)
-- `_showPresetPicker()`
-- Лишние `console.log`
+Hooks.once("init", function() {
+  registerSettings();
+  registerHooks();
+});
+
+Hooks.once("ready", function() {
+  game.socket.on(SOCKET, (data) => { ... });
+});
+```
+
+Все импорты — статические (`import { ... } from "./file.js"`), никакой магии.
+Foundry сам резолвит esmodules, указанные в `"esmodules": ["scripts/main.js"]` в `module.json`.
+
+### План разрезания текущего `visualnovel.js`
+1. Создать `scripts/` с подпапками
+2. Перенести класс VisualNovelApp в `app.js`
+3. Вырезать функции _userCan, _roleCan, Handlebars-хелперы → `helpers.js`
+4. Вырезать _broadcastVNState, _applyVNState, _rejoinVN, сокет-обработчик → `socket.js`
+5. Вырезать game.settings.register → `settings.js`
+6. Вырезать Scene Control кнопки → `controls.js`
+7. Вырезать _bindLocationPanel → `panels/location-panel.js`
+8. Вырезать _bindPortraitPanel → `panels/portrait-panel.js`
+9. Вырезать _bindScenePanel → `panels/scene-panel.js`
+10. Вырезать _bindPresetsPanel → `panels/presets-panel.js`
+11. `main.js` собирает всё через import и раскладывает по Hooks
+
+Каждый шаг — чистый `Ctrl+X` / `Ctrl+V` + добавление `export` перед function/class.
+Никакой смены логики, только перетасовка. За 1 вечер делается.
 
