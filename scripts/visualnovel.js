@@ -1176,13 +1176,9 @@ class VisualNovelApp extends AppBase {
   _applyDialogStyles() {
     const d = this._dialog;
     if (!d) return;
-    console.log("FreeVN | _applyDialogStyles", { width: d.width, height: d.height, opacity: d.opacity, align: d.align, fontSize: d.fontSize, yOffset: d.yOffset });
-    const boxes = document.querySelectorAll(".vn-dialog-box");
-    console.log("FreeVN | dialog boxes found:", boxes.length);
-    boxes.forEach(box => {
+    document.querySelectorAll(".vn-dialog-box").forEach(box => {
       const isDual = box.classList.contains("vn-dialog-left") || box.classList.contains("vn-dialog-right");
-      const w = isDual ? `calc(${d.width}% / 2 - 30px)` : d.width + "%";
-      box.style.width = w;
+      box.style.width = isDual ? `calc(${d.width}% / 2 - 30px)` : d.width + "%";
       box.style.height = d.height + "px";
       box.style.opacity = d.opacity;
       box.style.textAlign = d.align;
