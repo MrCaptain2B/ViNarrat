@@ -1176,7 +1176,8 @@ class VisualNovelApp extends AppBase {
   _applyDialogStyles() {
     const d = this._dialog;
     if (!d) return;
-    document.querySelectorAll(".vn-dialog-box").forEach(box => {
+    const boxes = document.querySelectorAll(".vn-dialog-box");
+    boxes.forEach(box => {
       const isDual = box.classList.contains("vn-dialog-left") || box.classList.contains("vn-dialog-right");
       box.style.width = isDual ? `calc(${d.width}% / 2 - 30px)` : d.width + "%";
       box.style.height = d.height + "px";
