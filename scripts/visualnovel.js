@@ -308,7 +308,8 @@ class VisualNovelApp extends AppBase {
     else if (this._showPanel === "scene") this._bindScenePanel();
     else if (this._showPanel === "presets") this._bindPresetsPanel();
     // Draggable floating panels
-    const panel = this.element?.querySelector(".vn-panel-floating");
+    const panelEl = this._el();
+    const panel = panelEl.querySelector(".vn-panel-floating");
     const header = panel?.querySelector(".vn-panel-header");
     if (panel && header) {
       header.addEventListener("mousedown", (ev) => {
