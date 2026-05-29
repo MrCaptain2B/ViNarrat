@@ -301,6 +301,7 @@ class VisualNovelApp extends AppBase {
   _onRender(context, options) {
     super._onRender?.(context, options);
     this._applyTheme();
+    this._applyDialogStyles();
     if (this._dragCleanup) this._dragCleanup();
     this._bindMainUI();
     if (this._showPanel === "locations") this._bindLocationPanel();
@@ -1063,12 +1064,22 @@ class VisualNovelApp extends AppBase {
       game.settings?.set("free-visual-novel", key, value);
     };
 
+    const _updateDialogText = () => {
+      const contentEls = document.querySelectorAll(".vn-dialog-content");
+      contentEls.forEach(el => {
+        const side = el.dataset.side;
+        if (side === "left") el.textContent = this._dialog.leftText;
+        else if (side === "single" || side === "right") el.textContent = this._dialog.text;
+      });
+    };
+
     // Dialog width
     html.querySelector(".vn-dialog-width")?.addEventListener("input", (ev) => {
       this._dialog.width = parseInt(ev.target.value) || 65;
       _saveDialogSetting("dialogWidth", this._dialog.width);
       const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
       if (val) val.textContent = this._dialog.width + "%";
+      this._applyDialogStyles();
     });
 
     // Dialog height
@@ -1077,6 +1088,7 @@ class VisualNovelApp extends AppBase {
       _saveDialogSetting("dialogHeight", this._dialog.height);
       const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
       if (val) val.textContent = this._dialog.height + "px";
+      this._applyDialogStyles();
     });
 
     // Dialog opacity
@@ -1085,6 +1097,7 @@ class VisualNovelApp extends AppBase {
       _saveDialogSetting("dialogOpacity", this._dialog.opacity);
       const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
       if (val) val.textContent = this._dialog.opacity;
+      this._applyDialogStyles();
     });
 
     // Dialog alignment
@@ -1092,25 +1105,21 @@ class VisualNovelApp extends AppBase {
       btn.addEventListener("click", (ev) => {
         this._dialog.align = ev.currentTarget.dataset.align;
         _saveDialogSetting("dialogAlign", this._dialog.align);
-        this.render();
+        this._applyDialogStyles();
       });
     });
 
-    // Dialog text input (live update)
+    // Dialog text input
     html.querySelector(".vn-dialog-text")?.addEventListener("input", (ev) => {
       this._dialog.text = ev.target.value;
-      const box = document.querySelector(".vn-dialog-box");
-      if (box) {
-        const txt = box.querySelector(".vn-dialog-content");
-        if (txt) txt.textContent = this._dialog.text;
-      }
+      _updateDialogText();
     });
 
     // Speaker toggle
-    html.querySelector(".vn-dialog-speaker-toggle")?.addEventListener("click", (ev) => {
+    html.querySelector(".vn-dialog-speaker-toggle")?.addEventListener("click", async (ev) => {
       this._dialog.showSpeaker = !this._dialog.showSpeaker;
       _saveDialogSetting("dialogShowSpeaker", this._dialog.showSpeaker);
-      ev.currentTarget.textContent = this._dialog.showSpeaker ? "Show" : "Hide";
+      await this.render();
     });
 
     // Dialog enable toggle
@@ -1118,7 +1127,7 @@ class VisualNovelApp extends AppBase {
       const newVal = !game.settings?.get("free-visual-novel", "dialogEnabled");
       ev.currentTarget.textContent = newVal ? "On" : "Off";
       await game.settings?.set("free-visual-novel", "dialogEnabled", newVal);
-      this.render();
+      await this.render();
     });
 
     // Font size
@@ -1127,8 +1136,7 @@ class VisualNovelApp extends AppBase {
       _saveDialogSetting("dialogFontSize", this._dialog.fontSize);
       const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
       if (val) val.textContent = this._dialog.fontSize + "px";
-      const box = document.querySelector(".vn-dialog-box");
-      if (box) box.style.fontSize = this._dialog.fontSize + "px";
+      this._applyDialogStyles();
     });
 
     // Speaker box font size
@@ -1137,15 +1145,16 @@ class VisualNovelApp extends AppBase {
       game.settings?.set("free-visual-novel", "speakerFontSize", this._speakerFontSize);
       const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
       if (val) val.textContent = this._speakerFontSize + "px";
-      const box = document.querySelector(".vn-speaker-name");
-      if (box) box.style.fontSize = this._speakerFontSize + "px";
+      document.querySelectorAll(".vn-dialog-speaker").forEach(el => {
+        el.style.fontSize = this._speakerFontSize + "px";
+      });
     });
 
     // Dialogue Mode toggle
-    html.querySelector(".vn-dialog-mode-toggle")?.addEventListener("click", (ev) => {
+    html.querySelector(".vn-dialog-mode-toggle")?.addEventListener("click", async (ev) => {
       this._dialog.mode = this._dialog.mode === 2 ? 1 : 2;
       ev.currentTarget.textContent = this._dialog.mode === 2 ? "Dual (2 boxes)" : "Single + Speaker";
-      this.render();
+      await this.render();
     });
 
     // Y Offset
@@ -1153,16 +1162,35 @@ class VisualNovelApp extends AppBase {
       this._dialog.yOffset = parseInt(ev.target.value) || 100;
       const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
       if (val) val.textContent = this._dialog.yOffset + "px";
-      const container = document.querySelector(".vn-dialog-dual") || document.querySelector(".vn-dialog-box");
-      if (container) container.style.bottom = this._dialog.yOffset + "px";
+      this._applyDialogStyles();
     });
 
     // Left text (dual mode)
     html.querySelector(".vn-dialog-lefttext")?.addEventListener("input", (ev) => {
       this._dialog.leftText = ev.target.value;
-      const box = document.querySelector(".vn-dialog-left .vn-dialog-content");
-      if (box) box.textContent = this._dialog.leftText;
+      const leftBox = document.querySelector(".vn-dialog-content[data-side='left']");
+      if (leftBox) leftBox.textContent = this._dialog.leftText;
     });
+  }
+
+  _applyDialogStyles() {
+    const d = this._dialog;
+    if (!d) return;
+    console.log("FreeVN | _applyDialogStyles", { width: d.width, height: d.height, opacity: d.opacity, align: d.align, fontSize: d.fontSize, yOffset: d.yOffset });
+    const boxes = document.querySelectorAll(".vn-dialog-box");
+    console.log("FreeVN | dialog boxes found:", boxes.length);
+    boxes.forEach(box => {
+      const isDual = box.classList.contains("vn-dialog-left") || box.classList.contains("vn-dialog-right");
+      const w = isDual ? `calc(${d.width}% / 2 - 30px)` : d.width + "%";
+      box.style.width = w;
+      box.style.height = d.height + "px";
+      box.style.opacity = d.opacity;
+      box.style.textAlign = d.align;
+      box.style.fontSize = d.fontSize + "px";
+      if (!isDual) box.style.bottom = d.yOffset + "px";
+    });
+    const dual = document.querySelector(".vn-dialog-dual");
+    if (dual) dual.style.bottom = d.yOffset + "px";
   }
 
   /* ─────────────── PRESETS PANEL ─────────────── */
