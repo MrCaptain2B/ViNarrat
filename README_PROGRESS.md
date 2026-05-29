@@ -100,9 +100,48 @@
 - **2-dialogue mode** — ✅ Работает (переключение, Y-offset, left/right)
 - **Inline editing** — ✅ Работает (click, blur/Enter save, Esc cancel)
 - **Session persistence (save/restore)** — ✅ Работает (merge через Object.assign)
+- **Speaker в диалоговом окне** — ✅ Работает (showSpeaker, текст/без текста)
 
-## Планы на будущее
+## Планы на будущее (фичи)
 1. **Список игроков + per-player show/hide** — GM видит кто онлайн, может скрыть VN для конкретного игрока
 2. **Селектор вкладок Foundry** — кнопка с иконками чата/актёров/сцен, клик открывает поп-аут (не закрывая VN)
 3. **Погода/время/температура** — интеграция с Simple Calendar
 4. **CSS-анимации** — fade/slide для показа/скрытия элементов вместо бинарного show/hide
+
+## Рефакторинг (после завершения прототипирования)
+Код написан быстро и работает, но требует приведения в порядок.
+План рефакторинга:
+
+### 1. Разделение на файлы
+- `scripts/app.js` — класс VisualNovelApp (жизненный цикл, render, close)
+- `scripts/panels/` — отдельные модули для LocationPanel, PortraitPanel, ScenePanel, PresetsPanel
+- `scripts/socket.js` — все сокет-обработчики и функции броадкаста
+- `scripts/settings.js` — регистрация настроек модуля + permissions
+- `scripts/helpers.js` — Handlebars helpers, утилиты (_userCan, _roleCan)
+
+### 2. Отказ от inline-стилей в шаблоне
+- Вынести `width/height/opacity/fontSize/yOffset` в CSS-классы или CSS-переменные
+- То же для `.vn-dialog-dual` / `.vn-dialog-box` — стили через классы, не через `style="..."`
+- Упростить переключение режимов (single/dual) через CSS, а не через Handlebars `{{#if}}`
+
+### 3. Централизованный биндинг
+- Заменить россыпь `querySelector().addEventListener()` на делегирование через один `document`-обработчик с `data-*` атрибутами
+- Или вынести биндинги каждой панели в её own метод/файл (уже частично сделано: `_bindLocationPanel`, `_bindScenePanel` и т.д.)
+
+### 4. Типизация
+- Добавить JSDoc аннотации к методам и ключевым полям
+- Описать структуру `_dialog`, `_portraits`, `_data`
+
+### 5. Слабая связь с Foundry
+- Обернуть `game.settings`, `game.socket`, `game.user` в тонкие адаптеры
+- Чтобы логику можно было тестировать вне Foundry
+
+### 6. Стили
+- Разделить `style/visualnovel.css` на: base (слои, z-index), components (портреты, диалог, спикер), panels (локации, сцена, портреты, пресеты), utilities
+- Убрать дублирование pointer-events цепочки
+
+### 7. Вычистить мёртвый код
+- Закомментированные пресеты (Save/Load)
+- `_showPresetPicker()`
+- Лишние `console.log`
+
