@@ -720,8 +720,6 @@
   top: 0;
   left: 0;
   right: 0;
-  bottom: auto;
-  height: 10px;
   cursor: ns-resize;
   pointer-events: auto;
   opacity: 0;
