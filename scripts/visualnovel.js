@@ -586,42 +586,6 @@ class VisualNovelApp extends AppBase {
       });
     });
 
-    // Inline dialog editing (bound once)
-    if (!this._inlineEditBound) {
-      this._inlineEditBound = true;
-      document.addEventListener("click", (ev) => {
-        const content = ev.target.closest(".vn-dialog-content");
-        if (!content || content.getAttribute("contenteditable") === "true") return;
-        if (!_userCan("permManage")) return;
-        ev.stopPropagation();
-        content.setAttribute("contenteditable", "true");
-        content.focus();
-        const range = document.createRange();
-        range.selectNodeContents(content);
-        const sel = window.getSelection();
-        sel.removeAllRanges();
-        sel.addRange(range);
-      });
-      document.addEventListener("blur", (ev) => {
-        const content = ev.target.closest?.(".vn-dialog-content");
-        if (!content || content.getAttribute("contenteditable") !== "true") return;
-        content.removeAttribute("contenteditable");
-        const side = content.dataset.side;
-        if (side === "left") this._dialog.leftText = content.textContent;
-        else this._dialog.text = content.textContent;
-      }, true);
-      document.addEventListener("keydown", (ev) => {
-        const content = ev.target.closest?.(".vn-dialog-content");
-        if (!content || content.getAttribute("contenteditable") !== "true") return;
-        if (ev.key === "Escape") {
-          content.textContent = content.dataset.side === "left" ? this._dialog.leftText : this._dialog.text;
-          content.blur();
-        } else if (ev.key === "Enter" && !ev.shiftKey) {
-          ev.preventDefault();
-          content.blur();
-        }
-      });
-    }
   }
 
   _broadcast() {
@@ -1115,10 +1079,10 @@ class VisualNovelApp extends AppBase {
     });
 
     // Dialog enable toggle
-    html.querySelector(".vn-dialog-enable-toggle")?.addEventListener("click", (ev) => {
+    html.querySelector(".vn-dialog-enable-toggle")?.addEventListener("click", async (ev) => {
       const newVal = !game.settings?.get("free-visual-novel", "dialogEnabled");
-      game.settings?.set("free-visual-novel", "dialogEnabled", newVal);
       ev.currentTarget.textContent = newVal ? "On" : "Off";
+      await game.settings?.set("free-visual-novel", "dialogEnabled", newVal);
       this.render();
     });
 

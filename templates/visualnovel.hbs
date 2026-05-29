@@ -335,50 +335,20 @@
   {{#if dialogEnabled}}
   {{#if (eq dialog.mode 2)}}
   <div class="vn-dialog-dual" style="bottom: {{dialog.yOffset}}px;">
-    {{#if dialog.leftText}}
     <div class="vn-dialog-box vn-dialog-left" style="width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px;">
       {{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-dialog-speaker">{{speaker}}</div>{{/if}}{{/if}}
-      <div class="vn-dialog-content" data-side="left">{{dialog.leftText}}</div>
+      {{#if dialog.leftText}}<div class="vn-dialog-content" data-side="left">{{dialog.leftText}}</div>{{/if}}
     </div>
-    {{else}}
-    {{#if dialog.showSpeaker}}
-    {{#if speaker}}
-    <div class="vn-dialog-box vn-dialog-left" style="width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px;">
-      <div class="vn-dialog-speaker">{{speaker}}</div>
-    </div>
-    {{/if}}
-    {{/if}}
-    {{/if}}
-    {{#if dialog.text}}
     <div class="vn-dialog-box vn-dialog-right" style="width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px;">
       {{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-dialog-speaker">{{speaker}}</div>{{/if}}{{/if}}
-      <div class="vn-dialog-content" data-side="right">{{dialog.text}}</div>
+      {{#if dialog.text}}<div class="vn-dialog-content" data-side="right">{{dialog.text}}</div>{{/if}}
     </div>
-    {{else}}
-    {{#if dialog.showSpeaker}}
-    {{#if speaker}}
-    <div class="vn-dialog-box vn-dialog-right" style="width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px;">
-      <div class="vn-dialog-speaker">{{speaker}}</div>
-    </div>
-    {{/if}}
-    {{/if}}
-    {{/if}}
   </div>
   {{else}}
-  {{#if dialog.text}}
   <div class="vn-dialog-box" style="width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; text-align: {{dialog.align}}; font-size: {{dialog.fontSize}}px; bottom: {{dialog.yOffset}}px;">
     {{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-dialog-speaker">{{speaker}}</div>{{/if}}{{/if}}
-    <div class="vn-dialog-content" data-side="single">{{dialog.text}}</div>
+    {{#if dialog.text}}<div class="vn-dialog-content" data-side="single">{{dialog.text}}</div>{{/if}}
   </div>
-  {{else}}
-  {{#if dialog.showSpeaker}}
-  {{#if speaker}}
-  <div class="vn-dialog-box" style="width: {{dialog.width}}%; height: auto; opacity: {{dialog.opacity}}; text-align: {{dialog.align}}; font-size: {{dialog.fontSize}}px; bottom: {{dialog.yOffset}}px;">
-    <div class="vn-dialog-speaker">{{speaker}}</div>
-  </div>
-  {{/if}}
-  {{/if}}
-  {{/if}}
   {{/if}}
   {{/if}}
 
