@@ -606,13 +606,12 @@ class VisualNovelApp extends AppBase {
       });
     });
 
-    // Inline dialog editing
+    // Inline dialog editing — controlled via dblclick instead of click to avoid interfering with Foundry UI
     if (!this._inlineEditBound) {
       this._inlineEditBound = true;
-      document.addEventListener("click", (ev) => {
+      document.addEventListener("dblclick", (ev) => {
         const content = ev.target.closest(".vn-dialog-content");
         if (!content || content.getAttribute("contenteditable") === "true") return;
-        ev.stopPropagation();
         content.setAttribute("contenteditable", "true");
         content.focus();
         const range = document.createRange();
