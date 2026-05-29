@@ -629,14 +629,27 @@ class VisualNovelApp extends AppBase {
   }
 
   async _savePreset(name) {
+    const existing = this._data.presets.find(p => p.name === name);
     const preset = {
-      id: String(this._data.nextPresetId++),
+      id: existing ? existing.id : String(this._data.nextPresetId++),
       name,
       bg: this._bg,
+      bgBrightness: this._bgBrightness,
+      hideBg: this._hideBg,
+      hideUI: this._hideUI,
       portraits: JSON.parse(JSON.stringify(this._portraits)),
-      speaker: this._speaker
+      speaker: this._speaker,
+      dialog: JSON.parse(JSON.stringify(this._dialog)),
+      speakerFontSize: this._speakerFontSize,
+      themeBg: this._themeBg,
+      themeAccent: this._themeAccent,
+      currentLocationId: this._currentLocationId
     };
-    this._data.presets.push(preset);
+    if (existing) {
+      Object.assign(existing, preset);
+    } else {
+      this._data.presets.push(preset);
+    }
     await _saveData(this._data);
   }
 
@@ -644,10 +657,19 @@ class VisualNovelApp extends AppBase {
     const preset = this._data?.presets.find(p => p.id === id);
     if (!preset) return false;
     this._bg = preset.bg || "";
+    this._bgBrightness = preset.bgBrightness ?? 1;
+    this._hideBg = !!preset.hideBg;
+    this._hideUI = !!preset.hideUI;
     this._portraits = JSON.parse(JSON.stringify(preset.portraits || []));
     this._speaker = preset.speaker || "";
+    if (preset.dialog) Object.assign(this._dialog, preset.dialog);
+    this._speakerFontSize = preset.speakerFontSize ?? 20;
+    this._themeBg = preset.themeBg || "#0d0d1a";
+    this._themeAccent = preset.themeAccent || "#f0c040";
+    this._currentLocationId = preset.currentLocationId || null;
     this._claimed = {};
     this._showPanel = null;
+    this._applyTheme();
     return true;
   }
 
