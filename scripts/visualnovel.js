@@ -307,6 +307,13 @@ class VisualNovelApp extends AppBase {
     else if (this._showPanel === "portraits") this._bindPortraitPanel();
     else if (this._showPanel === "scene") this._bindScenePanel();
     else if (this._showPanel === "presets") this._bindPresetsPanel();
+    // Click overlay background to close panel
+    this.element?.querySelector(".vn-panel-overlay")?.addEventListener("click", (ev) => {
+      if (ev.target === ev.currentTarget) {
+        this._showPanel = null;
+        this.render();
+      }
+    });
     this._buildInviteUI();
     if (this._broadcasting) this._broadcast();
   }
@@ -586,6 +593,43 @@ class VisualNovelApp extends AppBase {
       });
     });
 
+    // Inline dialog editing
+    if (!this._inlineEditBound) {
+      this._inlineEditBound = true;
+      document.addEventListener("click", (ev) => {
+        const content = ev.target.closest(".vn-dialog-content");
+        if (!content || content.getAttribute("contenteditable") === "true") return;
+        ev.stopPropagation();
+        content.setAttribute("contenteditable", "true");
+        content.focus();
+        const range = document.createRange();
+        range.selectNodeContents(content);
+        const sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+      });
+      document.addEventListener("blur", (ev) => {
+        const content = ev.target.closest?.(".vn-dialog-content");
+        if (!content || content.getAttribute("contenteditable") !== "true") return;
+        content.removeAttribute("contenteditable");
+        const side = content.dataset.side;
+        if (side === "left") this._dialog.leftText = content.textContent;
+        else this._dialog.text = content.textContent;
+        const val = content.textContent;
+        if (val) this.render();
+      }, true);
+      document.addEventListener("keydown", (ev) => {
+        const content = ev.target.closest?.(".vn-dialog-content");
+        if (!content || content.getAttribute("contenteditable") !== "true") return;
+        if (ev.key === "Escape") {
+          content.textContent = content.dataset.side === "left" ? this._dialog.leftText : this._dialog.text;
+          content.blur();
+        } else if (ev.key === "Enter" && !ev.shiftKey) {
+          ev.preventDefault();
+          content.blur();
+        }
+      });
+    }
   }
 
   _broadcast() {

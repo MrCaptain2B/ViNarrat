@@ -758,6 +758,42 @@
 .vn-dialog-content:hover {
   background: rgba(255,255,255,0.04);
 }
+.vn-dialog-content[contenteditable="true"] {
+  cursor: text;
+  background: rgba(255,255,255,0.06);
+  box-shadow: inset 0 0 0 1px rgba(255,255,255,0.12);
+}
+.vn-dialog-content:empty:before {
+  content: attr(data-placeholder);
+  color: rgba(255,255,255,0.2);
+}
+.vn-dialog-content:empty {
+  min-height: 1.5em;
+}
+
+/* ── Floating Panel ── */
+.vn-panel-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: auto;
+}
+.vn-panel-floating {
+  position: relative;
+  max-width: 480px;
+  max-height: 85vh;
+  overflow-y: auto;
+  width: 90%;
+  background: rgba(10,8,18,0.96);
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 12px;
+  padding: 16px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
 
 /* ── Portrait Emotions Form ── */
 .vn-port-emotions {
