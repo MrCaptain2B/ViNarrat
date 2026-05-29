@@ -307,13 +307,25 @@ class VisualNovelApp extends AppBase {
     else if (this._showPanel === "portraits") this._bindPortraitPanel();
     else if (this._showPanel === "scene") this._bindScenePanel();
     else if (this._showPanel === "presets") this._bindPresetsPanel();
-    // Click overlay background to close panel
-    this.element?.querySelector(".vn-panel-overlay")?.addEventListener("click", (ev) => {
-      if (ev.target === ev.currentTarget) {
-        this._showPanel = null;
-        this.render();
-      }
-    });
+    // Draggable floating panels
+    const panel = this.element?.querySelector(".vn-panel-floating");
+    const header = panel?.querySelector(".vn-panel-header");
+    if (panel && header) {
+      header.addEventListener("mousedown", (ev) => {
+        if (ev.button !== 0) return;
+        const rect = panel.getBoundingClientRect();
+        const offX = ev.clientX - rect.left;
+        const offY = ev.clientY - rect.top;
+        const onMove = (e) => {
+          panel.style.left = (e.clientX - offX) + "px";
+          panel.style.top = (e.clientY - offY) + "px";
+          panel.style.right = "auto";
+        };
+        const onUp = () => { document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); };
+        document.addEventListener("mousemove", onMove);
+        document.addEventListener("mouseup", onUp);
+      });
+    }
     this._buildInviteUI();
     if (this._broadcasting) this._broadcast();
   }

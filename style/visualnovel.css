@@ -720,20 +720,22 @@
   bottom: 100px;
   left: 0;
   right: 0;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 40px;
-  gap: 20px;
   pointer-events: none;
   z-index: 70;
 }
 .vn-dialog-dual .vn-dialog-box {
-  position: relative;
+  position: absolute;
   bottom: auto;
   left: auto;
+  right: auto;
   transform: none;
-  flex: 1;
-  min-width: 0;
+  width: calc(50% - 30px);
+}
+.vn-dialog-dual .vn-dialog-left {
+  left: 20px;
+}
+.vn-dialog-dual .vn-dialog-right {
+  right: 20px;
 }
 .vn-dialog-speaker {
   font-size: 0.85em;
@@ -772,27 +774,23 @@
 }
 
 /* ── Floating Panel ── */
-.vn-panel-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 100;
-  background: rgba(0,0,0,0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  pointer-events: auto;
-}
 .vn-panel-floating {
-  position: relative;
-  max-width: 480px;
-  max-height: 85vh;
+  position: absolute;
+  top: 50px;
+  right: 10px;
+  width: 400px;
+  max-height: min(80vh, 600px);
   overflow-y: auto;
-  width: 90%;
   background: rgba(10,8,18,0.96);
   border: 1px solid rgba(255,255,255,0.12);
   border-radius: 12px;
-  padding: 16px;
+  padding: 0 16px 16px;
   box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+  z-index: 200;
+}
+.vn-panel-floating .vn-panel-header {
+  cursor: move;
+  user-select: none;
 }
 
 /* ── Portrait Emotions Form ── */
