@@ -332,28 +332,7 @@ class VisualNovelApp extends AppBase {
   }
 
   _ensureInteractiveLayer() {
-    if (!this._interactiveEl) {
-      const el = document.createElement("div");
-      el.className = "vn-interactive-layer";
-      document.body.appendChild(el);
-      this._interactiveEl = el;
-    }
-    const appEl = this.element;
-    if (!appEl) return;
-    const found = [];
-    for (const sel of [".vn-gm-toolbar", ".vn-speaker-bar", ".vn-requests",
-                       ".vn-panel", ".vn-portrait",
-                       ".vn-dialog-box", ".vn-speaker-indicator",
-                       ".vn-portrait-controls"]) {
-      for (const child of appEl.querySelectorAll(sel)) {
-        found.push(child);
-      }
-    }
-    if (!found.length) return;
-    this._interactiveEl.innerHTML = "";
-    for (const child of found) {
-      this._interactiveEl.appendChild(child);
-    }
+    // Removed — interactive elements stay in the app's element to avoid blocking Foundry UI
   }
 
   _el() {
@@ -1229,7 +1208,7 @@ class VisualNovelApp extends AppBase {
     const container = html;
 
     const onClick = (ev) => {
-      if (!this.element?.contains(ev.target) && !this._interactiveEl?.contains(ev.target)) return;
+      if (!this.element?.contains(ev.target)) return;
       if (ev.target.closest(".vn-portrait-controls")) return;
       if (ev.target.closest(".vn-dialog-box")) return;
       if (ev.target.closest(".vn-panel")) return;
@@ -1251,7 +1230,7 @@ class VisualNovelApp extends AppBase {
     };
 
     const onDown = (ev) => {
-      if (!this.element?.contains(ev.target) && !this._interactiveEl?.contains(ev.target)) return;
+      if (!this.element?.contains(ev.target)) return;
       if (!_userCan("permManage")) return;
       const el = ev.target.closest(".vn-portrait");
       if (!el) return;
@@ -1351,12 +1330,6 @@ class VisualNovelApp extends AppBase {
     super._onFirstRender?.(context, options);
     this._context = context;
     this.element?.classList.add("vn-fullscreen-active");
-    if (!this._interactiveEl) {
-      const el = document.createElement("div");
-      el.className = "vn-interactive-layer";
-      document.body.appendChild(el);
-      this._interactiveEl = el;
-    }
   }
 
   _onClose(options) {
@@ -1371,12 +1344,9 @@ class VisualNovelApp extends AppBase {
       this._inviteBtn = null;
       this._inviteMenu?.remove();
       this._inviteMenu = null;
-      this._interactiveEl?.remove();
-      this._interactiveEl = null;
       return super.close(options);
     }
     this.element.classList.add("vn-fading-out");
-    this._interactiveEl?.classList.add("vn-fading-out");
     await new Promise(r => setTimeout(r, 250));
     await this._saveSession();
     if (this._dragCleanup) this._dragCleanup();
@@ -1386,8 +1356,6 @@ class VisualNovelApp extends AppBase {
     this._inviteBtn = null;
     this._inviteMenu?.remove();
     this._inviteMenu = null;
-    this._interactiveEl?.remove();
-    this._interactiveEl = null;
     this._portraits = [];
     if (!_userCan("permManage") && _lastBroadcastState) {
       _whisperInvite();
@@ -1396,12 +1364,12 @@ class VisualNovelApp extends AppBase {
   }
 
   _buildInviteUI() {
-    if (!_userCan("permManage") || !this._interactiveEl) return;
+    if (!_userCan("permManage") || !this.element) return;
     if (this._inviteBtn) { this._inviteBtn.remove(); this._inviteBtn = null; }
     if (this._inviteMenu) { this._inviteMenu.remove(); this._inviteMenu = null; }
     this._inviteMenuCleanup?.();
 
-    const toolbar = this._interactiveEl.querySelector(".vn-gm-toolbar");
+    const toolbar = this.element.querySelector(".vn-gm-toolbar");
     if (!toolbar) return;
 
     const btn = document.createElement("button");
