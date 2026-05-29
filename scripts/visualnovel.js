@@ -585,10 +585,10 @@ class VisualNovelApp extends AppBase {
       });
     });
 
-    // Inline dialog editing — controlled via dblclick instead of click to avoid interfering with Foundry UI
+    // Inline dialog editing — click, no stopPropagation (that was the button blocker)
     if (!this._inlineEditBound) {
       this._inlineEditBound = true;
-      document.addEventListener("dblclick", (ev) => {
+      document.addEventListener("click", (ev) => {
         const content = ev.target.closest(".vn-dialog-content");
         if (!content || content.getAttribute("contenteditable") === "true") return;
         content.setAttribute("contenteditable", "true");

@@ -352,17 +352,6 @@
         <input class="vn-dialog-fontsize" type="range" min="10" max="36" step="1" value="{{dialog.fontSize}}">
         <span class="vn-dialog-val">{{dialog.fontSize}}px</span>
       </div>
-    </div>
-    <div class="vn-scene-section">
-      <label>Speaker Box</label>
-      <div class="vn-dialog-setting">
-        <span>Font size</span>
-        <input class="vn-speaker-fontsize" type="range" min="12" max="60" step="1" value="{{speakerFontSize}}">
-        <span class="vn-dialog-val">{{speakerFontSize}}px</span>
-      </div>
-    </div>
-    <div class="vn-scene-section">
-      <label>Dialogue Mode</label>
       <div class="vn-dialog-setting">
         <span>Mode</span>
         <button class="vn-dialog-mode-toggle">{{#if (eq dialog.mode 2)}}Dual (2 boxes){{else}}Single + Speaker{{/if}}</button>
@@ -378,6 +367,14 @@
         <textarea class="vn-dialog-lefttext" rows="3" placeholder="Type dialogue here...">{{dialog.leftText}}</textarea>
       </div>
       {{/if}}
+    </div>
+    <div class="vn-scene-section">
+      <label>Speaker Box</label>
+      <div class="vn-dialog-setting">
+        <span>Font size</span>
+        <input class="vn-speaker-fontsize" type="range" min="12" max="60" step="1" value="{{speakerFontSize}}">
+        <span class="vn-dialog-val">{{speakerFontSize}}px</span>
+      </div>
     </div>
   </div>
   {{/if}}
