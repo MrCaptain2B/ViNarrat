@@ -726,16 +726,6 @@
 .vn-dialog-dual .vn-dialog-box {
   position: absolute;
   bottom: auto;
-  left: auto;
-  right: auto;
-  transform: none;
-  width: calc(50% - 30px);
-}
-.vn-dialog-dual .vn-dialog-left {
-  left: 20px;
-}
-.vn-dialog-dual .vn-dialog-right {
-  right: 20px;
 }
 .vn-dialog-speaker {
   font-size: 0.85em;
