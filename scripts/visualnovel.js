@@ -1116,8 +1116,9 @@ class VisualNovelApp extends AppBase {
 
     // Dialog enable toggle
     html.querySelector(".vn-dialog-enable-toggle")?.addEventListener("click", (ev) => {
-      game.settings?.set("free-visual-novel", "dialogEnabled", !game.settings?.get("free-visual-novel", "dialogEnabled"));
-      ev.currentTarget.textContent = game.settings?.get("free-visual-novel", "dialogEnabled") ? "On" : "Off";
+      const newVal = !game.settings?.get("free-visual-novel", "dialogEnabled");
+      game.settings?.set("free-visual-novel", "dialogEnabled", newVal);
+      ev.currentTarget.textContent = newVal ? "On" : "Off";
       this.render();
     });
 
@@ -1375,14 +1376,12 @@ class VisualNovelApp extends AppBase {
   }
 
   _buildInviteUI() {
-    console.log("FreeVN | _buildInviteUI called, canManage:", _userCan("permManage"), "interactiveEl:", !!this._interactiveEl);
     if (!_userCan("permManage") || !this._interactiveEl) return;
     if (this._inviteBtn) { this._inviteBtn.remove(); this._inviteBtn = null; }
     if (this._inviteMenu) { this._inviteMenu.remove(); this._inviteMenu = null; }
     this._inviteMenuCleanup?.();
 
     const toolbar = this._interactiveEl.querySelector(".vn-gm-toolbar");
-    console.log("FreeVN | toolbar found:", !!toolbar, "interactiveEl children:", this._interactiveEl.children.length);
     if (!toolbar) return;
 
     const btn = document.createElement("button");
@@ -1393,7 +1392,7 @@ class VisualNovelApp extends AppBase {
 
     const menu = document.createElement("div");
     menu.className = "vn-invite-menu";
-    menu.style.display = "none";
+    menu.classList.add("vn-hidden");
 
     function _rebuildMenu() {
       menu.innerHTML = "";
@@ -1409,8 +1408,6 @@ class VisualNovelApp extends AppBase {
           pb.className = "vn-invite-player";
           pb.dataset.userId = u.id;
           pb.textContent = u.name;
-          pb.addEventListener("mouseenter", () => { pb.style.background = "rgba(255,255,255,0.08)"; pb.style.color = "#fff"; });
-          pb.addEventListener("mouseleave", () => { pb.style.background = "none"; pb.style.color = "rgba(255,255,255,0.7)"; });
           pb.addEventListener("click", () => {
             const payload = {
               type: "state", broadcasting: true, inviteMode: this._inviteMode || "all",
@@ -1419,7 +1416,7 @@ class VisualNovelApp extends AppBase {
             };
             game.socket?.emit(SOCKET, { ...payload, targetUser: u.id });
             game.socket?.emit(SOCKET, { type: "invite", userId: u.id });
-            menu.style.display = "none";
+            menu.classList.add("vn-hidden");
           });
           menu.appendChild(pb);
         }
@@ -1434,19 +1431,23 @@ class VisualNovelApp extends AppBase {
 
     toolbar.appendChild(menu);
 
-    btn.addEventListener("click", (ev) => {
+    const btnClick = (ev) => {
       ev.stopPropagation();
       _rebuildMenu();
-      menu.style.display = menu.style.display === "none" ? "block" : "none";
-    });
+      menu.classList.toggle("vn-hidden");
+    };
+    btn.addEventListener("click", btnClick);
 
     const closer = (ev) => {
-      if (menu.style.display !== "none" && !menu.contains(ev.target) && ev.target !== btn && !btn.contains(ev.target)) {
-        menu.style.display = "none";
+      if (!menu.classList.contains("vn-hidden") && !menu.contains(ev.target) && ev.target !== btn && !btn.contains(ev.target)) {
+        menu.classList.add("vn-hidden");
       }
     };
     document.addEventListener("click", closer);
-    this._inviteMenuCleanup = () => document.removeEventListener("click", closer);
+    this._inviteMenuCleanup = () => {
+      document.removeEventListener("click", closer);
+      btn.removeEventListener("click", btnClick);
+    };
     this._inviteBtn = btn;
     this._inviteMenu = menu;
   }

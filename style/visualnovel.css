@@ -809,3 +809,7 @@
   align-self: flex-start;
   font-size: 0.8em !important;
 }
+
+.vn-hidden { display: none !important; }
+.vn-invite-player:hover { background: rgba(255,255,255,0.08); color: #fff; }
+.vn-invite-player { background: none; color: rgba(255,255,255,0.7); }
