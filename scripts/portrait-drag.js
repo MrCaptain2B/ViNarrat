@@ -5,6 +5,7 @@ export function bindPortraitDrag(proto) {
 proto._bindPortraitDrag = function(html) {
     if (this._dragCleanup) this._dragCleanup();
     if (this._showPanel) return;
+    if (this._playback) return;
 
     const container = html;
 

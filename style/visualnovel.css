@@ -870,21 +870,29 @@
 }
 .vn-sceditor-add:hover { border-color: var(--vn-accent); color: #fff; }
 
-/* ─────────── Playback Bar ─────────── */
+/* ─────────── Playback Controls ─────────── */
+.vn-playing .vn-portrait { pointer-events: none !important; cursor: default !important; }
+.vn-playing .vn-stage-area { pointer-events: none; }
+.vn-playing .vn-dialog-content { pointer-events: none !important; }
+.vn-playing .vn-content { cursor: pointer; }
+
 .vn-playback-bar {
-  position: absolute; bottom: 0; left: 0; right: 0; height: 44px;
-  display: flex; align-items: center; gap: 8px; padding: 0 16px;
-  background: rgba(0,0,0,0.85); pointer-events: auto; z-index: 70;
+  position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 10px;
+  background: rgba(0,0,0,0.6); backdrop-filter: blur(6px);
+  border: 1px solid rgba(255,255,255,0.08); border-radius: 10px;
+  padding: 6px 14px; pointer-events: auto; z-index: 70;
+  font-size: 0.82em; white-space: nowrap;
 }
-.vn-playback-bar button {
-  background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer;
-  padding: 6px 10px; font-size: 1.1em;
+.vn-playback-name { color: rgba(255,255,255,0.5); }
+.vn-playback-progress { color: var(--vn-accent); font-weight: 600; min-width: 40px; text-align: center; }
+.vn-playback-actions { display: flex; gap: 2px; margin-left: 4px; }
+.vn-playback-actions button {
+  background: none; border: none; color: rgba(255,255,255,0.6); cursor: pointer;
+  padding: 4px 6px; font-size: 1em; border-radius: 4px; transition: all 0.12s;
 }
-.vn-playback-bar button:hover { color: var(--vn-accent); }
+.vn-playback-actions button:hover { background: rgba(255,255,255,0.1); color: #fff; }
 .vn-playback-play { color: var(--vn-accent) !important; }
-.vn-playback-progress { font-size: 0.8em; color: rgba(255,255,255,0.5); min-width: 60px; }
-.vn-playback-name { font-size: 0.85em; color: rgba(255,255,255,0.4); margin-left: auto; }
-.vn-playback-bar-fill { height: 3px; background: var(--vn-accent); border-radius: 2px; flex: 0 0 auto; min-width: 0; }
 
 /* ─────────── Choice List ─────────── */
 .vn-choice-list {

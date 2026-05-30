@@ -1,4 +1,4 @@
-<div class="vn-root">
+<div class="vn-root{{#if playback}} vn-playing{{/if}}">
 
   {{#if bg}}
   <div class="vn-bg" style="background-image: url({{bg}}); filter: brightness({{bgBrightness}});"></div>
@@ -19,6 +19,7 @@
       <div class="vn-portrait-wrapper">
         {{#if this.hasEmotions}}
         {{#if (or this.selected this.isMyPortrait)}}
+        {{#unless ../playback}}
         <div class="vn-emotion-strip">
           {{#each this.images}}
           <button class="vn-emotion-thumb {{#if (eq @index ../this.emotionIdx)}}vn-emotion-active{{/if}}" data-port-idx="{{../this.index}}" data-emotion="{{@index}}">
@@ -26,6 +27,7 @@
           </button>
           {{/each}}
         </div>
+        {{/unless}}
         {{/if}}
         {{/if}}
         <div class="vn-portrait-frame {{#unless this.speaking}}vn-dimmed{{/unless}}">
@@ -56,6 +58,7 @@
   {{/if}}
   {{/if}}
 
+  {{#unless playback}}
   {{#if selectedPortrait}}
   {{#if isGM}}
   <div class="vn-portrait-controls">
@@ -71,6 +74,7 @@
   </div>
   {{/if}}
   {{/if}}
+  {{/unless}}
 
   {{#if dialogEnabled}}
   {{#if (eq dialog.mode 2)}}
@@ -110,6 +114,7 @@
 
   {{!-- Speaker Selector (managers only) --}}
   {{#if canManage}}
+  {{#unless playback}}
   {{#if portraits.length}}
   <div class="vn-speaker-bar">
     {{#each portraits}}
@@ -119,17 +124,19 @@
     {{/each}}
   </div>
   {{/if}}
+  {{/unless}}
 
   {{#if playback}}
-  {{!-- Playback Bar --}}
+  {{!-- Playback Controls --}}
   <div class="vn-playback-bar">
-    <button class="vn-playback-prev" title="Previous Step"><i class="fas fa-step-backward"></i></button>
-    <button class="vn-playback-play" title="{{#if playback.playing}}Pause{{else}}Play{{/if}}"><i class="fas {{#if playback.playing}}fa-pause{{else}}fa-play{{/if}}"></i></button>
-    <button class="vn-playback-next" title="Next Step"><i class="fas fa-step-forward"></i></button>
-    <button class="vn-playback-stop" title="Stop"><i class="fas fa-stop"></i></button>
-    <span class="vn-playback-progress">{{add playback.currentStep 1}} / {{playback.script.steps.length}}</span>
-    <div class="vn-playback-bar-fill" style="width: {{multiply (divide (add playback.currentStep 1) playback.script.steps.length) 100}}%"></div>
     <span class="vn-playback-name">{{playback.script.name}}</span>
+    <span class="vn-playback-progress">{{add playback.currentStep 1}} / {{playback.script.steps.length}}</span>
+    <div class="vn-playback-actions">
+      <button class="vn-playback-prev" title="Previous Step"><i class="fas fa-step-backward"></i></button>
+      <button class="vn-playback-play" title="{{#if playback.playing}}Pause{{else}}Play{{/if}}"><i class="fas {{#if playback.playing}}fa-pause{{else}}fa-play{{/if}}"></i></button>
+      <button class="vn-playback-next" title="Next Step"><i class="fas fa-step-forward"></i></button>
+      <button class="vn-playback-stop" title="Stop"><i class="fas fa-stop"></i></button>
+    </div>
   </div>
   {{else}}
   {{!-- Toolbar --}}
