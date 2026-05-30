@@ -81,6 +81,10 @@ class VisualNovelApp extends _AppBase {
     this._tempSteps = [];
     this._activeEditIdx = null;
     this._showStepTypePicker = false;
+    this._typewriterTimer = null;
+    this._typewriterFullText = "";
+    this._typewriterPos = 0;
+    this._typewriterDirty = false;
   }
 
   async _initialize() {
@@ -294,7 +298,13 @@ class VisualNovelApp extends _AppBase {
     else if (this._showPanel === "scene") this._bindScenePanel();
     else if (this._showPanel === "presets") this._bindPresetsPanel();
     else if (this._showPanel === "scripts" || this._showPanel === "scriptEdit") this._bindScriptPanel();
-    if (this._playback) this._bindPlayback();
+    if (this._playback) {
+      this._bindPlayback();
+      if (this._typewriterDirty) {
+        this._startTypewriter();
+        this._typewriterDirty = false;
+      }
+    }
     const panelEl = this._el();
     const panel = panelEl.querySelector(".vn-panel-floating");
     const header = panel?.querySelector(".vn-panel-header");

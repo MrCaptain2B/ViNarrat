@@ -88,6 +88,7 @@ proto._startPlayback = function(script) {
     ui.notifications?.warn("Script has no steps.");
     return;
   }
+  this._clearTypewriter();
   this._playback = {
     script: JSON.parse(JSON.stringify(script)),
     currentStep: 0,
@@ -97,10 +98,12 @@ proto._startPlayback = function(script) {
   this._showPanel = null;
   this._activeEditIdx = null;
   this._applyStepState(script.steps[0].state);
+  this._typewriterDirty = true;
   this.render();
 };
 
 proto._stopPlayback = function() {
+  this._clearTypewriter();
   if (this._playback?.timer) clearTimeout(this._playback.timer);
   this._playback = null;
   this.render();
@@ -135,27 +138,50 @@ proto._playStep = function(idx) {
   const steps = this._playback.script.steps;
   const step = steps[idx];
   if (!step) return;
+  this._clearTypewriter();
   this._applyStepState(step.state);
   this._broadcast();
-  if (step.type === "pause") {
-    if (step.duration > 0) {
-      this._playback.playing = true;
-      this.render();
-      this._playback.timer = setTimeout(() => this._nextStep(), step.duration * 1000);
-    } else {
-      this._playback.playing = false;
-      this.render();
-    }
+  this._typewriterDirty = (step.type !== "pause");
+  if (step.duration > 0) {
+    this._playback.playing = true;
+    this.render();
+    this._playback.timer = setTimeout(() => this._nextStep(), step.duration * 1000);
   } else {
-    if (step.duration > 0) {
-      this._playback.playing = true;
-      this.render();
-      this._playback.timer = setTimeout(() => this._nextStep(), step.duration * 1000);
-    } else {
-      this._playback.playing = false;
-      this.render();
-    }
+    this._playback.playing = false;
+    this.render();
   }
+};
+
+proto._clearTypewriter = function() {
+  if (this._typewriterTimer) {
+    clearInterval(this._typewriterTimer);
+    this._typewriterTimer = null;
+  }
+  this._typewriterFullText = "";
+  this._typewriterPos = 0;
+};
+
+proto._startTypewriter = function() {
+  this._clearTypewriter();
+  const contentEls = document.querySelectorAll(".vn-dialog-content");
+  const mainEl = Array.from(contentEls).find(el => el.dataset.side === "single" || el.dataset.side === "right");
+  if (!mainEl) return;
+  const fullText = mainEl.textContent || "";
+  if (!fullText) return;
+  this._typewriterFullText = fullText;
+  this._typewriterPos = 0;
+  mainEl.textContent = "";
+  const leftEl = Array.from(contentEls).find(el => el.dataset.side === "left");
+  if (leftEl) leftEl.textContent = "";
+  const speed = 25;
+  this._typewriterTimer = setInterval(() => {
+    this._typewriterPos++;
+    if (mainEl) mainEl.textContent = this._typewriterFullText.substring(0, this._typewriterPos);
+    if (this._typewriterPos >= this._typewriterFullText.length) {
+      clearInterval(this._typewriterTimer);
+      this._typewriterTimer = null;
+    }
+  }, speed);
 };
 
 proto._bindScriptPanel = function() {
@@ -328,6 +354,7 @@ proto._bindPlayback = function() {
       this._playback.playing = false;
       this.render();
     } else {
+      this._clearTypewriter();
       this._playStep(this._playback.currentStep);
     }
   });
@@ -337,6 +364,15 @@ proto._bindPlayback = function() {
   html.querySelector(".vn-root")?.addEventListener("click", (ev) => {
     if (!this._playback || this._playback.playing) return;
     if (ev.target.closest(".vn-gm-toolbar") || ev.target.closest(".vn-playback-bar")) return;
+    if (this._typewriterTimer) {
+      this._clearTypewriter();
+      const contentEls = document.querySelectorAll(".vn-dialog-content");
+      contentEls.forEach(el => {
+        const side = el.dataset.side;
+        if (side === "single" || side === "right") el.textContent = this._typewriterFullText || "";
+      });
+      return;
+    }
     const step = this._playback.script.steps[this._playback.currentStep];
     if (!step) return;
     if (step.duration === 0) {

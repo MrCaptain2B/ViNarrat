@@ -874,7 +874,7 @@
 .vn-playing .vn-portrait { pointer-events: none !important; cursor: default !important; }
 .vn-playing .vn-stage-area { pointer-events: none; }
 .vn-playing .vn-dialog-content { pointer-events: none !important; }
-.vn-playing .vn-content { cursor: pointer; }
+.vn-playing .vn-content { pointer-events: auto !important; cursor: pointer; }
 
 .vn-playback-bar {
   position: absolute; bottom: 16px; left: 50%; transform: translateX(-50%);
