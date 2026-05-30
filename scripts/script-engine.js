@@ -361,7 +361,7 @@ proto._bindPlayback = function() {
   html.querySelector(".vn-playback-next")?.addEventListener("click", () => this._nextStep());
   html.querySelector(".vn-playback-stop")?.addEventListener("click", () => this._stopPlayback());
   html.querySelector(".vn-root")?.addEventListener("click", (ev) => {
-    if (!this._playback || this._playback.playing) return;
+    if (!this._playback) return;
     if (ev.target.closest(".vn-gm-toolbar") || ev.target.closest(".vn-playback-bar")) return;
     if (this._typewriterTimer) {
       this._clearTypewriter();
@@ -372,11 +372,7 @@ proto._bindPlayback = function() {
       });
       return;
     }
-    const step = this._playback.script.steps[this._playback.currentStep];
-    if (!step) return;
-    if (step.duration === 0) {
-      this._nextStep();
-    }
+    this._nextStep();
   });
 };
 
