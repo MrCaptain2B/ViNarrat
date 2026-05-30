@@ -17,22 +17,29 @@ proto._performTransition = function(type, duration, prepareFn) {
   return new Promise(resolve => {
     const overlay = this._createTransitionOverlay();
     if (!overlay) { prepareFn?.(); resolve(); return; }
-    const half = (duration || 0.5) / 2;
     if (type === "fadeToBlack") {
+      const half = (duration || 0.5) / 2;
+      overlay.style.transition = "none";
+      overlay.style.opacity = "0";
+      void overlay.offsetHeight;
       overlay.style.transition = `opacity ${half}s ease`;
       overlay.style.opacity = "1";
       setTimeout(() => {
         prepareFn?.();
+        overlay.style.transition = `opacity ${half}s ease`;
         overlay.style.opacity = "0";
-        setTimeout(resolve, half * 1000);
-      }, half * 1000);
+        setTimeout(resolve, half * 1000 + 50);
+      }, half * 1000 + 50);
     } else if (type === "crossfade") {
       prepareFn?.();
+      overlay.style.transition = "none";
+      overlay.style.opacity = "0";
+      void overlay.offsetHeight;
       overlay.style.transition = `opacity ${(duration || 0.5)}s ease`;
       overlay.style.opacity = "0.5";
       setTimeout(() => {
         overlay.style.opacity = "0";
-        setTimeout(resolve, half * 1000);
+        setTimeout(resolve, (duration || 0.5) / 2 * 1000 + 50);
       }, 50);
     } else {
       prepareFn?.();
@@ -137,31 +144,35 @@ proto._startPlayback = async function(script) {
   };
   this._showPanel = null;
   this._activeEditIdx = null;
-  const firstStep = this._playback.script.steps[0];
+  const steps = this._playback.script.steps;
+  const firstStep = steps[0];
   if (firstStep && firstStep.type === "transition" && firstStep.transition !== "none") {
     this._playback.transitioning = true;
-    this.render();
+    let firstSceneIdx = 0;
+    while (firstSceneIdx < steps.length && steps[firstSceneIdx].type === "transition") {
+      firstSceneIdx++;
+    }
+    const sceneState = firstSceneIdx < steps.length ? steps[firstSceneIdx].state : null;
+    if (sceneState) {
+      this._applyStepState(sceneState);
+      this._broadcast();
+    }
     const overlay = this._createTransitionOverlay();
     if (overlay) {
       overlay.style.transition = "none";
       overlay.style.opacity = "1";
+      void overlay.offsetHeight;
     }
-    this._applyStepState(firstStep.state);
-    this._broadcast();
+    this.render();
     if (overlay) {
-      await new Promise(r => setTimeout(r, 50));
       overlay.style.transition = `opacity ${(firstStep.transitionDuration || 0.5) / 2}s ease`;
       overlay.style.opacity = "0";
-      await new Promise(r => setTimeout(r, ((firstStep.transitionDuration || 0.5) / 2) * 1000));
+      await new Promise(r => setTimeout(r, ((firstStep.transitionDuration || 0.5) / 2) * 1000 + 100));
     }
-    this._playback.currentStep = 0;
+    this._playback.currentStep = firstSceneIdx < steps.length ? firstSceneIdx : 0;
     this._playback.transitioning = false;
     this._typewriterDirty = true;
     this.render();
-    if (firstStep.duration > 0) {
-      this._playback.playing = true;
-      this._playback.timer = setTimeout(() => this._nextStep(), firstStep.duration * 1000);
-    }
   } else {
     this._playStep(0);
   }
@@ -170,19 +181,10 @@ proto._startPlayback = async function(script) {
 proto._stopPlayback = async function() {
   this._clearTypewriter();
   if (this._playback?.timer) clearTimeout(this._playback.timer);
-  const steps = this._playback?.script?.steps;
-  const lastStep = steps ? steps[steps.length - 1] : null;
-  if (lastStep && lastStep.type === "transition" && lastStep.transition !== "none") {
-    this._playback.transitioning = true;
-    const overlay = this._createTransitionOverlay();
-    if (overlay) {
-      overlay.style.transition = "none";
-      overlay.style.opacity = "0";
-      await new Promise(r => setTimeout(r, 50));
-      overlay.style.transition = `opacity ${(lastStep.transitionDuration || 0.5) / 2}s ease`;
-      overlay.style.opacity = "1";
-      await new Promise(r => setTimeout(r, ((lastStep.transitionDuration || 0.5) / 2) * 1000));
-    }
+  const overlay = this._createTransitionOverlay();
+  if (overlay) {
+    overlay.style.transition = "none";
+    overlay.style.opacity = "0";
   }
   this._playback = null;
   this.render();
@@ -224,17 +226,23 @@ proto._playStep = async function(idx) {
     this._playback.transitioning = true;
     this._playback.playing = false;
     this.render();
-    await this._performTransition(step.transition, step.transitionDuration || 0.5, () => {
-      this._applyStepState(step.state);
-      this._broadcast();
-    });
+    const isLastStep = idx >= steps.length - 1;
+    if (isLastStep) {
+      const overlay = this._createTransitionOverlay();
+      if (overlay) {
+        overlay.style.transition = "none";
+        overlay.style.opacity = "0";
+        void overlay.offsetHeight;
+        overlay.style.transition = `opacity ${(step.transitionDuration || 0.5)}s ease`;
+        overlay.style.opacity = "1";
+        await new Promise(r => setTimeout(r, (step.transitionDuration || 0.5) * 1000 + 100));
+      }
+    } else {
+      await this._performTransition(step.transition, step.transitionDuration, null);
+    }
     this._playback.transitioning = false;
     this._typewriterDirty = false;
     this.render();
-    if (step.duration > 0) {
-      this._playback.playing = true;
-      this._playback.timer = setTimeout(() => this._nextStep(), step.duration * 1000);
-    }
     return;
   }
   this._applyStepState(step.state);

@@ -73,7 +73,7 @@ proto._bindMainUI = function() {
           {
             type: "transition", label: "Opening", duration: 0,
             transition: "fadeToBlack", transitionDuration: 0.5,
-            state: this._captureSceneState()
+            state: null
           },
           {
             type: "scene", label: "Scene", duration: 0,
@@ -82,7 +82,7 @@ proto._bindMainUI = function() {
           {
             type: "transition", label: "Closing", duration: 0,
             transition: "fadeToBlack", transitionDuration: 0.5,
-            state: this._captureSceneState()
+            state: null
           }
         ];
         this._activeEditIdx = null;
