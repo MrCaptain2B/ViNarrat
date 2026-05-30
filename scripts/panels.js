@@ -70,6 +70,7 @@ proto._bindMainUI = function() {
       html.querySelector(".vn-btn-create-script")?.addEventListener("click", () => {
         this._editScriptId = null;
         this._tempSteps = [];
+        this._activeEditIdx = null;
         this._showStepTypePicker = false;
         this._showPanel = "scriptEdit";
         this._editScriptName = "";

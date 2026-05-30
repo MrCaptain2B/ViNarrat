@@ -79,6 +79,7 @@ class VisualNovelApp extends _AppBase {
     this._playback = null;
     this._editScriptId = null;
     this._tempSteps = [];
+    this._activeEditIdx = null;
     this._showStepTypePicker = false;
   }
 
@@ -249,6 +250,7 @@ class VisualNovelApp extends _AppBase {
       scripts: this._data?.scripts || [],
       editScript: this._editScriptId ? (this._data?.scripts?.find(s => s.id === this._editScriptId) || { id: null, name: "", steps: [] }) : { id: null, name: "", steps: [] },
       editSteps: this._showPanel === "scriptEdit" ? (this._tempSteps || []) : [],
+      activeEditIdx: this._activeEditIdx,
       showStepTypePicker: this._showStepTypePicker,
       playback: this._playback ? {
         playing: this._playback.playing,

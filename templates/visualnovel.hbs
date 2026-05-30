@@ -454,109 +454,39 @@
         <input class="vn-sceditor-name" type="text" placeholder="e.g. Chapter 1 Intro" value="{{editScript.name}}">
         <button class="vn-sceditor-save"><i class="fas fa-save"></i> Save Script</button>
       </div>
-      <div class="vn-sceditor-hint">A script is a full cutscene: each step runs in order, from top to bottom.</div>
+      <div class="vn-sceditor-hint">Each step stores the full scene state. Click a step to load it, edit the scene, then save.</div>
       {{#if editSteps.length}}
       <div class="vn-sceditor-stepcount">{{editSteps.length}} step{{#unless (eq editSteps.length 1)}}s{{/unless}}</div>
       {{/if}}
       <div class="vn-sceditor-steps">
         {{#each editSteps}}
-        <div class="vn-sceditor-step" data-step-type="{{this.type}}" data-step-idx="{{@index}}">
+        <div class="vn-sceditor-step {{#if (eq @index ../activeEditIdx)}}vn-step-active{{/if}}" data-step-idx="{{@index}}">
           <div class="vn-step-header">
             <span class="vn-step-num">{{add @index 1}}.</span>
-            <span class="vn-step-badge vn-step-{{this.type}}">{{this.type}}</span>
-            <input class="vn-step-label" type="text" placeholder="Label (optional, for jump)" value="{{this.label}}">
-            <button class="vn-step-up" data-idx="{{@index}}" title="Move up"><i class="fas fa-chevron-up"></i></button>
-            <button class="vn-step-down" data-idx="{{@index}}" title="Move down"><i class="fas fa-chevron-down"></i></button>
-            <button class="vn-step-delete" data-idx="{{@index}}" title="Delete"><i class="fas fa-trash-alt"></i></button>
+            <button class="vn-sceditor-toggle-type vn-step-type-{{this.type}}" data-idx="{{@index}}">{{#if (eq this.type "pause")}}⏸ Pause{{else}}▶ Normal{{/if}}</button>
+            {{#if (eq this.type "pause")}}
+            <input class="vn-sceditor-duration" type="number" step="0.5" min="0.5" value="{{this.duration}}" data-idx="{{@index}}" title="Duration (seconds)">
+            <span class="vn-step-dur-text">sec</span>
+            {{/if}}
+            {{#unless (eq this.type "pause")}}
+            <input class="vn-sceditor-duration" type="number" step="0.5" min="0" value="{{this.duration}}" data-idx="{{@index}}" title="0 = wait for click">
+            <span class="vn-step-dur-text">sec (0 = click)</span>
+            {{/unless}}
+            <input class="vn-sceditor-label" type="text" placeholder="label" value="{{this.label}}" data-idx="{{@index}}">
+            <button class="vn-sceditor-load" data-idx="{{@index}}" title="Load this step's scene"><i class="fas fa-eye"></i></button>
+            <button class="vn-sceditor-up" data-idx="{{@index}}" title="Move up"><i class="fas fa-chevron-up"></i></button>
+            <button class="vn-sceditor-down" data-idx="{{@index}}" title="Move down"><i class="fas fa-chevron-down"></i></button>
+            <button class="vn-sceditor-delete" data-idx="{{@index}}" title="Delete"><i class="fas fa-trash-alt"></i></button>
           </div>
-          {{#if (eq this.type "dialog")}}
-          <div class="vn-step-fields">
-            <textarea class="vn-step-dialog-text" rows="2" placeholder="Main dialogue text (appears in the right / single box)">{{this.text}}</textarea>
-            <div class="vn-step-inline-row">
-              <input class="vn-step-dialog-left" type="text" placeholder="Left box text (only in Dual mode)" value="{{this.leftText}}">
-              <select class="vn-step-dialog-mode">
-                <option value="1" {{#if (eq this.mode 1)}}selected{{/if}}>Single box</option>
-                <option value="2" {{#if (eq this.mode 2)}}selected{{/if}}>Dual boxes</option>
-              </select>
-              <label class="vn-step-dur-label">Auto <input class="vn-step-dialog-dur" type="number" step="0.5" min="0" value="{{this.duration}}">s</label>
-            </div>
-          </div>
-          {{/if}}
-          {{#if (eq this.type "bg")}}
-          <div class="vn-step-fields">
-            <input class="vn-step-bg-path" type="text" placeholder="Background image path (e.g. worlds/my/scene.jpg)" value="{{this.bg}}">
-            <label class="vn-step-dur-label">Brightness <input class="vn-step-bg-bright" type="number" step="0.05" min="0.2" max="2" value="{{this.bgBrightness}}"></label>
-          </div>
-          {{/if}}
-          {{#if (eq this.type "portrait")}}
-          <div class="vn-step-fields">
-            <input class="vn-step-port-id" type="text" placeholder="Portrait ID from the Portrait Library" value="{{this.portraitId}}">
-          </div>
-          {{/if}}
-          {{#if (eq this.type "emotion")}}
-          <div class="vn-step-fields">
-            <input class="vn-step-em-port-id" type="text" placeholder="Portrait ID" value="{{this.portraitId}}">
-            <input class="vn-step-em-idx" type="number" min="0" placeholder="Emotion index (0 = first image)" value="{{this.emotionIdx}}">
-          </div>
-          {{/if}}
-          {{#if (eq this.type "speaker")}}
-          <div class="vn-step-fields">
-            <input class="vn-step-speaker-id" type="text" placeholder="Portrait ID to set as active speaker" value="{{this.speakerId}}">
-          </div>
-          {{/if}}
-          {{#if (eq this.type "pause")}}
-          <div class="vn-step-fields">
-            <label class="vn-step-dur-label">Wait <input class="vn-step-pause-dur" type="number" step="0.5" min="0" value="{{this.duration}}"> seconds, then continue</label>
-          </div>
-          {{/if}}
-          {{#if (eq this.type "choice")}}
-          <div class="vn-step-fields">
-            <div class="vn-step-choices">
-              {{#each this.choices}}
-              <div class="vn-step-choice-row">
-                <input class="vn-step-choice-text" type="text" placeholder="Choice button text" value="{{this.text}}">
-                <input class="vn-step-choice-jump" type="text" placeholder="Jump to label" value="{{this.jump}}">
-              </div>
-              {{/each}}
-              <button class="vn-choice-add-row" type="button">+ Add choice option</button>
-            </div>
-          </div>
-          {{/if}}
-          {{#if (eq this.type "jump")}}
-          <div class="vn-step-fields">
-            <input class="vn-step-jump-target" type="text" placeholder="Jump to step label (e.g. 'scene2')" value="{{this.target}}">
-          </div>
-          {{/if}}
         </div>
         {{/each}}
       </div>
       <div class="vn-sceditor-add-row">
-        <button class="vn-sceditor-add"><i class="fas fa-plus"></i> Add Step</button>
-        {{#if showStepTypePicker}}
-        <div class="vn-step-type-picker">
-          <button class="vn-step-type-btn" data-type="dialog"><i class="fas fa-comment"></i> Dialogue</button>
-          <button class="vn-step-type-btn" data-type="bg"><i class="fas fa-image"></i> Background</button>
-          <button class="vn-step-type-btn" data-type="portrait"><i class="fas fa-user"></i> Show Portrait</button>
-          <button class="vn-step-type-btn" data-type="emotion"><i class="fas fa-smile"></i> Change Emotion</button>
-          <button class="vn-step-type-btn" data-type="speaker"><i class="fas fa-microphone"></i> Set Speaker</button>
-          <button class="vn-step-type-btn" data-type="pause"><i class="fas fa-hourglass"></i> Pause</button>
-          <button class="vn-step-type-btn" data-type="choice"><i class="fas fa-list"></i> Player Choice</button>
-          <button class="vn-step-type-btn" data-type="jump"><i class="fas fa-share"></i> Jump to Label</button>
-        </div>
-        {{/if}}
+        <button class="vn-sceditor-add"><i class="fas fa-plus"></i> Add Step (copies current scene)</button>
       </div>
     </div>
   </div>
   {{/if}}
 
-  {{/if}}
-  {{#if playback}}
-  {{#if (eq (getStepType playback.script.steps playback.currentStep) "choice")}}
-  <div class="vn-choice-list">
-    {{#each (getStepChoices playback.script.steps playback.currentStep)}}
-    <button class="vn-choice-btn" data-jump="{{this.jump}}">{{this.text}}</button>
-    {{/each}}
-  </div>
-  {{/if}}
   {{/if}}
 </div>
