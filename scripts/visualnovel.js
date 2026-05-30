@@ -154,10 +154,7 @@ Hooks.once("init", async function() {
   }
 });
 
-Hooks.once("setup", function() {
-  const hasEpicRolls = game.modules?.get("epic-rolls")?.active ?? false;
-  const hasSequencer = game.modules?.get("sequencer")?.active ?? false;
-
+Hooks.once("ready", function() {
   if (game.socket) {
     game.socket.on(SOCKET, (data) => {
       if (data?.type === "state") _applyVNState(data);
@@ -188,9 +185,11 @@ Hooks.once("setup", function() {
       }
     });
   } else {
-    console.warn("FreeVN | game.socket not available during setup");
+    console.warn("FreeVN | game.socket not available on ready");
   }
 
+  const hasEpicRolls = game.modules?.get("epic-rolls")?.active ?? false;
+  const hasSequencer = game.modules?.get("sequencer")?.active ?? false;
   game.freevisualnovel = {
     _hasEpicRolls: hasEpicRolls,
     _hasSequencer: hasSequencer,
@@ -202,6 +201,9 @@ Hooks.once("setup", function() {
     clearStage() { ui.freevisualnovel?.clearStage(); },
     importActorPortraits(folderPath) { _importActorPortraits(folderPath); }
   };
+
+  const stored = game.settings?.get("free-visual-novel", "broadcastStore");
+  if (stored && stored.broadcasting) _applyVNState(stored);
 });
 
 Hooks.on("chatMessage", (message, text) => {
@@ -248,11 +250,6 @@ Hooks.on("getSceneControlButtons", (t) => {
     onChange: () => _openVN("portraits")
   };
   t.freevisualnovel = group;
-});
-
-Hooks.once("ready", () => {
-  const stored = game.settings?.get("free-visual-novel", "broadcastStore");
-  if (stored && stored.broadcasting) _applyVNState(stored);
 });
 
 console.log("FreeVN | script LOADED");
