@@ -69,7 +69,22 @@ proto._bindMainUI = function() {
 
       html.querySelector(".vn-btn-create-script")?.addEventListener("click", () => {
         this._editScriptId = null;
-        this._tempSteps = [];
+        this._tempSteps = [
+          {
+            type: "transition", label: "Opening", duration: 0,
+            transition: "fadeToBlack", transitionDuration: 0.5,
+            state: this._captureSceneState()
+          },
+          {
+            type: "scene", label: "Scene", duration: 0,
+            state: this._captureSceneState()
+          },
+          {
+            type: "transition", label: "Closing", duration: 0,
+            transition: "fadeToBlack", transitionDuration: 0.5,
+            state: this._captureSceneState()
+          }
+        ];
         this._activeEditIdx = null;
         this._showStepTypePicker = false;
         this._showPanel = "scriptEdit";

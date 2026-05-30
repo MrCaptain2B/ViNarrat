@@ -2,6 +2,45 @@ import { _loadData, _saveData, _userCan } from './helpers.js';
 
 export function bindScriptEngine(proto) {
 
+proto._createTransitionOverlay = function() {
+  let overlay = document.querySelector(".vn-transition-overlay");
+  if (!overlay) {
+    overlay = document.createElement("div");
+    overlay.className = "vn-transition-overlay";
+    const root = document.querySelector(".vn-root");
+    if (root) root.prepend(overlay);
+  }
+  return overlay;
+};
+
+proto._performTransition = function(type, duration, prepareFn) {
+  return new Promise(resolve => {
+    const overlay = this._createTransitionOverlay();
+    if (!overlay) { prepareFn?.(); resolve(); return; }
+    const half = (duration || 0.5) / 2;
+    if (type === "fadeToBlack") {
+      overlay.style.transition = `opacity ${half}s ease`;
+      overlay.style.opacity = "1";
+      setTimeout(() => {
+        prepareFn?.();
+        overlay.style.opacity = "0";
+        setTimeout(resolve, half * 1000);
+      }, half * 1000);
+    } else if (type === "crossfade") {
+      prepareFn?.();
+      overlay.style.transition = `opacity ${(duration || 0.5)}s ease`;
+      overlay.style.opacity = "0.5";
+      setTimeout(() => {
+        overlay.style.opacity = "0";
+        setTimeout(resolve, half * 1000);
+      }, 50);
+    } else {
+      prepareFn?.();
+      resolve();
+    }
+  });
+};
+
 proto._saveScript = async function(name, steps) {
   if (!_userCan("permManage")) return;
   if (!this._data) this._data = await _loadData();
@@ -83,7 +122,7 @@ proto._saveActiveStep = function() {
   this._tempSteps[this._activeEditIdx].state = this._captureSceneState();
 };
 
-proto._startPlayback = function(script) {
+proto._startPlayback = async function(script) {
   if (!script?.steps?.length) {
     ui.notifications?.warn("Script has no steps.");
     return;
@@ -93,22 +132,65 @@ proto._startPlayback = function(script) {
     script: JSON.parse(JSON.stringify(script)),
     currentStep: 0,
     playing: false,
-    timer: null
+    timer: null,
+    transitioning: false
   };
   this._showPanel = null;
   this._activeEditIdx = null;
-  this._playStep(0);
+  const firstStep = this._playback.script.steps[0];
+  if (firstStep && firstStep.type === "transition" && firstStep.transition !== "none") {
+    this._playback.transitioning = true;
+    this.render();
+    const overlay = this._createTransitionOverlay();
+    if (overlay) {
+      overlay.style.transition = "none";
+      overlay.style.opacity = "1";
+    }
+    this._applyStepState(firstStep.state);
+    this._broadcast();
+    if (overlay) {
+      await new Promise(r => setTimeout(r, 50));
+      overlay.style.transition = `opacity ${(firstStep.transitionDuration || 0.5) / 2}s ease`;
+      overlay.style.opacity = "0";
+      await new Promise(r => setTimeout(r, ((firstStep.transitionDuration || 0.5) / 2) * 1000));
+    }
+    this._playback.currentStep = 0;
+    this._playback.transitioning = false;
+    this._typewriterDirty = true;
+    this.render();
+    if (firstStep.duration > 0) {
+      this._playback.playing = true;
+      this._playback.timer = setTimeout(() => this._nextStep(), firstStep.duration * 1000);
+    }
+  } else {
+    this._playStep(0);
+  }
 };
 
-proto._stopPlayback = function() {
+proto._stopPlayback = async function() {
   this._clearTypewriter();
   if (this._playback?.timer) clearTimeout(this._playback.timer);
+  const steps = this._playback?.script?.steps;
+  const lastStep = steps ? steps[steps.length - 1] : null;
+  if (lastStep && lastStep.type === "transition" && lastStep.transition !== "none") {
+    this._playback.transitioning = true;
+    const overlay = this._createTransitionOverlay();
+    if (overlay) {
+      overlay.style.transition = "none";
+      overlay.style.opacity = "0";
+      await new Promise(r => setTimeout(r, 50));
+      overlay.style.transition = `opacity ${(lastStep.transitionDuration || 0.5) / 2}s ease`;
+      overlay.style.opacity = "1";
+      await new Promise(r => setTimeout(r, ((lastStep.transitionDuration || 0.5) / 2) * 1000));
+    }
+  }
   this._playback = null;
   this.render();
 };
 
-proto._nextStep = function() {
+proto._nextStep = async function() {
   if (!this._playback) return;
+  if (this._playback.transitioning) return;
   if (this._playback.timer) { clearTimeout(this._playback.timer); this._playback.timer = null; }
   this._playback.playing = false;
   const steps = this._playback.script.steps;
@@ -119,24 +201,42 @@ proto._nextStep = function() {
     return;
   }
   this._playback.currentStep = next;
-  this._playStep(next);
+  await this._playStep(next);
 };
 
-proto._prevStep = function() {
+proto._prevStep = async function() {
   if (!this._playback) return;
+  if (this._playback.transitioning) return;
   if (this._playback.timer) { clearTimeout(this._playback.timer); this._playback.timer = null; }
   this._playback.playing = false;
   const prev = this._playback.currentStep - 1;
   if (prev < 0) { this._playback.currentStep = 0; this.render(); return; }
   this._playback.currentStep = prev;
-  this._playStep(prev);
+  await this._playStep(prev);
 };
 
-proto._playStep = function(idx) {
+proto._playStep = async function(idx) {
   const steps = this._playback.script.steps;
   const step = steps[idx];
   if (!step) return;
   this._clearTypewriter();
+  if (step.type === "transition" && step.transition && step.transition !== "none") {
+    this._playback.transitioning = true;
+    this._playback.playing = false;
+    this.render();
+    await this._performTransition(step.transition, step.transitionDuration || 0.5, () => {
+      this._applyStepState(step.state);
+      this._broadcast();
+    });
+    this._playback.transitioning = false;
+    this._typewriterDirty = false;
+    this.render();
+    if (step.duration > 0) {
+      this._playback.playing = true;
+      this._playback.timer = setTimeout(() => this._nextStep(), step.duration * 1000);
+    }
+    return;
+  }
   this._applyStepState(step.state);
   this._broadcast();
   this._typewriterDirty = (step.type !== "pause");
@@ -260,7 +360,13 @@ proto._bindScriptEditor = function(html) {
       const idx = parseInt(btn.dataset.idx);
       const step = this._tempSteps[idx];
       if (step) {
-        step.type = step.type === "pause" ? "normal" : "pause";
+        const types = ["scene", "pause", "transition"];
+        const curIdx = types.indexOf(step.type);
+        step.type = types[(curIdx + 1) % types.length];
+        if (step.type === "transition") {
+          step.transition = step.transition || "fadeToBlack";
+          step.transitionDuration = step.transitionDuration || 0.5;
+        }
       }
       this.render();
     });
@@ -284,16 +390,54 @@ proto._bindScriptEditor = function(html) {
     });
   });
 
+  html.querySelectorAll(".vn-sceditor-transition").forEach(sel => {
+    sel.addEventListener("change", () => {
+      const idx = parseInt(sel.dataset.idx);
+      if (this._tempSteps[idx]) {
+        this._tempSteps[idx].transition = sel.value;
+      }
+    });
+  });
+
+  html.querySelectorAll(".vn-sceditor-transition-dur").forEach(inp => {
+    inp.addEventListener("change", () => {
+      const idx = parseInt(inp.dataset.idx);
+      if (this._tempSteps[idx]) {
+        this._tempSteps[idx].transitionDuration = parseFloat(inp.value) || 0.5;
+      }
+    });
+  });
+
   html.querySelectorAll(".vn-sceditor-add")?.forEach(btn => {
     btn.addEventListener("click", () => {
       this._saveActiveStep();
+      const addType = btn.dataset.addType || "scene";
       const prevStep = this._activeEditIdx !== null ? this._tempSteps[this._activeEditIdx] : null;
-      const newStep = {
-        type: "normal",
-        label: "",
-        duration: 0,
-        state: prevStep ? JSON.parse(JSON.stringify(prevStep.state)) : this._captureSceneState()
-      };
+      let newStep;
+      if (addType === "transition") {
+        newStep = {
+          type: "transition",
+          label: "",
+          duration: 0,
+          transition: "fadeToBlack",
+          transitionDuration: 0.5,
+          state: prevStep ? JSON.parse(JSON.stringify(prevStep.state)) : this._captureSceneState()
+        };
+      } else if (addType === "pause") {
+        newStep = {
+          type: "pause",
+          label: "",
+          duration: 2,
+          state: prevStep ? JSON.parse(JSON.stringify(prevStep.state)) : this._captureSceneState()
+        };
+      } else {
+        newStep = {
+          type: "scene",
+          label: "",
+          duration: 0,
+          state: prevStep ? JSON.parse(JSON.stringify(prevStep.state)) : this._captureSceneState()
+        };
+      }
       this._tempSteps.push(newStep);
       this._activeEditIdx = this._tempSteps.length - 1;
       this.render();
@@ -362,6 +506,7 @@ proto._bindPlayback = function() {
   html.querySelector(".vn-playback-stop")?.addEventListener("click", () => this._stopPlayback());
   html.querySelector(".vn-root")?.addEventListener("click", (ev) => {
     if (!this._playback) return;
+    if (this._playback.transitioning) return;
     if (ev.target.closest(".vn-gm-toolbar") || ev.target.closest(".vn-playback-bar") || ev.target.closest(".vn-panel")) return;
     if (this._typewriterTimer) {
       this._clearTypewriter();

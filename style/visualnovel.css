@@ -905,3 +905,28 @@
   text-align: center; min-width: 200px;
 }
 .vn-choice-btn:hover { background: rgba(240,192,64,0.2); }
+
+/* ─────────── Transition Overlay ─────────── */
+.vn-transition-overlay {
+  position: fixed; inset: 0; z-index: 99998; pointer-events: none;
+  background: #000; opacity: 0; transition: opacity 0.5s ease;
+}
+
+/* ─────────── Transition Animations ─────────── */
+.vn-bg, .vn-portrait-img, .vn-dialog-box, .vn-speaker-indicator {
+  transition: opacity 0.4s ease, filter 0.4s ease;
+}
+.vn-portrait {
+  transition: left 0.4s ease, top 0.4s ease, transform 0.4s ease;
+}
+.vn-bg {
+  transition: background-image 0.4s ease, filter 0.4s ease;
+}
+
+/* ─────────── Script Editor Transition Fields ─────────── */
+.vn-sceditor-transition, .vn-sceditor-transition-dur {
+  padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.05); color: rgba(255,255,255,0.8); font-size: 0.82em;
+}
+.vn-sceditor-add-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.vn-sceditor-add-row button { flex: 1; min-width: 100px; }
