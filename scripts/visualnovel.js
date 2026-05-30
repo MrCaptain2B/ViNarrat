@@ -152,38 +152,44 @@ Hooks.once("init", async function() {
       name: p.name, hint: p.hint, choices: roleChoices
     });
   }
+});
 
+Hooks.once("setup", function() {
   const hasEpicRolls = game.modules?.get("epic-rolls")?.active ?? false;
   const hasSequencer = game.modules?.get("sequencer")?.active ?? false;
 
-  game.socket?.on(SOCKET, (data) => {
-    if (data?.type === "state") _applyVNState(data);
-    else if (data?.type === "invite") {
-      if (_userCan("permManage")) return;
-      if (data.userId && data.userId !== game.user?.id) return;
-      ui.notifications?.info("🎭 You've been invited to the VN scene!");
-    }
-    else if (data?.type === "stop") { _lastBroadcastState = null; ui.freevisualnovel?.close(); }
-    else if (data?.type === "claim") {
-      const app = ui.freevisualnovel;
-      if (app && _userCan("permApproveClaims")) {
-        if (data.claimed) app._claimed[data.portraitId] = true;
-        else delete app._claimed[data.portraitId];
-        app.render();
+  if (game.socket) {
+    game.socket.on(SOCKET, (data) => {
+      if (data?.type === "state") _applyVNState(data);
+      else if (data?.type === "invite") {
+        if (_userCan("permManage")) return;
+        if (data.userId && data.userId !== game.user?.id) return;
+        ui.notifications?.info("🎭 You've been invited to the VN scene!");
       }
-    }
-    else if (data?.type === "emotion") {
-      const app = ui.freevisualnovel;
-      if (app && _userCan("permApproveClaims")) {
-        const p = app._portraits.find(port => port.id === data.portraitId);
-        if (p && !isNaN(data.emotionIdx)) {
-          p._currentEmotion = data.emotionIdx;
+      else if (data?.type === "stop") { _lastBroadcastState = null; ui.freevisualnovel?.close(); }
+      else if (data?.type === "claim") {
+        const app = ui.freevisualnovel;
+        if (app && _userCan("permApproveClaims")) {
+          if (data.claimed) app._claimed[data.portraitId] = true;
+          else delete app._claimed[data.portraitId];
           app.render();
-          _broadcastVNState(app);
         }
       }
-    }
-  });
+      else if (data?.type === "emotion") {
+        const app = ui.freevisualnovel;
+        if (app && _userCan("permApproveClaims")) {
+          const p = app._portraits.find(port => port.id === data.portraitId);
+          if (p && !isNaN(data.emotionIdx)) {
+            p._currentEmotion = data.emotionIdx;
+            app.render();
+            _broadcastVNState(app);
+          }
+        }
+      }
+    });
+  } else {
+    console.warn("FreeVN | game.socket not available during setup");
+  }
 
   game.freevisualnovel = {
     _hasEpicRolls: hasEpicRolls,
