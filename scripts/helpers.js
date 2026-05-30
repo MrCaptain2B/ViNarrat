@@ -47,8 +47,9 @@ export function _roleCan(role, permKey) {
 export const SOCKET = "module.free-visual-novel";
 
 export function _broadcastVNState(app, force) {
-  if (!game.user || !_userCan("permManage")) return;
-  if (!app._broadcasting && !force) return;
+  if (!game.user || !_userCan("permManage")) { console.log("FreeVN | _broadcastVNState: blocked, no perm"); return; }
+  if (!app._broadcasting && !force) { console.log("FreeVN | _broadcastVNState: blocked, not broadcasting"); return; }
+  console.log("FreeVN | Emitting broadcast, socket:", !!game.socket, "broadcasting:", app._broadcasting);
   const payload = {
     type: "state",
     broadcasting: app._broadcasting,
@@ -59,13 +60,16 @@ export function _broadcastVNState(app, force) {
     claimed: app._claimed || {},
     dialog: app._dialog
   };
+  console.log("FreeVN | Broadcasting to players");
   game.socket?.emit(SOCKET, payload);
   if (app._broadcasting) {
     game.settings?.set("free-visual-novel", "broadcastStore", payload);
   }
 }
 
-export let _lastBroadcastState = null;
+let _lastVal = null;
+export function _getLastBroadcastState() { return _lastVal; }
+export function _setLastBroadcastState(v) { _lastVal = v; }
 
 export function _whisperInvite() {
   ChatMessage.create({

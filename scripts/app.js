@@ -1,4 +1,4 @@
-import { _loadData, _saveData, _defaultData, _userCan, _roleCan, _broadcastVNState, _lastBroadcastState, _whisperInvite } from './helpers.js';
+import { _loadData, _saveData, _defaultData, _userCan, _roleCan, _broadcastVNState, _getLastBroadcastState, _whisperInvite } from './helpers.js';
 import { bindPanels } from './panels.js';
 import { bindPortraitDrag } from './portrait-drag.js';
 import { bindDialog } from './dialog.js';
@@ -492,7 +492,7 @@ class VisualNovelApp extends _AppBase {
     this._inviteMenu?.remove();
     this._inviteMenu = null;
     this._portraits = [];
-    if (!_userCan("permManage") && _lastBroadcastState) {
+    if (!_userCan("permManage") && _getLastBroadcastState()) {
       _whisperInvite();
     }
     return super.close(options);

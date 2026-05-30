@@ -1,7 +1,7 @@
 import VisualNovelApp from './app.js';
-import { _lastBroadcastState, _userCan, _roleCan, SOCKET, _loadData, _saveData, _defaultData, DATA_KEY, _broadcastVNState, _importActorPortraits } from './helpers.js';
+import { _getLastBroadcastState, _setLastBroadcastState, _userCan, _roleCan, SOCKET, _loadData, _saveData, _defaultData, DATA_KEY, _broadcastVNState, _importActorPortraits } from './helpers.js';
 
-export { VisualNovelApp, _lastBroadcastState, _userCan, _roleCan, SOCKET, _loadData, _saveData, _defaultData, DATA_KEY };
+export { VisualNovelApp, _getLastBroadcastState, _setLastBroadcastState, _userCan, _roleCan, SOCKET, _loadData, _saveData, _defaultData, DATA_KEY };
 
 let _vnOpening = false;
 
@@ -27,16 +27,16 @@ function _openVN(openPanel) {
 }
 
 function _rejoinVN() {
-  if (!_lastBroadcastState) { _openVN(); return; }
+  if (!_getLastBroadcastState()) { _openVN(); return; }
   if (_vnOpening) return;
   _vnOpening = true;
   if (ui.freevisualnovel?.rendered) {
     const app = ui.freevisualnovel;
-    app._bg = _lastBroadcastState.bg || "";
-    app._portraits = _lastBroadcastState.portraits || [];
-    app._speaker = _lastBroadcastState.speaker || "";
-    app._claimed = _lastBroadcastState.claimed || {};
-    if (_lastBroadcastState.dialog) app._dialog = Object.assign({}, app._dialog, _lastBroadcastState.dialog);
+    app._bg = _getLastBroadcastState().bg || "";
+    app._portraits = _getLastBroadcastState().portraits || [];
+    app._speaker = _getLastBroadcastState().speaker || "";
+    app._claimed = _getLastBroadcastState().claimed || {};
+    if (_getLastBroadcastState().dialog) app._dialog = Object.assign({}, app._dialog, _getLastBroadcastState().dialog);
     app.render(true);
     _vnOpening = false;
     return;
@@ -44,11 +44,11 @@ function _rejoinVN() {
   try {
     const app = new VisualNovelApp();
     ui.freevisualnovel = app;
-    app._bg = _lastBroadcastState.bg || "";
-    app._portraits = _lastBroadcastState.portraits || [];
-    app._speaker = _lastBroadcastState.speaker || "";
-    app._claimed = _lastBroadcastState.claimed || {};
-    if (_lastBroadcastState.dialog) app._dialog = Object.assign({}, app._dialog, _lastBroadcastState.dialog);
+    app._bg = _getLastBroadcastState().bg || "";
+    app._portraits = _getLastBroadcastState().portraits || [];
+    app._speaker = _getLastBroadcastState().speaker || "";
+    app._claimed = _getLastBroadcastState().claimed || {};
+    if (_getLastBroadcastState().dialog) app._dialog = Object.assign({}, app._dialog, _getLastBroadcastState().dialog);
     app.render(true);
   } catch(e) {
     console.error("FreeVN | Failed to rejoin:", e);
@@ -58,9 +58,10 @@ function _rejoinVN() {
 }
 
 function _applyVNState(data) {
-  if (!game.user || _userCan("permManage")) return;
+  console.log("FreeVN | _applyVNState called", data?.broadcasting, "targetUser:", data?.targetUser, "user id:", game.user?.id);
+  if (!game.user || _userCan("permManage")) { console.log("FreeVN | _applyVNState: blocked by permManage"); return; }
   if (!data.broadcasting) {
-    _lastBroadcastState = null;
+    _setLastBroadcastState(null);
     ui.freevisualnovel?.close();
     return;
   }
@@ -68,12 +69,12 @@ function _applyVNState(data) {
   if (data.inviteMode === "stage" && !data.targetUser) {
     const hasPortraitOnStage = (data.portraits || []).some(p => p.userId === game.user?.id);
     if (!hasPortraitOnStage) {
-      _lastBroadcastState = null;
+      _setLastBroadcastState(null);
       ui.freevisualnovel?.close();
       return;
     }
   }
-  _lastBroadcastState = data;
+  _setLastBroadcastState(data);
   try {
     let app = ui.freevisualnovel;
     if (!app || !app.rendered) {
@@ -152,19 +153,19 @@ Hooks.once("init", async function() {
       name: p.name, hint: p.hint, choices: roleChoices
     });
   }
-});
 
-Hooks.once("ready", function() {
   if (game.socket) {
     console.log("FreeVN | Registering socket handler on", SOCKET);
     game.socket.on(SOCKET, (data) => {
+      console.log("FreeVN | Socket received:", data?.type, data ? Object.keys(data) : null);
       if (data?.type === "state") _applyVNState(data);
       else if (data?.type === "invite") {
         if (_userCan("permManage")) return;
         if (data.userId && data.userId !== game.user?.id) return;
+        console.log("FreeVN | Invite received for", game.user?.id);
         ui.notifications?.info("🎭 You've been invited to the VN scene!");
       }
-      else if (data?.type === "stop") { _lastBroadcastState = null; ui.freevisualnovel?.close(); }
+      else if (data?.type === "stop") { console.log("FreeVN | Stop received"); _setLastBroadcastState(null); ui.freevisualnovel?.close(); }
       else if (data?.type === "claim") {
         const app = ui.freevisualnovel;
         if (app && _userCan("permApproveClaims")) {
@@ -187,8 +188,11 @@ Hooks.once("ready", function() {
     });
     console.log("FreeVN | Socket handler registered");
   } else {
-    console.warn("FreeVN | game.socket not available on ready");
+    console.warn("FreeVN | game.socket not available on init");
   }
+});
+
+Hooks.once("ready", function() {
 
   const hasEpicRolls = game.modules?.get("epic-rolls")?.active ?? false;
   const hasSequencer = game.modules?.get("sequencer")?.active ?? false;
@@ -205,7 +209,10 @@ Hooks.once("ready", function() {
   };
 
   const stored = game.settings?.get("free-visual-novel", "broadcastStore");
-  if (stored && stored.broadcasting) _applyVNState(stored);
+  console.log("FreeVN | ready: broadcastStore", stored?.broadcasting, !!stored);
+  if (stored && stored.broadcasting) {
+    _setLastBroadcastState(stored);
+  }
 });
 
 Hooks.on("chatMessage", (message, text) => {
