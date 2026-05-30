@@ -67,7 +67,19 @@ proto._bindMainUI = function() {
       this.render();
     });
 
-    html.querySelector(".vn-btn-close")?.addEventListener("click", () => this.close());
+      html.querySelector(".vn-btn-create-script")?.addEventListener("click", () => {
+        this._editScriptId = null;
+        this._tempSteps = [];
+        this._showStepTypePicker = false;
+        this._showPanel = "scriptEdit";
+        this._editScriptName = "";
+        this.render();
+      });
+      html.querySelector(".vn-btn-load-script")?.addEventListener("click", () => {
+        this._showPanel = "scripts";
+        this.render();
+      });
+      html.querySelector(".vn-btn-close")?.addEventListener("click", () => this.close());
 
     this._bindPortraitDrag(html);
 

@@ -120,6 +120,18 @@
   </div>
   {{/if}}
 
+  {{#if playback}}
+  {{!-- Playback Bar --}}
+  <div class="vn-playback-bar">
+    <button class="vn-playback-prev" title="Previous Step"><i class="fas fa-step-backward"></i></button>
+    <button class="vn-playback-play" title="{{#if playback.playing}}Pause{{else}}Play{{/if}}"><i class="fas {{#if playback.playing}}fa-pause{{else}}fa-play{{/if}}"></i></button>
+    <button class="vn-playback-next" title="Next Step"><i class="fas fa-step-forward"></i></button>
+    <button class="vn-playback-stop" title="Stop"><i class="fas fa-stop"></i></button>
+    <span class="vn-playback-progress">{{add playback.currentStep 1}} / {{playback.script.steps.length}}</span>
+    <div class="vn-playback-bar-fill" style="width: {{multiply (divide (add playback.currentStep 1) playback.script.steps.length) 100}}%"></div>
+    <span class="vn-playback-name">{{playback.script.name}}</span>
+  </div>
+  {{else}}
   {{!-- Toolbar --}}
   <div class="vn-gm-toolbar">
     <button class="vn-btn-locations" title="Locations"><i class="fas fa-map-marked-alt"></i></button>
@@ -128,6 +140,8 @@
     <button class="vn-btn-presets" title="Scene Presets"><i class="fas fa-bookmark"></i></button>
     <button class="vn-btn-toggle-bg" title="Toggle Background"><i class="fas fa-image"></i></button>
     <button class="vn-btn-toggle-ui" title="Toggle UI"><i class="fas fa-eye-slash"></i></button>
+    <button class="vn-btn-create-script" title="Create Script"><i class="fas fa-file-alt"></i></button>
+    <button class="vn-btn-load-script" title="Load Script"><i class="fas fa-folder-open"></i></button>
     <div class="vn-broadcast-wrapper">
       <button class="vn-btn-broadcast {{#if broadcasting}}vn-broadcast-active{{/if}}" title="{{#if broadcasting}}Stop{{else}}Start{{/if}} Broadcast">
         <i class="fas {{#if broadcasting}}fa-stop-circle{{else}}fa-play-circle{{/if}}"></i>
@@ -142,6 +156,7 @@
     </div>
     <button class="vn-btn-close" title="Close"><i class="fas fa-times"></i></button>
   </div>
+  {{/if}}
   {{else}}
   <div class="vn-gm-toolbar vn-player-bar">
     <span class="vn-player-label">Free Visual Dialogs</span>
@@ -400,6 +415,126 @@
       </div>
       {{/each}}
     </div>
+  </div>
+  {{/if}}
+
+  {{#if (eq showPanel "scripts")}}
+  <div class="vn-panel-floating vn-panel">
+    <div class="vn-panel-header">
+      <span class="vn-panel-title">Scripts</span>
+      <button class="vn-scripts-back"><i class="fas fa-arrow-left"></i> Back</button>
+    </div>
+    <div class="vn-scripts-list">
+      {{#each scripts}}
+      <div class="vn-scripts-row">
+        <span>{{this.name}}</span>
+        <span class="vn-scripts-stepcount">{{this.steps.length}} steps</span>
+        <div class="vn-scripts-actions">
+          <button class="vn-script-load" data-id="{{this.id}}">Load</button>
+          <button class="vn-script-edit" data-id="{{this.id}}">Edit</button>
+          <button class="vn-script-delete" data-id="{{this.id}}"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+      {{/each}}
+      {{#unless scripts.length}}
+      <div class="vn-scripts-empty">No scripts yet. Create one from the toolbar.</div>
+      {{/unless}}
+    </div>
+  </div>
+  {{/if}}
+
+  {{#if (eq showPanel "scriptEdit")}}
+  <div class="vn-panel-floating vn-panel vn-panel-wide">
+    <div class="vn-panel-header">
+      <span class="vn-panel-title">{{#if editScript.id}}Edit Script{{else}}New Script{{/if}}</span>
+      <button class="vn-sceditor-back"><i class="fas fa-arrow-left"></i> Back</button>
+    </div>
+    <div class="vn-sceditor-body">
+      <div class="vn-sceditor-name-row">
+        <input class="vn-sceditor-name" type="text" placeholder="Script name" value="{{editScript.name}}">
+        <button class="vn-sceditor-save">Save Script</button>
+      </div>
+      <div class="vn-sceditor-steps">
+        {{#each editSteps}}
+        <div class="vn-sceditor-step" data-step-type="{{this.type}}" data-step-idx="{{@index}}">
+          <div class="vn-step-header">
+            <span class="vn-step-badge vn-step-{{this.type}}">{{this.type}}</span>
+            <input class="vn-step-label" type="text" placeholder="Label (optional)" value="{{this.label}}">
+            <button class="vn-step-up" data-idx="{{@index}}" title="Move up"><i class="fas fa-chevron-up"></i></button>
+            <button class="vn-step-down" data-idx="{{@index}}" title="Move down"><i class="fas fa-chevron-down"></i></button>
+            <button class="vn-step-delete" data-idx="{{@index}}" title="Delete"><i class="fas fa-times"></i></button>
+          </div>
+          <div class="vn-step-fields">
+            {{#if (eq this.type "dialog")}}
+            <input class="vn-step-dialog-text" type="text" placeholder="Dialog text" value="{{this.text}}">
+            <input class="vn-step-dialog-left" type="text" placeholder="Left text (dual mode)" value="{{this.leftText}}">
+            <select class="vn-step-dialog-mode">
+              <option value="1" {{#if (eq this.mode 1)}}selected{{/if}}>Single</option>
+              <option value="2" {{#if (eq this.mode 2)}}selected{{/if}}>Dual</option>
+            </select>
+            <input class="vn-step-dialog-dur" type="number" step="0.5" min="0" placeholder="Auto-advance (sec)" value="{{this.duration}}">
+            {{/if}}
+            {{#if (eq this.type "bg")}}
+            <input class="vn-step-bg-path" type="text" placeholder="Background image path" value="{{this.bg}}">
+            <label>Brightness <input class="vn-step-bg-bright" type="number" step="0.05" min="0.2" max="2" value="{{this.bgBrightness}}"></label>
+            {{/if}}
+            {{#if (eq this.type "portrait")}}
+            <input class="vn-step-port-id" type="text" placeholder="Portrait ID" value="{{this.portraitId}}">
+            {{/if}}
+            {{#if (eq this.type "emotion")}}
+            <input class="vn-step-em-port-id" type="text" placeholder="Portrait ID" value="{{this.portraitId}}">
+            <input class="vn-step-em-idx" type="number" min="0" placeholder="Emotion index" value="{{this.emotionIdx}}">
+            {{/if}}
+            {{#if (eq this.type "speaker")}}
+            <input class="vn-step-speaker-id" type="text" placeholder="Speaker portrait ID" value="{{this.speakerId}}">
+            {{/if}}
+            {{#if (eq this.type "pause")}}
+            <input class="vn-step-pause-dur" type="number" step="0.5" min="0" placeholder="Duration (seconds)" value="{{this.duration}}">
+            {{/if}}
+            {{#if (eq this.type "choice")}}
+            <div class="vn-step-choices">
+              {{#each this.choices}}
+              <div class="vn-step-choice-row">
+                <input class="vn-step-choice-text" type="text" placeholder="Choice text" value="{{this.text}}">
+                <input class="vn-step-choice-jump" type="text" placeholder="Jump to label" value="{{this.jump}}">
+              </div>
+              {{/each}}
+              <button class="vn-choice-add-row" type="button">+ Add choice</button>
+            </div>
+            {{/if}}
+            {{#if (eq this.type "jump")}}
+            <input class="vn-step-jump-target" type="text" placeholder="Target label" value="{{this.target}}">
+            {{/if}}
+          </div>
+        </div>
+        {{/each}}
+      </div>
+      <div class="vn-sceditor-add-row">
+        <button class="vn-sceditor-add">+ Add Step</button>
+        {{#if showStepTypePicker}}
+        <div class="vn-step-type-picker">
+          <button class="vn-step-type-btn" data-type="dialog">Dialog</button>
+          <button class="vn-step-type-btn" data-type="bg">Background</button>
+          <button class="vn-step-type-btn" data-type="portrait">Portrait</button>
+          <button class="vn-step-type-btn" data-type="emotion">Emotion</button>
+          <button class="vn-step-type-btn" data-type="speaker">Speaker</button>
+          <button class="vn-step-type-btn" data-type="pause">Pause</button>
+          <button class="vn-step-type-btn" data-type="choice">Choice</button>
+          <button class="vn-step-type-btn" data-type="jump">Jump</button>
+        </div>
+        {{/if}}
+      </div>
+    </div>
+  </div>
+  {{/if}}
+
+  {{/if}}
+  {{#if playback}}
+  {{#if (eq (getStepType playback.script.steps playback.currentStep) "choice")}}
+  <div class="vn-choice-list">
+    {{#each (getStepChoices playback.script.steps playback.currentStep)}}
+    <button class="vn-choice-btn" data-jump="{{this.jump}}">{{this.text}}</button>
+    {{/each}}
   </div>
   {{/if}}
   {{/if}}

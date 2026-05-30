@@ -5,9 +5,11 @@ export function _defaultData() {
     locations: [],
     portraits: [],
     presets: [],
+    scripts: [],
     nextLocId: 1,
     nextPortId: 1,
     nextPresetId: 1,
+    nextScriptId: 1,
     themeBg: "#0d0d1a",
     themeAccent: "#f0c040"
   };
@@ -133,4 +135,19 @@ Handlebars.registerHelper("eq", function(v1, v2) {
 });
 Handlebars.registerHelper("or", function(v1, v2) {
   return v1 || v2;
+});
+Handlebars.registerHelper("add", function(a, b) {
+  return (a || 0) + b;
+});
+Handlebars.registerHelper("multiply", function(a, b) {
+  return (a || 0) * b;
+});
+Handlebars.registerHelper("divide", function(a, b) {
+  return b ? (a || 0) / b : 0;
+});
+Handlebars.registerHelper("getStepType", function(steps, idx) {
+  return steps?.[idx]?.type || "";
+});
+Handlebars.registerHelper("getStepChoices", function(steps, idx) {
+  return steps?.[idx]?.choices || [];
 });

@@ -1,5 +1,5 @@
 import VisualNovelApp from './app.js';
-import { _lastBroadcastState, _userCan, _roleCan, SOCKET, _loadData, _saveData, _defaultData, DATA_KEY, _whisperInvite, _broadcastVNState, _importActorPortraits } from './helpers.js';
+import { _lastBroadcastState, _userCan, _roleCan, SOCKET, _loadData, _saveData, _defaultData, DATA_KEY, _broadcastVNState, _importActorPortraits } from './helpers.js';
 
 export { VisualNovelApp, _lastBroadcastState, _userCan, _roleCan, SOCKET, _loadData, _saveData, _defaultData, DATA_KEY };
 

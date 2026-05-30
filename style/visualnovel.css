@@ -15,7 +15,7 @@
 .free-visual-novel.vn-fullscreen {
   position: fixed;
   top: 0; left: 0; bottom: 0; width: 100%;
-  z-index: 25;
+  z-index: 100;
   background: transparent;
   pointer-events: none;
   display: flex;
@@ -27,7 +27,7 @@
 }
 
 #free-visual-novel {
-  z-index: 30;
+  z-index: 100;
 }
 #free-visual-novel .window-content {
   pointer-events: none;
@@ -803,3 +803,110 @@
 .vn-hidden { display: none !important; }
 .vn-invite-player:hover { background: rgba(255,255,255,0.08); color: #fff; }
 .vn-invite-player { background: none; color: rgba(255,255,255,0.7); }
+
+/* ─────────── Script Engine ─────────── */
+.vn-btn-create-script, .vn-btn-load-script {
+  background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer;
+  padding: 6px 8px; font-size: 1.1em;
+}
+.vn-btn-create-script:hover, .vn-btn-load-script:hover { color: var(--vn-accent); }
+.vn-panel-wide { width: 520px; max-width: 90vw; }
+.vn-scripts-list { max-height: 300px; overflow-y: auto; padding: 8px; }
+.vn-scripts-row {
+  display: flex; align-items: center; gap: 8px; padding: 8px; margin-bottom: 4px;
+  background: rgba(255,255,255,0.04); border-radius: 6px;
+}
+.vn-scripts-row span { flex: 1; }
+.vn-scripts-stepcount { font-size: 0.8em; color: rgba(255,255,255,0.4); flex: 0 auto !important; }
+.vn-scripts-actions { display: flex; gap: 4px; flex: 0 auto; }
+.vn-scripts-actions button {
+  background: none; border: 1px solid rgba(255,255,255,0.15); color: rgba(255,255,255,0.7);
+  padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em;
+}
+.vn-scripts-actions button:hover { color: #fff; border-color: var(--vn-accent); }
+.vn-scripts-empty { padding: 16px; text-align: center; color: rgba(255,255,255,0.4); font-style: italic; }
+.vn-sceditor-body { padding: 8px; max-height: 400px; overflow-y: auto; }
+.vn-sceditor-name-row { display: flex; gap: 8px; margin-bottom: 12px; }
+.vn-sceditor-name-row input { flex: 1; }
+.vn-sceditor-save {
+  background: var(--vn-accent); color: #000; border: none; padding: 6px 16px;
+  border-radius: 4px; cursor: pointer; font-weight: bold;
+}
+.vn-sceditor-steps { display: flex; flex-direction: column; gap: 8px; margin-bottom: 8px; }
+.vn-sceditor-step {
+  background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 6px; padding: 8px;
+}
+.vn-step-header { display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.vn-step-badge {
+  font-size: 0.7em; text-transform: uppercase; padding: 2px 6px; border-radius: 3px;
+  font-weight: bold; color: #fff; flex: 0 auto;
+}
+.vn-step-dialog { background: #3498db; }
+.vn-step-bg { background: #2ecc71; }
+.vn-step-portrait { background: #9b59b6; }
+.vn-step-emotion { background: #e67e22; }
+.vn-step-speaker { background: #1abc9c; }
+.vn-step-pause { background: #95a5a6; }
+.vn-step-choice { background: #e74c3c; }
+.vn-step-jump { background: #f39c12; }
+.vn-step-label { flex: 1; font-size: 0.85em; }
+.vn-step-header button {
+  background: none; border: none; color: rgba(255,255,255,0.5); cursor: pointer; padding: 2px 4px;
+}
+.vn-step-header button:hover { color: #fff; }
+.vn-step-delete:hover { color: #e74c3c !important; }
+.vn-step-fields { display: flex; flex-wrap: wrap; gap: 4px; }
+.vn-step-fields input, .vn-step-fields select {
+  flex: 1; min-width: 100px; font-size: 0.85em !important;
+}
+.vn-step-fields label { font-size: 0.8em; color: rgba(255,255,255,0.6); display: flex; align-items: center; gap: 4px; }
+.vn-step-fields label input { width: 60px; flex: 0; }
+.vn-step-choices { width: 100%; }
+.vn-step-choice-row { display: flex; gap: 4px; margin-bottom: 4px; }
+.vn-step-choice-row input { flex: 1; }
+.vn-choice-add-row {
+  background: none; border: 1px dashed rgba(255,255,255,0.2); color: rgba(255,255,255,0.5);
+  padding: 4px 8px; border-radius: 4px; cursor: pointer; font-size: 0.8em; width: 100%;
+}
+.vn-choice-add-row:hover { color: #fff; border-color: var(--vn-accent); }
+.vn-sceditor-add-row { margin-top: 8px; }
+.vn-sceditor-add {
+  background: rgba(255,255,255,0.06); border: 1px dashed rgba(255,255,255,0.2);
+  color: rgba(255,255,255,0.7); padding: 6px 12px; border-radius: 4px; cursor: pointer; width: 100%;
+}
+.vn-sceditor-add:hover { border-color: var(--vn-accent); color: #fff; }
+.vn-step-type-picker { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.vn-step-type-btn {
+  background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15);
+  color: rgba(255,255,255,0.7); padding: 4px 10px; border-radius: 4px; cursor: pointer; font-size: 0.8em;
+}
+.vn-step-type-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+
+/* ─────────── Playback Bar ─────────── */
+.vn-playback-bar {
+  position: absolute; bottom: 0; left: 0; right: 0; height: 44px;
+  display: flex; align-items: center; gap: 8px; padding: 0 16px;
+  background: rgba(0,0,0,0.85); pointer-events: auto; z-index: 70;
+}
+.vn-playback-bar button {
+  background: none; border: none; color: rgba(255,255,255,0.7); cursor: pointer;
+  padding: 6px 10px; font-size: 1.1em;
+}
+.vn-playback-bar button:hover { color: var(--vn-accent); }
+.vn-playback-play { color: var(--vn-accent) !important; }
+.vn-playback-progress { font-size: 0.8em; color: rgba(255,255,255,0.5); min-width: 60px; }
+.vn-playback-name { font-size: 0.85em; color: rgba(255,255,255,0.4); margin-left: auto; }
+.vn-playback-bar-fill { height: 3px; background: var(--vn-accent); border-radius: 2px; flex: 0 0 auto; min-width: 0; }
+
+/* ─────────── Choice List ─────────── */
+.vn-choice-list {
+  position: absolute; bottom: 56px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; gap: 6px; pointer-events: auto; z-index: 70;
+}
+.vn-choice-btn {
+  background: rgba(0,0,0,0.8); border: 1px solid var(--vn-accent); color: #fff;
+  padding: 10px 24px; border-radius: 6px; cursor: pointer; font-size: 1em;
+  text-align: center; min-width: 200px;
+}
+.vn-choice-btn:hover { background: rgba(240,192,64,0.2); }

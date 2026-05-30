@@ -1,9 +1,10 @@
-import { _loadData, _saveData, _defaultData, _userCan, _roleCan, _broadcastVNState, _lastBroadcastState, _whisperInvite, SOCKET } from './helpers.js';
+import { _loadData, _saveData, _defaultData, _userCan, _roleCan, _broadcastVNState, _lastBroadcastState, _whisperInvite } from './helpers.js';
 import { bindPanels } from './panels.js';
 import { bindPortraitDrag } from './portrait-drag.js';
 import { bindDialog } from './dialog.js';
 import { bindInlineEdit } from './inline-edit.js';
 import { bindInvite } from './invite.js';
+import { bindScriptEngine } from './script-engine.js';
 
 const _AppBase = foundry.applications?.api?.Application || foundry.applications?.api?.ApplicationV2;
 if (!_AppBase) {
@@ -75,6 +76,10 @@ class VisualNovelApp extends _AppBase {
       yOffset: 100,
       leftText: ""
     };
+    this._playback = null;
+    this._editScriptId = null;
+    this._tempSteps = [];
+    this._showStepTypePicker = false;
   }
 
   async _initialize() {
@@ -240,7 +245,16 @@ class VisualNovelApp extends _AppBase {
       dialogEnabled: game.settings?.get("free-visual-novel", "dialogEnabled") !== false,
       speakerFontSize: this._speakerFontSize,
       themeBg: this._themeBg,
-      themeAccent: this._themeAccent
+      themeAccent: this._themeAccent,
+      scripts: this._data?.scripts || [],
+      editScript: this._editScriptId ? (this._data?.scripts?.find(s => s.id === this._editScriptId) || { id: null, name: "", steps: [] }) : { id: null, name: "", steps: [] },
+      editSteps: this._showPanel === "scriptEdit" ? (this._tempSteps || []) : [],
+      showStepTypePicker: this._showStepTypePicker,
+      playback: this._playback ? {
+        playing: this._playback.playing,
+        currentStep: this._playback.currentStep,
+        script: { name: this._playback.script.name, steps: this._playback.script.steps, length: this._playback.script.steps.length }
+      } : null
     };
   }
 
@@ -277,6 +291,8 @@ class VisualNovelApp extends _AppBase {
     else if (this._showPanel === "portraits") this._bindPortraitPanel();
     else if (this._showPanel === "scene") this._bindScenePanel();
     else if (this._showPanel === "presets") this._bindPresetsPanel();
+    else if (this._showPanel === "scripts" || this._showPanel === "scriptEdit") this._bindScriptPanel();
+    if (this._playback) this._bindPlayback();
     const panelEl = this._el();
     const panel = panelEl.querySelector(".vn-panel-floating");
     const header = panel?.querySelector(".vn-panel-header");
@@ -438,6 +454,8 @@ class VisualNovelApp extends _AppBase {
 
   _onClose(options) {
     this.element?.classList.remove("vn-fullscreen-active");
+    if (this._playback?.timer) clearTimeout(this._playback.timer);
+    this._playback = null;
   }
 
   async close(options) {
@@ -473,6 +491,7 @@ bindPortraitDrag(VisualNovelApp.prototype);
 bindInlineEdit(VisualNovelApp.prototype);
 bindDialog(VisualNovelApp.prototype);
 bindInvite(VisualNovelApp.prototype);
+bindScriptEngine(VisualNovelApp.prototype);
 bindPanels(VisualNovelApp.prototype);
 
 export default VisualNovelApp;
