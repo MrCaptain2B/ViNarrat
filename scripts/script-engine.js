@@ -147,7 +147,7 @@ proto._playStep = function(idx) {
 
 proto._bindScriptPanel = function() {
   const html = this._el();
-  if (this._editScriptId !== null) {
+  if (this._showPanel === "scriptEdit") {
     this._bindScriptEditor(html);
   } else {
     this._bindScriptList(html);
