@@ -97,9 +97,7 @@ proto._startPlayback = function(script) {
   };
   this._showPanel = null;
   this._activeEditIdx = null;
-  this._applyStepState(script.steps[0].state);
-  this._typewriterDirty = true;
-  this.render();
+  this._playStep(0);
 };
 
 proto._stopPlayback = function() {
