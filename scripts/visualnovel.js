@@ -156,6 +156,7 @@ Hooks.once("init", async function() {
 
 Hooks.once("ready", function() {
   if (game.socket) {
+    console.log("FreeVN | Registering socket handler on", SOCKET);
     game.socket.on(SOCKET, (data) => {
       if (data?.type === "state") _applyVNState(data);
       else if (data?.type === "invite") {
@@ -184,6 +185,7 @@ Hooks.once("ready", function() {
         }
       }
     });
+    console.log("FreeVN | Socket handler registered");
   } else {
     console.warn("FreeVN | game.socket not available on ready");
   }
