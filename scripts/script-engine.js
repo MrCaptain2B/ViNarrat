@@ -362,7 +362,7 @@ proto._bindPlayback = function() {
   html.querySelector(".vn-playback-stop")?.addEventListener("click", () => this._stopPlayback());
   html.querySelector(".vn-root")?.addEventListener("click", (ev) => {
     if (!this._playback) return;
-    if (ev.target.closest(".vn-gm-toolbar") || ev.target.closest(".vn-playback-bar")) return;
+    if (ev.target.closest(".vn-gm-toolbar") || ev.target.closest(".vn-playback-bar") || ev.target.closest(".vn-panel")) return;
     if (this._typewriterTimer) {
       this._clearTypewriter();
       const contentEls = document.querySelectorAll(".vn-dialog-content");
