@@ -366,23 +366,24 @@ proto._importPreset = function() {
       this._data.nextPresetId ||= 1; this._data.nextPortId ||= 1; this._data.nextLocId ||= 1;
       const importDir = `worlds/${game.world.id}/free-visual-novel/imports`;
       const DataOps = foundry.data?.DataOperations;
-      if (DataOps?.write) {
-        await DataOps.write("data", `${importDir}/backgrounds/.fvn_dir`, "").catch(() => {});
-        await DataOps.write("data", `${importDir}/portraits/.fvn_dir`, "").catch(() => {});
-      } else {
-        await _FP().createDirectory("data", importDir).catch(() => {});
-        await _FP().createDirectory("data", `${importDir}/backgrounds`).catch(() => {});
-        await _FP().createDirectory("data", `${importDir}/portraits`).catch(() => {});
+      async function _storeFile(subdir, fn, blob) {
+        const path = `${importDir}/${subdir}/${fn}`;
+        if (DataOps?.write) {
+          await DataOps.write("data", path, new Uint8Array(await blob.arrayBuffer()));
+        } else {
+          await _FP().upload("data", `${importDir}/${subdir}`, new File([blob], fn));
+        }
+        return path;
       }
       const bgIds = {};
       for (const bg of (preset.backgrounds || [])) if (bg.file) try {
         const zf = zip.file(bg.file); if (!zf) continue;
         const blob = await zf.async("blob");
         const fn = bg.file.split("/").pop();
-        await _FP().upload("data", `${importDir}/backgrounds`, new File([blob], fn));
+        const saved = await _storeFile("backgrounds", fn, blob);
         const newId = String(this._data.nextLocId++);
         bgIds[bg.id || bg.name] = newId;
-        this._data.locations.push({ id: newId, name: bg.name || fn, file: `${importDir}/backgrounds/${fn}`, tags: [...(bg.tags||[]), "Import"], group: "Import" });
+        this._data.locations.push({ id: newId, name: bg.name || fn, file: saved, tags: [...(bg.tags||[]), "Import"], group: "Import" });
       } catch(e) { console.warn("FVN | import bg", e); }
       const portIds = {};
       for (const port of (preset.portraits || [])) {
@@ -393,7 +394,7 @@ proto._importPreset = function() {
           const zf = zip.file(port.image); if (zf) {
             const blob = await zf.async("blob");
             const fn = port.image.split("/").pop();
-            await _FP().upload("data", `${importDir}/portraits`, new File([blob], fn));
+            p.image = await _storeFile("portraits", fn, blob);
           }
         } catch(e) { console.warn("FVN | import portrait img", e); }
         if (port.images?.length) {
@@ -402,8 +403,7 @@ proto._importPreset = function() {
             const zf = zip.file(emPath); if (zf) {
               const blob = await zf.async("blob");
               const fn = emPath.split("/").pop();
-              await _FP().upload("data", `${importDir}/portraits`, new File([blob], fn));
-              p.images.push(`${importDir}/portraits/${fn}`);
+              p.images.push(await _storeFile("portraits", fn, blob));
             }
           } catch(e) { console.warn("FVN | import emotion img", e); }
         }
