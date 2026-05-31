@@ -1,4 +1,4 @@
-import { _loadData, _saveData, _userCan } from './helpers.js';
+import { _loadData, _saveData, _userCan, _loadScriptsFromFiles, _saveScriptToFile, _deleteScriptFile, _migrateScriptsToFiles } from './helpers.js';
 
 export function bindScriptEngine(proto) {
 
@@ -49,34 +49,27 @@ proto._performTransition = function(type, duration, prepareFn) {
 
 proto._saveScript = async function(name, steps) {
   if (!_userCan("permManage")) return;
-  if (!this._data) this._data = await _loadData();
-  if (!this._data.scripts) this._data.scripts = [];
-  if (!this._data.nextScriptId) this._data.nextScriptId = 1;
-  const existing = this._data.scripts.find(s => s.id === this._editScriptId);
+  let script;
+  if (this._editScriptId) {
+    script = { id: this._editScriptId, name, steps: JSON.parse(JSON.stringify(steps)) };
+  } else {
+    const existing = await _loadScriptsFromFiles();
+    let maxId = existing.reduce((m, s) => Math.max(m, parseInt(s.id) || 0), 0);
+    script = { id: String(maxId + 1), name, steps: JSON.parse(JSON.stringify(steps)) };
+  }
   try {
-    if (existing) {
-      existing.name = name;
-      existing.steps = JSON.parse(JSON.stringify(steps));
-    } else {
-      this._data.scripts.push({
-        id: String(this._data.nextScriptId++),
-        name,
-        steps: JSON.parse(JSON.stringify(steps))
-      });
-    }
+    await _saveScriptToFile(script);
   } catch (err) {
     console.error("FreeVN | _saveScript error:", err);
     return false;
   }
-  await _saveData(this._data);
   this._editScriptId = null;
   return true;
 };
 
 proto._deleteScript = async function(id) {
-  if (!_userCan("permManage") || !this._data?.scripts) return;
-  this._data.scripts = this._data.scripts.filter(s => s.id !== id);
-  await _saveData(this._data);
+  if (!_userCan("permManage")) return;
+  await _deleteScriptFile(id);
 };
 
 proto._captureSceneState = function() {
