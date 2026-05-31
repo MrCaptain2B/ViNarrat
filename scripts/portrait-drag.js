@@ -42,11 +42,13 @@ proto._bindPortraitDrag = function(html) {
       if (portrait.locked) return;
       if (ev.target.closest(".vn-portrait-controls")) return;
       ev.preventDefault();
+      el.style.transition = "none";
       const rect = container.getBoundingClientRect();
       this._dragState = {
         index: idx,
         ox: ev.clientX - rect.left - portrait.x,
-        oy: ev.clientY - rect.top - portrait.y
+        oy: ev.clientY - rect.top - portrait.y,
+        el: el
       };
     };
     const onMove = (ev) => {
@@ -62,7 +64,10 @@ proto._bindPortraitDrag = function(html) {
         el.style.top = p.y + "px";
       }
     };
-    const onUp = () => { this._dragState = null; };
+    const onUp = () => {
+      if (this._dragState?.el) this._dragState.el.style.transition = "";
+      this._dragState = null;
+    };
     document.addEventListener("click", onClick);
     document.addEventListener("pointerdown", onDown);
     document.addEventListener("pointermove", onMove);
