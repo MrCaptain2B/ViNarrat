@@ -14,9 +14,7 @@
     "verified": "13"
   },
   "socket": true,
-  "scripts": [
-    "lib/jszip.min.js"
-  ],
+  "scripts": [],
   "esmodules": [
     "scripts/visualnovel.js"
   ],

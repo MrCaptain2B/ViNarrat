@@ -1,4 +1,4 @@
-import { _loadData, _saveData, _userCan, _loadScriptsFromFiles, _saveScriptToFile, _deleteScriptFile, _migrateScriptsToFiles, _scriptsDir, _fetchFileAsBlob, _extFromPath, _FP } from './helpers.js';
+import { _loadData, _saveData, _userCan, _loadScriptsFromFiles, _saveScriptToFile, _deleteScriptFile, _migrateScriptsToFiles, _scriptsDir, _FP } from './helpers.js';
 
 export function bindScriptEngine(proto) {
 
@@ -302,47 +302,14 @@ proto._startTypewriter = function() {
 proto._exportPreset = async function(presetId) {
   const preset = this._data?.presets?.find(p => p.id === presetId);
   if (!preset) return ui.notifications?.error("Preset not found");
-  const zip = new JSZip();
-  const exportData = {
-    name: preset.name, version: 1, bg: preset.bg, bgBrightness: preset.bgBrightness,
-    hideBg: !!preset.hideBg, hideUI: !!preset.hideUI, speaker: preset.speaker,
-    dialog: preset.dialog, speakerFontSize: preset.speakerFontSize,
-    themeBg: preset.themeBg, themeAccent: preset.themeAccent,
-    currentLocationId: preset.currentLocationId,
-    portraits: [], backgrounds: [], scripts: []
-  };
+  const out = { name: preset.name, version: 1, bg: preset.bg || null, bgBrightness: preset.bgBrightness, hideBg: !!preset.hideBg, hideUI: !!preset.hideUI, speaker: preset.speaker, dialog: preset.dialog, speakerFontSize: preset.speakerFontSize, themeBg: preset.themeBg, themeAccent: preset.themeAccent, portraits: [] };
   for (const sp of (preset.portraits || [])) {
     const orig = this._data?.portraits?.find(op => op.id === sp.portraitId);
     if (!orig) continue;
-    const entry = { id: orig.id, name: orig.name, title: orig.title, tags: orig.tags, group: orig.group, actorId: orig.actorId, userId: orig.userId };
-    if (orig.image) try {
-      const blob = await _fetchFileAsBlob(orig.image);
-      zip.file(`portraits/${sp.portraitId}.${_extFromPath(orig.image)}`, blob);
-      entry.image = `portraits/${sp.portraitId}.${_extFromPath(orig.image)}`;
-    } catch(e) { console.warn("FVN | export missing portrait img", orig.image); }
-    if (orig.images?.length) {
-      entry.images = [];
-      for (let i = 0; i < orig.images.length; i++) if (orig.images[i]) try {
-        const blob = await _fetchFileAsBlob(orig.images[i]);
-        zip.file(`portraits/${sp.portraitId}_em${i}.${_extFromPath(orig.images[i])}`, blob);
-        entry.images.push(`portraits/${sp.portraitId}_em${i}.${_extFromPath(orig.images[i])}`);
-      } catch(e) { entry.images.push(orig.images[i]); }
-    }
-    entry._stageX = sp.x; entry._stageY = sp.y; entry._stageScale = sp.scale;
-    entry._stageFlip = sp.flip; entry._stageEmotion = sp.emotion;
-    exportData.portraits.push(entry);
+    out.portraits.push({ portraitId: sp.portraitId, name: orig.name, title: orig.title, image: orig.image || null, images: orig.images || [], _stageX: sp.x, _stageY: sp.y, _stageScale: sp.scale, _stageFlip: sp.flip, _stageEmotion: sp.emotion });
   }
-  if (preset.bg) try {
-    const loc = this._data?.locations?.find(l => l.file === preset.bg);
-    const bgEntry = loc ? { id: loc.id, name: loc.name, tags: loc.tags, group: loc.group } : { id: "bg1", name: "Background" };
-    const blob = await _fetchFileAsBlob(preset.bg);
-    zip.file(`backgrounds/bg.${_extFromPath(preset.bg)}`, blob);
-    bgEntry.file = `backgrounds/bg.${_extFromPath(preset.bg)}`;
-    exportData.backgrounds.push(bgEntry);
-  } catch(e) { console.warn("FVN | export missing bg", preset.bg); }
-  zip.file("preset.json", JSON.stringify(exportData, null, 2));
-  const blob = await zip.generateAsync({ type: "blob" });
-  const fname = `${preset.name.replace(/[^a-z0-9_-]/gi, "_")}.zip`;
+  const blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
+  const fname = `${preset.name.replace(/[^a-z0-9_-]/gi, "_")}.json`;
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url; a.download = fname; a.click();
@@ -352,75 +319,27 @@ proto._exportPreset = async function(presetId) {
 
 proto._importPreset = function() {
   const input = document.createElement("input");
-  input.type = "file"; input.accept = ".zip";
+  input.type = "file"; input.accept = ".json";
   input.onchange = async (e) => {
     const file = e.target.files[0];
     if (!file) return;
     try {
-      const zip = await JSZip.loadAsync(file);
-      const presetFile = zip.file("preset.json");
-      if (!presetFile) return ui.notifications?.error("Invalid preset: missing preset.json");
-      const preset = JSON.parse(await presetFile.async("string"));
+      const preset = JSON.parse(await file.text());
+      if (!preset.name || !preset.version) return ui.notifications?.error("Invalid preset file");
       if (!this._data) this._data = await _loadData();
       if (!this._data.presets) this._data.presets = [];
-      this._data.nextPresetId ||= 1; this._data.nextPortId ||= 1; this._data.nextLocId ||= 1;
-      const importDir = `worlds/${game.world.id}/free-visual-novel/imports`;
-      const DataOps = foundry.data?.DataOperations;
-      async function _storeFile(subdir, fn, blob) {
-        const path = `${importDir}/${subdir}/${fn}`;
-        if (DataOps?.write) {
-          await DataOps.write("data", path, new Uint8Array(await blob.arrayBuffer()));
-        } else {
-          await _FP().upload("data", `${importDir}/${subdir}`, new File([blob], fn));
-        }
-        return path;
-      }
-      const bgIds = {};
-      for (const bg of (preset.backgrounds || [])) if (bg.file) try {
-        const zf = zip.file(bg.file); if (!zf) continue;
-        const blob = await zf.async("blob");
-        const fn = bg.file.split("/").pop();
-        const saved = await _storeFile("backgrounds", fn, blob);
-        const newId = String(this._data.nextLocId++);
-        bgIds[bg.id || bg.name] = newId;
-        this._data.locations.push({ id: newId, name: bg.name || fn, file: saved, tags: [...(bg.tags||[]), "Import"], group: "Import" });
-      } catch(e) { console.warn("FVN | import bg", e); }
-      const portIds = {};
-      for (const port of (preset.portraits || [])) {
-        const newId = String(this._data.nextPortId++);
-        portIds[port.id] = newId;
-        const p = { id: newId, name: port.name, title: port.title||"", tags: [...(port.tags||[]), "Import"], group: "Import", actorId: port.actorId||"", userId: game.user?.id };
-        if (port.image) try {
-          const zf = zip.file(port.image); if (zf) {
-            const blob = await zf.async("blob");
-            const fn = port.image.split("/").pop();
-            p.image = await _storeFile("portraits", fn, blob);
-          }
-        } catch(e) { console.warn("FVN | import portrait img", e); }
-        if (port.images?.length) {
-          p.images = [];
-          for (const emPath of port.images) try {
-            const zf = zip.file(emPath); if (zf) {
-              const blob = await zf.async("blob");
-              const fn = emPath.split("/").pop();
-              p.images.push(await _storeFile("portraits", fn, blob));
-            }
-          } catch(e) { console.warn("FVN | import emotion img", e); }
-        }
-        this._data.portraits.push(p);
-      }
-      const newPreset = { id: String(this._data.nextPresetId++), name: preset.name, bg: "", bgBrightness: preset.bgBrightness??1, hideBg: !!preset.hideBg, hideUI: !!preset.hideUI, speaker: preset.speaker||"", dialog: preset.dialog||{}, speakerFontSize: preset.speakerFontSize||20, themeBg: preset.themeBg||"#0d0d1a", themeAccent: preset.themeAccent||"#f0c040", currentLocationId: null, portraits: [] };
-      const mappedBgId = bgIds[preset.currentLocationId];
-      const firstBg = mappedBgId ? this._data.locations.find(l => l.id === mappedBgId) : null;
-      if (firstBg) { newPreset.bg = firstBg.file; newPreset.currentLocationId = firstBg.id; }
+      this._data.nextPresetId ||= 1;
+      const newPreset = { id: String(this._data.nextPresetId++), name: preset.name, bg: preset.bg || "", bgBrightness: preset.bgBrightness??1, hideBg: !!preset.hideBg, hideUI: !!preset.hideUI, speaker: preset.speaker||"", dialog: preset.dialog||{}, speakerFontSize: preset.speakerFontSize||20, themeBg: preset.themeBg||"#0d0d1a", themeAccent: preset.themeAccent||"#f0c040", currentLocationId: null, portraits: [] };
       for (const sp of (preset.portraits || [])) {
-        const newId = portIds[sp.id];
-        if (newId) newPreset.portraits.push({ portraitId: newId, x: sp._stageX??50, y: sp._stageY??200, scale: sp._stageScale??1, flip: sp._stageFlip??false, emotion: sp._stageEmotion??0 });
+        const match = this._data.portraits.find(p => p.id === sp.portraitId || p.name === sp.name);
+        const pid = match ? match.id : null;
+        newPreset.portraits.push({ portraitId: pid || sp.portraitId, x: sp._stageX??50, y: sp._stageY??200, scale: sp._stageScale??1, flip: sp._stageFlip??false, emotion: sp._stageEmotion??0 });
       }
       this._data.presets.push(newPreset);
       await _saveData(this._data);
       this.render();
-      ui.notifications?.info(`Preset "${preset.name}" imported`);
+      const missing = newPreset.bg && !this._data.locations?.find(l => l.file === newPreset.bg);
+      ui.notifications?.info(`Preset "${preset.name}" imported${missing ? " (background path may not exist in this world)" : ""}`);
     } catch(e) { console.error("FVN | Import error:", e); ui.notifications?.error("Failed to import preset"); }
   };
   input.click();
