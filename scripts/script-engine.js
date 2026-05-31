@@ -141,6 +141,7 @@ proto._startPlayback = async function(script) {
     timer: null,
     transitioning: false
   };
+  this._prePlaybackState = this._captureSceneState();
   this._showPanel = null;
   this._activeEditIdx = null;
   const steps = this._playback.script.steps;
@@ -179,6 +180,10 @@ proto._stopPlayback = async function() {
   if (overlay) {
     overlay.style.transition = "none";
     overlay.style.opacity = "0";
+  }
+  if (this._prePlaybackState) {
+    this._applyStepState(this._prePlaybackState);
+    this._prePlaybackState = null;
   }
   this._playback = null;
   this.render();
