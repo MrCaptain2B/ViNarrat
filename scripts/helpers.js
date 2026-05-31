@@ -2,9 +2,7 @@ export const DATA_KEY = "vndata";
 const DATA_SRC = "data";
 
 export function _FP() {
-  const fp = foundry?.applications?.apps?.FilePicker?.implementation || FilePicker;
-  console.log("FVN | _FP() =>", fp?.name, typeof fp?.createDirectory);
-  return fp;
+  return foundry?.applications?.apps?.FilePicker?.implementation || FilePicker;
 }
 
 function _worldDir() {

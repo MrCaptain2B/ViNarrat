@@ -342,7 +342,7 @@ proto._exportPreset = async function(presetId) {
   } catch(e) { console.warn("FVN | export missing bg", preset.bg); }
   zip.file("preset.json", JSON.stringify(exportData, null, 2));
   const blob = await zip.generateAsync({ type: "blob" });
-  foundry.utils.saveDataToFile(blob, `${preset.name.replace(/[^a-z0-9_-]/gi, "_")}.zip`, "application/zip");
+  foundry.utils.saveDataToFile(blob, `${preset.name.replace(/[^a-z0-9_-]/gi, "_")}.zip`, { mimeType: "application/zip" });
   ui.notifications?.info(`Preset "${preset.name}" exported`);
 };
 
@@ -360,11 +360,9 @@ proto._importPreset = function() {
         if (!this._data.presets) this._data.presets = [];
         this._data.nextPresetId ||= 1; this._data.nextPortId ||= 1; this._data.nextLocId ||= 1;
         const importDir = `worlds/${game.world.id}/free-visual-novel/imports`;
-        console.log("FVN | _FP:", typeof _FP, _FP().name, !!_FP().createDirectory);
-        const mkdir = (p) => _FP().createDirectory("data", p).then(r => console.log("FVN | mkdir OK:", p)).catch(e => console.warn("FVN | mkdir FAIL:", p, e));
-        await mkdir(importDir);
-        await mkdir(`${importDir}/backgrounds`);
-        await mkdir(`${importDir}/portraits`);
+        await _FP().createDirectory("data", importDir).catch(() => {});
+        await _FP().createDirectory("data", `${importDir}/backgrounds`).catch(() => {});
+        await _FP().createDirectory("data", `${importDir}/portraits`).catch(() => {});
         const bgIds = {};
         for (const bg of (preset.backgrounds || [])) if (bg.file) try {
           const zf = zip.file(bg.file); if (!zf) continue;
@@ -375,7 +373,7 @@ proto._importPreset = function() {
           const newId = String(this._data.nextLocId++);
           bgIds[bg.id || bg.name] = newId;
           this._data.locations.push({ id: newId, name: bg.name || fn, file: `${importDir}/backgrounds/${fn}`, tags: [...(bg.tags||[]), "Import"], group: "Import" });
-        } catch(e) { console.warn("FVN | import bg FAIL:", e.message || e); }
+        } catch(e) { console.warn("FVN | import bg", e); }
         const portIds = {};
         for (const port of (preset.portraits || [])) {
           const newId = String(this._data.nextPortId++);
