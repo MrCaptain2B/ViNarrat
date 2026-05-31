@@ -172,6 +172,7 @@ proto._startPlayback = async function(script) {
       this._applyStepState(sceneState);
       this._broadcast();
     }
+    this.render();
     overlay.style.transition = `opacity ${(firstStep.transitionDuration || 0.5) / 2}s ease`;
     overlay.style.opacity = "0";
     await new Promise(r => setTimeout(r, ((firstStep.transitionDuration || 0.5) / 2) * 1000 + 100));
