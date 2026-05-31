@@ -138,7 +138,7 @@ proto._startPlayback = async function(script) {
   this._prePlaybackState = this._captureSceneState();
   if (game.settings?.get("free-visual-novel", "scriptAssetWarnings") !== false) {
     const missingPortraits = new Set();
-    for (const step of steps) {
+    for (const step of script.steps) {
       if (!step.state) continue;
       if (step.state.speaker && !this._data?.portraits?.find(p => p.id === step.state.speaker)) {
         missingPortraits.add(step.state.speaker);
@@ -387,7 +387,21 @@ proto._bindScriptList = function(html) {
 };
 
 proto._bindScriptEditor = function(html) {
+  const panel = html.querySelector(".vn-panel-floating");
+  const header = panel?.querySelector(".vn-panel-header");
+  if (header) {
+    let drag = null;
+    const onDown = (ev) => { if (ev.button !== 0) return; drag = { ox: ev.clientX - (panel.offsetLeft || 0), oy: ev.clientY - (panel.offsetTop || 0) }; };
+    const onMove = (ev) => { if (!drag) return; panel.style.left = (ev.clientX - drag.ox) + "px"; panel.style.right = "auto"; panel.style.top = (ev.clientY - drag.oy) + "px"; };
+    const onUp = () => { drag = null; };
+    header.addEventListener("pointerdown", onDown);
+    document.addEventListener("pointermove", onMove);
+    document.addEventListener("pointerup", onUp);
+    this._dragCleanupPanel = () => { header.removeEventListener("pointerdown", onDown); document.removeEventListener("pointermove", onMove); document.removeEventListener("pointerup", onUp); };
+  }
+
   html.querySelector(".vn-sceditor-back")?.addEventListener("click", () => {
+    if (this._tempSteps?.length && !confirm("Discard unsaved changes?")) return;
     this._editScriptId = null;
     this._tempSteps = [];
     this._activeEditIdx = null;

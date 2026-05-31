@@ -810,7 +810,9 @@
   padding: 6px 8px; font-size: 1.1em;
 }
 .vn-btn-create-script:hover, .vn-btn-load-script:hover { color: var(--vn-accent); }
-.vn-panel-wide { width: 520px; max-width: 90vw; }
+.vn-panel-wide { width: 440px; max-width: 90vw; }
+.vn-panel-wide .vn-sceditor-body { max-height: 360px; }
+.vn-panel-floating { resize: both; overflow: auto; min-width: 320px; min-height: 200px; }
 .vn-scripts-list { max-height: 300px; overflow-y: auto; padding: 8px; }
 .vn-scripts-row {
   display: flex; align-items: center; gap: 8px; padding: 8px; margin-bottom: 4px;

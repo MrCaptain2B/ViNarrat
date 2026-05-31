@@ -19,7 +19,6 @@
       <div class="vn-portrait-wrapper">
         {{#if this.hasEmotions}}
         {{#if (or this.selected this.isMyPortrait)}}
-        {{#unless ../playback}}
         <div class="vn-emotion-strip">
           {{#each this.images}}
           <button class="vn-emotion-thumb {{#if (eq @index ../this.emotionIdx)}}vn-emotion-active{{/if}}" data-port-idx="{{../this.index}}" data-emotion="{{@index}}">
@@ -27,7 +26,6 @@
           </button>
           {{/each}}
         </div>
-        {{/unless}}
         {{/if}}
         {{/if}}
         <div class="vn-portrait-frame {{#unless this.speaking}}vn-dimmed{{/unless}}">
