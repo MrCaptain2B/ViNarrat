@@ -104,6 +104,7 @@ class VisualNovelApp extends _AppBase {
       leftText: ""
     };
     this._speakerFontSize = parseInt(game.settings?.get("free-visual-novel", "speakerFontSize")) || 20;
+    this._defaultPortraitScale = this._data.defaultPortraitScale ?? 1;
     await this._restoreSession();
     this._ready = true;
   }
@@ -125,7 +126,8 @@ class VisualNovelApp extends _AppBase {
       themeAccent: this._themeAccent,
       dialog: this._dialog,
       speakerFontSize: this._speakerFontSize,
-      currentLocationId: this._currentLocationId
+      currentLocationId: this._currentLocationId,
+      defaultPortraitScale: this._defaultPortraitScale
     });
   }
 
@@ -147,6 +149,7 @@ class VisualNovelApp extends _AppBase {
     this._dialog = Object.assign({}, this._dialog, state.dialog);
     this._speakerFontSize = state.speakerFontSize || this._speakerFontSize;
     this._currentLocationId = state.currentLocationId || null;
+    this._defaultPortraitScale = state.defaultPortraitScale ?? this._defaultPortraitScale;
   }
 
   async _prepareContext() {
@@ -251,6 +254,7 @@ class VisualNovelApp extends _AppBase {
       speakerFontSize: this._speakerFontSize,
       themeBg: this._themeBg,
       themeAccent: this._themeAccent,
+      defaultPortraitScale: this._defaultPortraitScale,
       scripts: this._data?.scripts || [],
       editScript: this._editScriptId ? (this._data?.scripts?.find(s => s.id === this._editScriptId) || { id: null, name: "", steps: [] }) : { id: null, name: "", steps: [] },
       editSteps: this._showPanel === "scriptEdit" ? (this._tempSteps || []) : [],

@@ -111,20 +111,6 @@ proto._bindMainUI = function() {
       });
     });
 
-    html.querySelectorAll(".vn-port-scale-inline").forEach(slider => {
-      const idx = parseInt(slider.dataset.portIdx);
-      slider.addEventListener("input", (ev) => {
-        const val = parseFloat(ev.currentTarget.value);
-        if (this._portraits[idx]) {
-          this._portraits[idx].scale = val;
-          const el = document.querySelector(`.vn-portrait[data-port-idx="${idx}"]`);
-          if (el) {
-            const flip = this._portraits[idx].flip ? "scaleX(-1)" : "";
-            el.style.transform = `scale(${val}) ${flip}`;
-          }
-        }
-      });
-    });
     html.querySelectorAll(".vn-port-lock").forEach(btn => {
       btn.addEventListener("click", (ev) => {
         const idx = parseInt(ev.currentTarget.dataset.portIdx);
@@ -433,7 +419,7 @@ proto._bindPortraitPanel = function() {
             ...port,
             x: 50 + this._portraits.length * 180,
             y: 200,
-            scale: 1,
+            scale: this._defaultPortraitScale ?? 1,
             flip: false,
             locked: false
           });
@@ -638,6 +624,16 @@ proto._bindScenePanel = function() {
       this._bgBrightness = parseFloat(ev.target.value) || 1;
       const bg = html.querySelector(".vn-bg");
       if (bg) bg.style.filter = `brightness(${this._bgBrightness})`;
+    });
+
+    html.querySelector(".vn-default-portrait-scale")?.addEventListener("input", (ev) => {
+      this._defaultPortraitScale = parseFloat(ev.target.value) || 1;
+      const val = ev.target.parentElement?.querySelector(".vn-dialog-val");
+      if (val) val.textContent = this._defaultPortraitScale;
+    });
+    html.querySelector(".vn-default-portrait-scale")?.addEventListener("change", (ev) => {
+      this._defaultPortraitScale = parseFloat(ev.target.value) || 1;
+      if (this._data) { this._data.defaultPortraitScale = this._defaultPortraitScale; _saveData(this._data); }
     });
 
     html.querySelector(".vn-theme-bg")?.addEventListener("input", (ev) => {

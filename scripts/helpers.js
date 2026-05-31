@@ -15,7 +15,8 @@ export function _defaultData() {
     nextPresetId: 1,
     nextScriptId: 1,
     themeBg: "#0d0d1a",
-    themeAccent: "#f0c040"
+    themeAccent: "#f0c040",
+    defaultPortraitScale: 1
   };
 }
 
