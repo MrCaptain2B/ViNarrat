@@ -111,6 +111,22 @@ proto._bindMainUI = function() {
       });
     });
 
+    html.querySelectorAll(".vn-port-scale-inline").forEach(slider => {
+      const idx = parseInt(slider.dataset.portIdx);
+      const updateScale = (val) => {
+        if (this._portraits[idx]) {
+          this._portraits[idx].scale = val;
+          const el = document.querySelector(`.vn-portrait[data-port-idx="${idx}"]`);
+          if (el) {
+            const flip = this._portraits[idx].flip ? "scaleX(-1)" : "";
+            el.style.transform = `scale(${val}) ${flip}`;
+          }
+          const valEl = document.querySelector(`.vn-port-scale-val[data-port-idx="${idx}"]`);
+          if (valEl) valEl.textContent = val;
+        }
+      };
+      slider.addEventListener("input", (ev) => updateScale(parseFloat(ev.currentTarget.value)));
+    });
     html.querySelectorAll(".vn-port-lock").forEach(btn => {
       btn.addEventListener("click", (ev) => {
         const idx = parseInt(ev.currentTarget.dataset.portIdx);

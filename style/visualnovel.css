@@ -226,10 +226,18 @@
   font-family: var(--vn-font-ui);
 }
 .vn-port-scale-inline {
-  width: 80px;
+  width: 70px;
   height: 4px;
   accent-color: var(--vn-accent);
   cursor: pointer;
+}
+.vn-port-scale-val {
+  min-width: 28px;
+  text-align: center;
+  font-size: 0.82em;
+  font-weight: 600;
+  color: var(--vn-accent);
+  font-family: var(--vn-font-ui);
 }
 .vn-portrait-controls button {
   background: transparent;
