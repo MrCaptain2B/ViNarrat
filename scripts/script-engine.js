@@ -135,6 +135,23 @@ proto._startPlayback = async function(script) {
     transitioning: false
   };
   this._prePlaybackState = this._captureSceneState();
+  if (game.settings?.get("free-visual-novel", "scriptAssetWarnings") !== false) {
+    const missingPortraits = new Set();
+    for (const step of steps) {
+      if (!step.state) continue;
+      if (step.state.speaker && !this._data?.portraits?.find(p => p.id === step.state.speaker)) {
+        missingPortraits.add(step.state.speaker);
+      }
+      for (const s of (step.state.stage || [])) {
+        if (!this._data?.portraits?.find(p => p.id === s.portraitId)) {
+          missingPortraits.add(s.portraitId);
+        }
+      }
+    }
+    if (missingPortraits.size) {
+      ui.notifications?.warn(`Script "${script.name}" references missing portraits: ${[...missingPortraits].join(", ")}`, {permanent: true});
+    }
+  }
   this._showPanel = null;
   this._activeEditIdx = null;
   const steps = this._playback.script.steps;

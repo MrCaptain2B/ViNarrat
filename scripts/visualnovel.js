@@ -127,6 +127,11 @@ Hooks.once("init", async function() {
       name: s.name, hint: s.hint
     });
   }
+  game.settings?.register("free-visual-novel", "scriptAssetWarnings", {
+    scope: "world", type: Boolean, default: true, config: true,
+    name: "Script Asset Warnings",
+    hint: "Warn when a script references missing portraits or other assets"
+  });
   game.settings?.register("free-visual-novel", "playablePortraits", {
     scope: "world", type: Boolean, default: true, config: true,
     name: "Player Portrait Control",
