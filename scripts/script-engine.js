@@ -173,9 +173,9 @@ proto._startPlayback = async function(script) {
       this._broadcast();
     }
     this.render();
-    overlay.style.transition = `opacity ${(firstStep.transitionDuration || 0.5) / 2}s ease`;
+    overlay.style.transition = `opacity ${(firstStep.transitionDuration || 0.5)}s ease`;
     overlay.style.opacity = "0";
-    await new Promise(r => setTimeout(r, ((firstStep.transitionDuration || 0.5) / 2) * 1000 + 100));
+    await new Promise(r => setTimeout(r, ((firstStep.transitionDuration || 0.5) * 1000 + 100)));
     this._playback.currentStep = firstSceneIdx < steps.length ? firstSceneIdx : 0;
     this._playback.transitioning = false;
     this._typewriterDirty = true;
