@@ -360,17 +360,22 @@ proto._importPreset = function() {
         if (!this._data.presets) this._data.presets = [];
         this._data.nextPresetId ||= 1; this._data.nextPortId ||= 1; this._data.nextLocId ||= 1;
         const importDir = `worlds/${game.world.id}/free-visual-novel/imports`;
+        console.log("FVN | _FP:", typeof _FP, _FP().name, !!_FP().createDirectory);
+        const mkdir = (p) => _FP().createDirectory("data", p).then(r => console.log("FVN | mkdir OK:", p)).catch(e => console.warn("FVN | mkdir FAIL:", p, e));
+        await mkdir(importDir);
+        await mkdir(`${importDir}/backgrounds`);
+        await mkdir(`${importDir}/portraits`);
         const bgIds = {};
         for (const bg of (preset.backgrounds || [])) if (bg.file) try {
           const zf = zip.file(bg.file); if (!zf) continue;
           const blob = await zf.async("blob");
           const fn = bg.file.split("/").pop();
           const fp = new File([blob], fn);
-          await _FP().upload("data", `${importDir}/backgrounds/`, fp);
+          await _FP().upload("data", `${importDir}/backgrounds`, fp);
           const newId = String(this._data.nextLocId++);
           bgIds[bg.id || bg.name] = newId;
           this._data.locations.push({ id: newId, name: bg.name || fn, file: `${importDir}/backgrounds/${fn}`, tags: [...(bg.tags||[]), "Import"], group: "Import" });
-        } catch(e) { console.warn("FVN | import bg", e); }
+        } catch(e) { console.warn("FVN | import bg FAIL:", e.message || e); }
         const portIds = {};
         for (const port of (preset.portraits || [])) {
           const newId = String(this._data.nextPortId++);
@@ -380,7 +385,7 @@ proto._importPreset = function() {
             const zf = zip.file(port.image); if (zf) {
               const blob = await zf.async("blob");
               const fn = port.image.split("/").pop();
-              await _FP().upload("data", `${importDir}/portraits/`, new File([blob], fn));
+              await _FP().upload("data", `${importDir}/portraits`, new File([blob], fn));
             }
           } catch(e) { console.warn("FVN | import portrait img", e); }
           if (port.images?.length) {
@@ -389,16 +394,17 @@ proto._importPreset = function() {
               const zf = zip.file(emPath); if (zf) {
                 const blob = await zf.async("blob");
                 const fn = emPath.split("/").pop();
-                await _FP().upload("data", `${importDir}/portraits/`, new File([blob], fn));
+                await _FP().upload("data", `${importDir}/portraits`, new File([blob], fn));
                 p.images.push(`${importDir}/portraits/${fn}`);
               }
             } catch(e) { console.warn("FVN | import emotion img", e); }
           }
           this._data.portraits.push(p);
         }
-        const newPreset = { id: String(this._data.nextPresetId++), name: preset.name, bg: "", bgBrightness: preset.bgBrightness??1, hideBg: !!preset.hideBg, hideUI: !!preset.hideUI, speaker: preset.speaker||"", dialog: preset.dialog||{}, speakerFontSize: preset.speakerFontSize||20, themeBg: preset.themeBg||"#0d0d1a", themeAccent: preset.themeAccent||"#f0c040", currentLocationId: preset.currentLocationId||null, portraits: [] };
-        const firstBg = this._data.locations.find(l => l.tags?.includes("Import") && l.group === "Import");
-        if (firstBg) newPreset.bg = firstBg.file;
+        const newPreset = { id: String(this._data.nextPresetId++), name: preset.name, bg: "", bgBrightness: preset.bgBrightness??1, hideBg: !!preset.hideBg, hideUI: !!preset.hideUI, speaker: preset.speaker||"", dialog: preset.dialog||{}, speakerFontSize: preset.speakerFontSize||20, themeBg: preset.themeBg||"#0d0d1a", themeAccent: preset.themeAccent||"#f0c040", currentLocationId: null, portraits: [] };
+        const mappedBgId = bgIds[preset.currentLocationId];
+        const firstBg = mappedBgId ? this._data.locations.find(l => l.id === mappedBgId) : null;
+        if (firstBg) { newPreset.bg = firstBg.file; newPreset.currentLocationId = firstBg.id; }
         for (const sp of (preset.portraits || [])) {
           const newId = portIds[sp.id];
           if (newId) newPreset.portraits.push({ portraitId: newId, x: sp._stageX??50, y: sp._stageY??200, scale: sp._stageScale??1, flip: sp._stageFlip??false, emotion: sp._stageEmotion??0 });
