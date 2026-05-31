@@ -342,7 +342,11 @@ proto._exportPreset = async function(presetId) {
   } catch(e) { console.warn("FVN | export missing bg", preset.bg); }
   zip.file("preset.json", JSON.stringify(exportData, null, 2));
   const blob = await zip.generateAsync({ type: "blob" });
-  foundry.utils.saveDataToFile(blob, `${preset.name.replace(/[^a-z0-9_-]/gi, "_")}.zip`, { mimeType: "application/zip" });
+  const fname = `${preset.name.replace(/[^a-z0-9_-]/gi, "_")}.zip`;
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = fname; a.click();
+  URL.revokeObjectURL(url);
   ui.notifications?.info(`Preset "${preset.name}" exported`);
 };
 
@@ -360,9 +364,15 @@ proto._importPreset = function() {
         if (!this._data.presets) this._data.presets = [];
         this._data.nextPresetId ||= 1; this._data.nextPortId ||= 1; this._data.nextLocId ||= 1;
         const importDir = `worlds/${game.world.id}/free-visual-novel/imports`;
-        await _FP().createDirectory("data", importDir).catch(() => {});
-        await _FP().createDirectory("data", `${importDir}/backgrounds`).catch(() => {});
-        await _FP().createDirectory("data", `${importDir}/portraits`).catch(() => {});
+        const DataOps = foundry.data?.DataOperations;
+        if (DataOps?.write) {
+          await DataOps.write("data", `${importDir}/backgrounds/.fvn_dir`, "").catch(() => {});
+          await DataOps.write("data", `${importDir}/portraits/.fvn_dir`, "").catch(() => {});
+        } else {
+          await _FP().createDirectory("data", importDir).catch(() => {});
+          await _FP().createDirectory("data", `${importDir}/backgrounds`).catch(() => {});
+          await _FP().createDirectory("data", `${importDir}/portraits`).catch(() => {});
+        }
         const bgIds = {};
         for (const bg of (preset.backgrounds || [])) if (bg.file) try {
           const zf = zip.file(bg.file); if (!zf) continue;
