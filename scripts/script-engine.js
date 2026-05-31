@@ -1,4 +1,4 @@
-import { _loadData, _saveData, _userCan, _loadScriptsFromFiles, _saveScriptToFile, _deleteScriptFile, _migrateScriptsToFiles, _scriptsDir, _fetchFileAsBlob, _extFromPath } from './helpers.js';
+import { _loadData, _saveData, _userCan, _loadScriptsFromFiles, _saveScriptToFile, _deleteScriptFile, _migrateScriptsToFiles, _scriptsDir, _fetchFileAsBlob, _extFromPath, _FP } from './helpers.js';
 
 export function bindScriptEngine(proto) {
 
@@ -351,7 +351,7 @@ proto._exportPreset = async function(presetId) {
 };
 
 proto._importPreset = function() {
-  const fp = new FilePicker({
+    const fp = new (_FP())({
     type: "any", current: "",
     callback: async (path) => {
       try {
@@ -370,7 +370,7 @@ proto._importPreset = function() {
           const blob = await zf.async("blob");
           const fn = bg.file.split("/").pop();
           const fp = new File([blob], fn);
-          await FilePicker.upload("data", `${importDir}/backgrounds/`, fp);
+          await _FP().upload("data", `${importDir}/backgrounds/`, fp);
           const newId = String(this._data.nextLocId++);
           bgIds[bg.id || bg.name] = newId;
           this._data.locations.push({ id: newId, name: bg.name || fn, file: `${importDir}/backgrounds/${fn}`, tags: [...(bg.tags||[]), "Import"], group: "Import" });
@@ -384,8 +384,7 @@ proto._importPreset = function() {
             const zf = zip.file(port.image); if (zf) {
               const blob = await zf.async("blob");
               const fn = port.image.split("/").pop();
-              await FilePicker.upload("data", `${importDir}/portraits/`, new File([blob], fn));
-              p.image = `${importDir}/portraits/${fn}`;
+              await _FP().upload("data", `${importDir}/portraits/`, new File([blob], fn));
             }
           } catch(e) { console.warn("FVN | import portrait img", e); }
           if (port.images?.length) {
@@ -394,7 +393,7 @@ proto._importPreset = function() {
               const zf = zip.file(emPath); if (zf) {
                 const blob = await zf.async("blob");
                 const fn = emPath.split("/").pop();
-                await FilePicker.upload("data", `${importDir}/portraits/`, new File([blob], fn));
+                await _FP().upload("data", `${importDir}/portraits/`, new File([blob], fn));
                 p.images.push(`${importDir}/portraits/${fn}`);
               }
             } catch(e) { console.warn("FVN | import emotion img", e); }
@@ -457,7 +456,7 @@ proto._bindScriptList = function(html) {
   });
   html.querySelector(".vn-scripts-open-folder")?.addEventListener("click", () => {
     const dir = _scriptsDir();
-    const fp = new FilePicker({
+  const fp = new (_FP())({
       type: "any",
       current: dir,
       callback: async () => {

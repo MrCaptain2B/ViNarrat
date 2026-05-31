@@ -1,6 +1,10 @@
 export const DATA_KEY = "vndata";
 const DATA_SRC = "data";
 
+export function _FP() {
+  return foundry?.applications?.apps?.FilePicker?.implementation || FilePicker;
+}
+
 function _worldDir() {
   return `worlds/${game.world?.id || "unknown"}`;
 }
@@ -48,7 +52,7 @@ export async function _saveData(data) {
 
 async function _ensureScriptsDir() {
   try {
-    await FilePicker.createDirectory(DATA_SRC, _scriptsDir());
+    await _FP().createDirectory(DATA_SRC, _scriptsDir());
   } catch(e) {
     /* already exists */
   }
@@ -73,7 +77,7 @@ async function _writeTextFile(path, content) {
   }
   const blob = new Blob([content], {type: "application/json"});
   const file = new File([blob], path.split("/").pop());
-  await FilePicker.upload(DATA_SRC, path.replace(/[^/]+$/, ""), file);
+  await _FP().upload(DATA_SRC, path.replace(/[^/]+$/, ""), file);
 }
 
 async function _removeFile(path) {
@@ -88,7 +92,7 @@ async function _removeFile(path) {
 export async function _loadScriptsFromFiles() {
   try {
     await _ensureScriptsDir();
-    const result = await FilePicker.browse(DATA_SRC, _scriptsDir());
+    const result = await _FP().browse(DATA_SRC, _scriptsDir());
     const scripts = [];
     for (const file of (result.files || [])) {
       if (!file.endsWith(".json")) continue;
@@ -190,7 +194,7 @@ export async function _importActorPortraits(folderPath) {
   }
   if (!folderPath) {
     try {
-      const fp = new FilePicker({ type: "folder", current: "", callback: (path) => {
+      const fp = new (_FP())({ type: "folder", current: "", callback: (path) => {
         _importActorPortraits(path);
       }});
       fp.render(true);
@@ -199,7 +203,7 @@ export async function _importActorPortraits(folderPath) {
   }
   let fileList;
   try {
-    const result = await FilePicker.browse("data", folderPath);
+    const result = await _FP().browse("data", folderPath);
     fileList = result.files || [];
   } catch(e) {
     ui.notifications?.error(`Cannot browse folder: ${folderPath}`);

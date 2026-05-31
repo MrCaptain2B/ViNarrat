@@ -1,4 +1,4 @@
-import { _userCan, _saveData, _importActorPortraits, SOCKET } from './helpers.js';
+import { _userCan, _saveData, _importActorPortraits, SOCKET, _FP } from './helpers.js';
 
 export function bindPanels(proto) {
 
@@ -379,7 +379,7 @@ proto._bindAddLocation = function(html) {
     });
     form.querySelector(".vn-loc-fp")?.addEventListener("click", () => {
       try {
-        const fp = new FilePicker({ type: "image", current: "", callback: (path) => {
+        const fp = new (_FP())({ type: "image", current: "", callback: (path) => {
           form.querySelector(".vn-loc-f-bg").value = path;
         }});
         fp.render(true);
@@ -543,7 +543,7 @@ proto._bindAddPortrait = function(html) {
       });
       el.querySelector(".vn-emotion-fp")?.addEventListener("click", () => {
         try {
-          const fp = new FilePicker({ type: "image", current: "", callback: (path) => {
+          const fp = new (_FP())({ type: "image", current: "", callback: (path) => {
             if (inp) inp.value = path;
           }});
           fp.render(true);
@@ -618,7 +618,7 @@ proto._bindAddPortrait = function(html) {
     });
     form.querySelector(".vn-port-fp")?.addEventListener("click", () => {
       try {
-        const fp = new FilePicker({ type: "image", current: "", callback: (path) => {
+        const fp = new (_FP())({ type: "image", current: "", callback: (path) => {
           form.querySelector(".vn-port-f-img").value = path;
         }});
         fp.render(true);
