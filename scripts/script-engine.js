@@ -160,7 +160,6 @@ proto._startPlayback = async function(script) {
       this._applyStepState(sceneState);
       this._broadcast();
     }
-    this.render();
     overlay.style.transition = `opacity ${(firstStep.transitionDuration || 0.5) / 2}s ease`;
     overlay.style.opacity = "0";
     await new Promise(r => setTimeout(r, ((firstStep.transitionDuration || 0.5) / 2) * 1000 + 100));
@@ -508,9 +507,9 @@ proto._bindPlayback = function() {
   html.querySelector(".vn-playback-next")?.addEventListener("click", () => this._nextStep());
   html.querySelector(".vn-playback-stop")?.addEventListener("click", () => this._stopPlayback());
   html.querySelector(".vn-root")?.addEventListener("click", (ev) => {
-    if (!this._playback) return;
-    if (this._playback.transitioning) return;
-    if (ev.target.closest(".vn-gm-toolbar") || ev.target.closest(".vn-playback-bar") || ev.target.closest(".vn-panel")) return;
+    if (!this._playback) { ev.stopImmediatePropagation(); return; }
+    if (this._playback.transitioning) { ev.stopImmediatePropagation(); return; }
+    if (ev.target.closest(".vn-gm-toolbar") || ev.target.closest(".vn-playback-bar") || ev.target.closest(".vn-panel")) { ev.stopImmediatePropagation(); return; }
     if (this._typewriterTimer) {
       this._clearTypewriter();
       const contentEls = document.querySelectorAll(".vn-dialog-content");
@@ -518,9 +517,11 @@ proto._bindPlayback = function() {
         const side = el.dataset.side;
         if (side === "single" || side === "right") el.textContent = this._typewriterFullText || "";
       });
+      ev.stopImmediatePropagation();
       return;
     }
     this._nextStep();
+    ev.stopImmediatePropagation();
   });
 };
 
