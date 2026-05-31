@@ -1,4 +1,4 @@
-import { _loadData, _saveData, _userCan, _loadScriptsFromFiles, _saveScriptToFile, _deleteScriptFile, _migrateScriptsToFiles, _scriptsDir } from './helpers.js';
+import { _loadData, _saveData, _userCan, _loadScriptsFromFiles, _saveScriptToFile, _deleteScriptFile, _migrateScriptsToFiles, _scriptsDir, _fetchFileAsBlob, _extFromPath } from './helpers.js';
 
 export function bindScriptEngine(proto) {
 
@@ -297,6 +297,125 @@ proto._startTypewriter = function() {
       this._typewriterTimer = null;
     }
   }, speed);
+};
+
+proto._exportPreset = async function(presetId) {
+  const preset = this._data?.presets?.find(p => p.id === presetId);
+  if (!preset) return ui.notifications?.error("Preset not found");
+  const zip = new JSZip();
+  const exportData = {
+    name: preset.name, version: 1, bg: preset.bg, bgBrightness: preset.bgBrightness,
+    hideBg: !!preset.hideBg, hideUI: !!preset.hideUI, speaker: preset.speaker,
+    dialog: preset.dialog, speakerFontSize: preset.speakerFontSize,
+    themeBg: preset.themeBg, themeAccent: preset.themeAccent,
+    currentLocationId: preset.currentLocationId,
+    portraits: [], backgrounds: [], scripts: []
+  };
+  for (const sp of (preset.portraits || [])) {
+    const orig = this._data?.portraits?.find(op => op.id === sp.portraitId);
+    if (!orig) continue;
+    const entry = { id: orig.id, name: orig.name, title: orig.title, tags: orig.tags, group: orig.group, actorId: orig.actorId, userId: orig.userId };
+    if (orig.image) try {
+      const blob = await _fetchFileAsBlob(orig.image);
+      zip.file(`portraits/${sp.portraitId}.${_extFromPath(orig.image)}`, blob);
+      entry.image = `portraits/${sp.portraitId}.${_extFromPath(orig.image)}`;
+    } catch(e) { console.warn("FVN | export missing portrait img", orig.image); }
+    if (orig.images?.length) {
+      entry.images = [];
+      for (let i = 0; i < orig.images.length; i++) if (orig.images[i]) try {
+        const blob = await _fetchFileAsBlob(orig.images[i]);
+        zip.file(`portraits/${sp.portraitId}_em${i}.${_extFromPath(orig.images[i])}`, blob);
+        entry.images.push(`portraits/${sp.portraitId}_em${i}.${_extFromPath(orig.images[i])}`);
+      } catch(e) { entry.images.push(orig.images[i]); }
+    }
+    entry._stageX = sp.x; entry._stageY = sp.y; entry._stageScale = sp.scale;
+    entry._stageFlip = sp.flip; entry._stageEmotion = sp.emotion;
+    exportData.portraits.push(entry);
+  }
+  if (preset.bg) try {
+    const loc = this._data?.locations?.find(l => l.file === preset.bg);
+    const bgEntry = loc ? { id: loc.id, name: loc.name, tags: loc.tags, group: loc.group } : { id: "bg1", name: "Background" };
+    const blob = await _fetchFileAsBlob(preset.bg);
+    zip.file(`backgrounds/bg.${_extFromPath(preset.bg)}`, blob);
+    bgEntry.file = `backgrounds/bg.${_extFromPath(preset.bg)}`;
+    exportData.backgrounds.push(bgEntry);
+  } catch(e) { console.warn("FVN | export missing bg", preset.bg); }
+  zip.file("preset.json", JSON.stringify(exportData, null, 2));
+  const blob = await zip.generateAsync({ type: "blob" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = `${preset.name.replace(/[^a-z0-9_-]/gi, "_")}.zip`;
+  document.body.appendChild(link); link.click(); document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
+  ui.notifications?.info(`Preset "${preset.name}" exported`);
+};
+
+proto._importPreset = function() {
+  const fp = new FilePicker({
+    type: "any", current: "",
+    callback: async (path) => {
+      try {
+        const resp = await fetch(`${location.origin}/${path}`);
+        const zip = await JSZip.loadAsync(await resp.arrayBuffer());
+        const presetFile = zip.file("preset.json");
+        if (!presetFile) return ui.notifications?.error("Invalid preset: missing preset.json");
+        const preset = JSON.parse(await presetFile.async("string"));
+        if (!this._data) this._data = await _loadData();
+        if (!this._data.presets) this._data.presets = [];
+        this._data.nextPresetId ||= 1; this._data.nextPortId ||= 1; this._data.nextLocId ||= 1;
+        const importDir = `worlds/${game.world.id}/free-visual-novel/imports`;
+        const bgIds = {};
+        for (const bg of (preset.backgrounds || [])) if (bg.file) try {
+          const zf = zip.file(bg.file); if (!zf) continue;
+          const blob = await zf.async("blob");
+          const fn = bg.file.split("/").pop();
+          const fp = new File([blob], fn);
+          await FilePicker.upload("data", `${importDir}/backgrounds/`, fp);
+          const newId = String(this._data.nextLocId++);
+          bgIds[bg.id || bg.name] = newId;
+          this._data.locations.push({ id: newId, name: bg.name || fn, file: `${importDir}/backgrounds/${fn}`, tags: [...(bg.tags||[]), "Import"], group: "Import" });
+        } catch(e) { console.warn("FVN | import bg", e); }
+        const portIds = {};
+        for (const port of (preset.portraits || [])) {
+          const newId = String(this._data.nextPortId++);
+          portIds[port.id] = newId;
+          const p = { id: newId, name: port.name, title: port.title||"", tags: [...(port.tags||[]), "Import"], group: "Import", actorId: port.actorId||"", userId: game.user?.id };
+          if (port.image) try {
+            const zf = zip.file(port.image); if (zf) {
+              const blob = await zf.async("blob");
+              const fn = port.image.split("/").pop();
+              await FilePicker.upload("data", `${importDir}/portraits/`, new File([blob], fn));
+              p.image = `${importDir}/portraits/${fn}`;
+            }
+          } catch(e) { console.warn("FVN | import portrait img", e); }
+          if (port.images?.length) {
+            p.images = [];
+            for (const emPath of port.images) try {
+              const zf = zip.file(emPath); if (zf) {
+                const blob = await zf.async("blob");
+                const fn = emPath.split("/").pop();
+                await FilePicker.upload("data", `${importDir}/portraits/`, new File([blob], fn));
+                p.images.push(`${importDir}/portraits/${fn}`);
+              }
+            } catch(e) { console.warn("FVN | import emotion img", e); }
+          }
+          this._data.portraits.push(p);
+        }
+        const newPreset = { id: String(this._data.nextPresetId++), name: preset.name, bg: "", bgBrightness: preset.bgBrightness??1, hideBg: !!preset.hideBg, hideUI: !!preset.hideUI, speaker: preset.speaker||"", dialog: preset.dialog||{}, speakerFontSize: preset.speakerFontSize||20, themeBg: preset.themeBg||"#0d0d1a", themeAccent: preset.themeAccent||"#f0c040", currentLocationId: preset.currentLocationId||null, portraits: [] };
+        const firstBg = this._data.locations.find(l => l.tags?.includes("Import") && l.group === "Import");
+        if (firstBg) newPreset.bg = firstBg.file;
+        for (const sp of (preset.portraits || [])) {
+          const newId = portIds[sp.id];
+          if (newId) newPreset.portraits.push({ portraitId: newId, x: sp._stageX??50, y: sp._stageY??200, scale: sp._stageScale??1, flip: sp._stageFlip??false, emotion: sp._stageEmotion??0 });
+        }
+        this._data.presets.push(newPreset);
+        await _saveData(this._data);
+        this.render();
+        ui.notifications?.info(`Preset "${preset.name}" imported`);
+      } catch(e) { console.error("FVN | Import error:", e); ui.notifications?.error("Failed to import preset"); }
+    }
+  });
+  fp.browse?.() || fp.render(true);
 };
 
 proto._bindScriptPanel = function() {

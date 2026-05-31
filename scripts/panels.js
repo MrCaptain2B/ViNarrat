@@ -795,6 +795,12 @@ proto._bindPresetsPanel = function() {
         this.render();
       });
     });
+
+    html.querySelectorAll(".vn-presets-export").forEach(btn => {
+      btn.addEventListener("click", () => this._exportPreset(btn.dataset.id));
+    });
+
+    html.querySelector(".vn-presets-import")?.addEventListener("click", () => this._importPreset());
 };
 
 } // end bindPanels

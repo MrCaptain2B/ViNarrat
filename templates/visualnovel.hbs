@@ -444,11 +444,13 @@
         <span>{{this.name}}</span>
         <div class="vn-presets-actions">
           <button class="vn-presets-load" data-id="{{this.id}}">Load</button>
+          <button class="vn-presets-export" data-id="{{this.id}}">Export</button>
           <button class="vn-presets-delete" data-id="{{this.id}}"><i class="fas fa-trash"></i></button>
         </div>
       </div>
       {{/each}}
     </div>
+    <button class="vn-presets-import"><i class="fas fa-file-import"></i> Import from ZIP</button>
   </div>
   {{/if}}
 

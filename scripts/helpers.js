@@ -260,3 +260,15 @@ Handlebars.registerHelper("getStepType", function(steps, idx) {
 Handlebars.registerHelper("getStepChoices", function(steps, idx) {
   return steps?.[idx]?.choices || [];
 });
+
+export async function _fetchFileAsBlob(path) {
+  const url = path.startsWith("http") ? path : `${location.origin}/${path}`;
+  const resp = await fetch(url);
+  if (!resp.ok) throw new Error(`Failed to fetch ${path}: ${resp.status}`);
+  return resp.blob();
+}
+
+export function _extFromPath(path) {
+  const dot = path.lastIndexOf(".");
+  return dot >= 0 ? path.slice(dot + 1) : "bin";
+}
