@@ -1,4 +1,4 @@
-import { _loadData, _saveData, _defaultData, _userCan, _roleCan, _broadcastVNState, _getLastBroadcastState, _whisperInvite } from './helpers.js';
+import { _loadData, _saveData, _defaultData, _userCan, _roleCan, _broadcastVNState, _getLastBroadcastState, _whisperInvite, _loadScriptsFromFiles } from './helpers.js';
 import { bindPanels } from './panels.js';
 import { bindPortraitDrag } from './portrait-drag.js';
 import { bindDialog } from './dialog.js';
@@ -151,6 +151,9 @@ class VisualNovelApp extends _AppBase {
 
   async _prepareContext() {
     if (!this._ready) await this._initialize();
+    if (this._showPanel === "scripts" || this._showPanel === "scriptEdit") {
+      await this._refreshScriptsFromFiles();
+    }
 
     const playableEnabled = game.settings?.get("free-visual-novel", "playablePortraits") !== false;
     const portraits = this._portraits.map((p, i) => ({
@@ -262,6 +265,15 @@ class VisualNovelApp extends _AppBase {
         script: { name: this._playback.script.name, steps: this._playback.script.steps, length: this._playback.script.steps.length }
       } : null
     };
+  }
+
+  async _refreshScriptsFromFiles() {
+    if (!this._data) this._data = await _loadData();
+    try {
+      this._data.scripts = await _loadScriptsFromFiles();
+    } catch(e) {
+      console.warn("FVN | Failed to refresh scripts from files", e);
+    }
   }
 
   _applyTheme() {

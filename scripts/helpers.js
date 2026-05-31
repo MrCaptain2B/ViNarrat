@@ -5,7 +5,7 @@ function _worldDir() {
   return `worlds/${game.world?.id || "unknown"}`;
 }
 
-function _scriptsDir() {
+export function _scriptsDir() {
   return `${_worldDir()}/free-visual-novel/scripts`;
 }
 

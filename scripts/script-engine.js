@@ -1,4 +1,4 @@
-import { _loadData, _saveData, _userCan, _loadScriptsFromFiles, _saveScriptToFile, _deleteScriptFile, _migrateScriptsToFiles } from './helpers.js';
+import { _loadData, _saveData, _userCan, _loadScriptsFromFiles, _saveScriptToFile, _deleteScriptFile, _migrateScriptsToFiles, _scriptsDir } from './helpers.js';
 
 export function bindScriptEngine(proto) {
 
@@ -318,6 +318,18 @@ proto._bindScriptList = function(html) {
       await this._deleteScript(btn.dataset.id);
       this.render();
     });
+  });
+  html.querySelector(".vn-scripts-open-folder")?.addEventListener("click", () => {
+    const dir = _scriptsDir();
+    const fp = new FilePicker({
+      type: "any",
+      current: dir,
+      callback: async () => {
+        await this._refreshScriptsFromFiles();
+        this.render();
+      }
+    });
+    fp.browse?.() || fp.render(true);
   });
 };
 
