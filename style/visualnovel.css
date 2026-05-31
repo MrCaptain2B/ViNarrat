@@ -316,39 +316,57 @@
 /* ── GM Speaker Bar ── */
 .vn-speaker-bar {
   position: absolute;
-  top: 86px;
-  left: 50%;
-  transform: translateX(-50%);
+  top: 56px;
+  left: 12px;
   display: flex;
-  gap: 6px;
+  flex-direction: column;
+  gap: 4px;
   pointer-events: none;
   z-index: 70;
+  max-height: calc(100% - 180px);
+  overflow-y: auto;
 }
+.vn-speaker-bar::-webkit-scrollbar { width: 3px; }
+.vn-speaker-bar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 2px; }
 .vn-speaker-btn {
   pointer-events: auto;
-  background: rgba(0,0,0,0.45);
+  background: rgba(0,0,0,0.5);
   backdrop-filter: blur(6px);
   border: 1px solid var(--vn-border-light);
-  border-radius: 20px;
-  padding: 5px 18px;
+  border-radius: 6px;
+  padding: 6px 14px;
   color: var(--vn-text-dim);
   cursor: pointer;
-  font-size: 0.8em;
+  font-size: 0.82em;
   transition: all var(--vn-transition);
   white-space: nowrap;
   font-family: var(--vn-font-ui);
+  text-align: left;
+  min-width: 100px;
+  border-left: 3px solid transparent;
 }
 .vn-speaker-btn:hover { background: rgba(255,255,255,0.1); color: #fff; }
+.vn-speaker-player {
+  border-left-color: #3498db;
+}
+.vn-speaker-player:hover {
+  border-left-color: #5dade2;
+}
+.vn-speaker-npc {
+  border-left-color: #e74c3c;
+}
+.vn-speaker-npc:hover {
+  border-left-color: #ec7063;
+}
 .vn-speaker-claimed {
-  border-color: rgba(var(--vn-accent-rgb), 0.4);
-  box-shadow: 0 0 12px rgba(var(--vn-accent-rgb), 0.2);
+  box-shadow: 0 0 10px rgba(var(--vn-accent-rgb), 0.25);
 }
 .vn-speaker-active {
   background: rgba(var(--vn-accent-rgb),0.15);
-  border-color: var(--vn-accent);
+  border-right-color: var(--vn-accent);
   color: var(--vn-accent);
   font-weight: 600;
-  box-shadow: 0 0 14px rgba(var(--vn-accent-rgb),0.15);
+  border-left-width: 3px;
 }
 
 /* ── GM Toolbar ── */

@@ -60,7 +60,9 @@
   {{#if selectedPortrait}}
   {{#if isGM}}
   <div class="vn-portrait-controls">
+    <button class="vn-port-prev" title="Previous portrait"><i class="fas fa-chevron-left"></i></button>
     <span class="vn-controls-name">{{selectedPortrait.name}}</span>
+    <button class="vn-port-next" title="Next portrait"><i class="fas fa-chevron-right"></i></button>
     <input class="vn-port-scale-inline" type="range" min="0.3" max="3" step="0.1" value="{{selectedPortrait.scale}}" data-port-idx="{{selectedPortrait.index}}">
     <span class="vn-port-scale-val" data-port-idx="{{selectedPortrait.index}}">{{selectedPortrait.scale}}</span>
     <button class="vn-port-bring-forward" data-port-idx="{{selectedPortrait.index}}" title="Bring Forward"><i class="fas fa-chevron-up"></i></button>
@@ -117,7 +119,7 @@
   {{#if portraits.length}}
   <div class="vn-speaker-bar">
     {{#each portraits}}
-    <button class="vn-speaker-btn {{#if this.speaking}}vn-speaker-active{{/if}} {{#if this.isClaimed}}vn-speaker-claimed{{/if}}" data-id="{{this.id}}">
+    <button class="vn-speaker-btn {{#if this.speaking}}vn-speaker-active{{/if}} {{#if this.isClaimed}}vn-speaker-claimed{{/if}} {{#if this.userId}}vn-speaker-player{{else}}vn-speaker-npc{{/if}}" data-id="{{this.id}}">
       {{this.name}}
     </button>
     {{/each}}
