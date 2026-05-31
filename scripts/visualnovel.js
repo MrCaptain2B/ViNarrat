@@ -1,7 +1,7 @@
 import VisualNovelApp from './app.js';
-import { _getLastBroadcastState, _setLastBroadcastState, _userCan, _roleCan, SOCKET, _loadData, _saveData, _defaultData, DATA_KEY, _broadcastVNState, _importActorPortraits, _migrateScriptsToFiles, _loadScriptsFromFiles, _saveScriptToFile, _deleteScriptFile } from './helpers.js';
+import { _getLastBroadcastState, _setLastBroadcastState, _userCan, _roleCan, SOCKET, _loadData, _saveData, _defaultData, DATA_KEY, _broadcastVNState, _importActorPortraits } from './helpers.js';
 
-export { VisualNovelApp, _getLastBroadcastState, _setLastBroadcastState, _userCan, _roleCan, SOCKET, _loadData, _saveData, _defaultData, DATA_KEY, _migrateScriptsToFiles, _loadScriptsFromFiles, _saveScriptToFile, _deleteScriptFile };
+export { VisualNovelApp, _getLastBroadcastState, _setLastBroadcastState, _userCan, _roleCan, SOCKET, _loadData, _saveData, _defaultData, DATA_KEY };
 
 let _vnOpening = false;
 
@@ -195,7 +195,6 @@ Hooks.once("init", async function() {
   } else {
     console.warn("FreeVN | game.socket not available on init");
   }
-  try { await _migrateScriptsToFiles(); } catch(e) { console.warn("FreeVN | Script migration:", e); }
 });
 
 Hooks.once("ready", function() {

@@ -1,4 +1,4 @@
-import { _loadData, _saveData, _userCan, _loadScriptsFromFiles, _saveScriptToFile, _deleteScriptFile, _migrateScriptsToFiles, _scriptsDir, _FP } from './helpers.js';
+import { _loadData, _saveData, _userCan } from './helpers.js';
 
 export function bindScriptEngine(proto) {
 
@@ -49,27 +49,28 @@ proto._performTransition = function(type, duration, prepareFn) {
 
 proto._saveScript = async function(name, steps) {
   if (!_userCan("permManage")) return;
+  if (!this._data) this._data = await _loadData();
+  this._data.nextScriptId ||= 1;
   let script;
   if (this._editScriptId) {
     script = { id: this._editScriptId, name, steps: JSON.parse(JSON.stringify(steps)) };
+    const idx = this._data.scripts.findIndex(s => s.id === script.id);
+    if (idx >= 0) this._data.scripts[idx] = script;
+    else this._data.scripts.push(script);
   } else {
-    const existing = await _loadScriptsFromFiles();
-    let maxId = existing.reduce((m, s) => Math.max(m, parseInt(s.id) || 0), 0);
-    script = { id: String(maxId + 1), name, steps: JSON.parse(JSON.stringify(steps)) };
+    script = { id: String(this._data.nextScriptId++), name, steps: JSON.parse(JSON.stringify(steps)) };
+    this._data.scripts.push(script);
   }
-  try {
-    await _saveScriptToFile(script);
-  } catch (err) {
-    console.error("FreeVN | _saveScript error:", err);
-    return false;
-  }
+  await _saveData(this._data);
   this._editScriptId = null;
   return true;
 };
 
 proto._deleteScript = async function(id) {
   if (!_userCan("permManage")) return;
-  await _deleteScriptFile(id);
+  if (!this._data) this._data = await _loadData();
+  this._data.scripts = this._data.scripts.filter(s => s.id !== id);
+  await _saveData(this._data);
 };
 
 proto._captureSceneState = function() {
@@ -382,18 +383,7 @@ proto._bindScriptList = function(html) {
       this.render();
     });
   });
-  html.querySelector(".vn-scripts-open-folder")?.addEventListener("click", () => {
-    const dir = _scriptsDir();
-  const fp = new (_FP())({
-      type: "any",
-      current: dir,
-      callback: async () => {
-        await this._refreshScriptsFromFiles();
-        this.render();
-      }
-    });
-    fp.browse?.() || fp.render(true);
-  });
+
 };
 
 proto._bindScriptEditor = function(html) {
