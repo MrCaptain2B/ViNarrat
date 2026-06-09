@@ -1,7 +1,7 @@
 <div class="vn-root{{#if playback}} vn-playing{{/if}}">
 
   {{#if bg}}
-  <div class="vn-bg" style="background-image: url({{bg}}); filter: brightness({{bgBrightness}});"></div>
+  <div class="vn-bg" style="background-image: url('{{bg}}'); filter: brightness({{bgBrightness}});"></div>
   {{else}}
   <div class="vn-bg vn-bg-default" style="filter: brightness({{bgBrightness}});"></div>
   {{/if}}
@@ -223,7 +223,7 @@
     <div class="vn-loc-list">
       {{#each locations}}
       <div class="vn-loc-item" data-name="{{this.name}}" data-tags="{{this.tags}}" data-group="{{this.group}}">
-        <div class="vn-loc-thumb"{{#if this.background}} style="background-image: url({{this.background}})"{{/if}}></div>
+        <div class="vn-loc-thumb"{{#if this.background}} style="background-image: url('{{this.background}}')"{{/if}}></div>
         <div class="vn-loc-info">
           <strong>{{this.name}}</strong>
           {{#if this.group}}<span class="vn-item-group">{{this.group}}</span>{{/if}}

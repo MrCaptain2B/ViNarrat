@@ -286,7 +286,7 @@ proto._bindLocationPanel = function() {
       this.render();
     });
     html.querySelector(".vn-loc-show-more")?.addEventListener("click", () => {
-      this._locListLimit += 30;
+      this._locListLimit += 12;
       this.render();
     });
 
@@ -422,7 +422,7 @@ proto._bindPortraitPanel = function() {
       this.render();
     });
     html.querySelector(".vn-port-show-more")?.addEventListener("click", () => {
-      this._portListLimit += 30;
+      this._portListLimit += 12;
       this.render();
     });
 

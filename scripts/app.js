@@ -50,13 +50,13 @@ class VisualNovelApp extends _AppBase {
     this._locSearch = "";
     this._locTagSearch = "";
     this._locGroupFilter = "";
-    this._locListLimit = 30;
+    this._locListLimit = 12;
     this._editingLocId = null;
     this._editingPortId = null;
     this._portSearch = "";
     this._portTagSearch = "";
     this._portGroupFilter = "";
-    this._portListLimit = 30;
+    this._portListLimit = 12;
     this._bgBrightness = 1;
     this._themeBg = "#0d0d1a";
     this._themeAccent = "#f0c040";
@@ -152,6 +152,10 @@ class VisualNovelApp extends _AppBase {
     this._defaultPortraitScale = state.defaultPortraitScale ?? this._defaultPortraitScale;
   }
 
+  _enc(str) {
+    return str ? encodeURI(str).replace(/'/g, "%27") : str;
+  }
+
   async _prepareContext() {
     if (!this._ready) await this._initialize();
 
@@ -161,9 +165,9 @@ class VisualNovelApp extends _AppBase {
       index: i,
       speaking: this._speaker === p.id,
       selected: this._selectedPortraitIdx === i,
-      currentImg: (p.images && p.images.length) ? p.images[p._currentEmotion || 0] : p.image,
+      currentImg: this._enc((p.images && p.images.length) ? p.images[p._currentEmotion || 0] : p.image),
       hasEmotions: (p.images && p.images.length > 1),
-      images: (p.images || []).slice(0, 6),
+      images: (p.images || []).slice(0, 6).map(img => this._enc(img)),
       emotionIdx: p._currentEmotion || 0,
       isMyPortrait: playableEnabled && p.userId === game.user?.id,
       isClaimed: !!this._claimed[p.id]
@@ -188,7 +192,10 @@ class VisualNovelApp extends _AppBase {
     }
     const locTotal = filteredLocs.length;
     const locRemaining = Math.max(0, locTotal - this._locListLimit);
-    const locations = filteredLocs.slice(0, this._locListLimit);
+    const locations = filteredLocs.slice(0, this._locListLimit).map(l => ({
+      ...l,
+      background: this._enc(l.background)
+    }));
 
     const role = game.user?.role || 0;
     const canManage = _userCan("permManage");
@@ -210,14 +217,18 @@ class VisualNovelApp extends _AppBase {
     }
     const portTotal = filteredPorts.length;
     const portRemaining = Math.max(0, portTotal - this._portListLimit);
-    const filteredPortraits = filteredPorts.slice(0, this._portListLimit);
+    const filteredPortraits = filteredPorts.slice(0, this._portListLimit).map(p => ({
+      ...p,
+      image: this._enc(p.image),
+      images: (p.images || []).map(img => this._enc(img))
+    }));
 
     const locGroups = [...new Set(allLocations.map(l => l.group || "").filter(Boolean))];
     const portGroups = [...new Set(allPortraits.map(p => p.group || "").filter(Boolean))];
     const users = [...game.users].map(u => ({ id: u.id, name: u.name }));
     const onlinePlayers = [...game.users].filter(u => u.active && !u.isGM && !_roleCan(u.role, "permManage")).map(u => ({ id: u.id, name: u.name }));
     return {
-      bg: this._hideBg ? "" : this._bg,
+      bg: this._hideBg ? "" : this._bg ? encodeURI(this._bg).replace(/'/g, "%27") : "",
       hideUI: this._hideUI,
       portraits,
       speaker: speakerPortrait ? speakerPortrait.name : "",
