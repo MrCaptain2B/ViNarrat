@@ -86,6 +86,10 @@ function _applyVNState(data) {
     app._speaker = data.speaker || "";
     app._claimed = data.claimed || {};
     if (data.dialog) app._dialog = Object.assign({}, app._dialog, data.dialog);
+    if (data.themeBg) app._themeBg = data.themeBg;
+    if (data.themeAccent) app._themeAccent = data.themeAccent;
+    if (data.speakerFontSize) app._speakerFontSize = data.speakerFontSize;
+    app._applyTheme();
     app.render(true);
   } catch(e) {
     console.error("FreeVN | Failed to apply state:", e);

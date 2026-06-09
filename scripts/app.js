@@ -299,6 +299,15 @@ class VisualNovelApp extends _AppBase {
     if (root) {
       root.style.setProperty("--vn-bg", this._themeBg);
       root.style.setProperty("--vn-accent", this._themeAccent);
+      const hex = this._themeAccent.replace("#", "");
+      const r = parseInt(hex.substring(0, 2), 16);
+      const g = parseInt(hex.substring(2, 4), 16);
+      const b = parseInt(hex.substring(4, 6), 16);
+      if (!isNaN(r + g + b)) {
+        root.style.setProperty("--vn-accent-rgb", `${r},${g},${b}`);
+        root.style.setProperty("--vn-accent-soft", `rgba(${r},${g},${b},0.12)`);
+        root.style.setProperty("--vn-glow", `0 0 20px rgba(${r},${g},${b},0.08)`);
+      }
     }
   }
 

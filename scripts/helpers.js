@@ -63,7 +63,10 @@ export function _broadcastVNState(app, force) {
     portraits: app._portraits,
     speaker: app._speaker,
     claimed: app._claimed || {},
-    dialog: app._dialog
+    dialog: app._dialog,
+    themeBg: app._themeBg,
+    themeAccent: app._themeAccent,
+    speakerFontSize: app._speakerFontSize
   };
   console.log("FreeVN | Broadcasting to players");
   game.socket?.emit(SOCKET, payload);

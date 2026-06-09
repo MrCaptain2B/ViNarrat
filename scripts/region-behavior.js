@@ -52,6 +52,10 @@ export function registerRegionBehavior() {
 }
 
 async function _openAndPlay(script) {
+  if (ui.freevisualnovel?.rendered) {
+    ui.freevisualnovel._startPlayback(script);
+    return;
+  }
   const module = await import('./app.js');
   const app = new module.default();
   ui.freevisualnovel = app;
