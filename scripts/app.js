@@ -153,7 +153,22 @@ class VisualNovelApp extends _AppBase {
   }
 
   _enc(str) {
-    return str ? encodeURI(str).replace(/'/g, "%27") : str;
+    if (str && typeof str !== "string") {
+      console.error("FreeVN | _enc: non-string input", typeof str, str);
+      return str;
+    }
+    if (!str) return str;
+
+    const hadNonAscii = /[^\x00-\x7F]/.test(str);
+    const encoded = str.replace(/[^\x00-\x7F]/g, ch => encodeURIComponent(ch));
+    const cleaned = encoded.replace(/'/g, "%27");
+
+    if (hadNonAscii) {
+      console.log("FreeVN | _enc:", JSON.stringify(str.substring(0,80)), "->", JSON.stringify(cleaned.substring(0,80)));
+    } else if (str !== cleaned) {
+      console.log("FreeVN | _enc (ascii change):", JSON.stringify(str.substring(0,80)), "->", JSON.stringify(cleaned.substring(0,80)));
+    }
+    return cleaned;
   }
 
   async _prepareContext() {
@@ -228,7 +243,7 @@ class VisualNovelApp extends _AppBase {
     const users = [...game.users].map(u => ({ id: u.id, name: u.name }));
     const onlinePlayers = [...game.users].filter(u => u.active && !u.isGM && !_roleCan(u.role, "permManage")).map(u => ({ id: u.id, name: u.name }));
     return {
-      bg: this._hideBg ? "" : this._bg ? encodeURI(this._bg).replace(/'/g, "%27") : "",
+      bg: this._hideBg ? "" : this._enc(this._bg || ""),
       hideUI: this._hideUI,
       portraits,
       speaker: speakerPortrait ? speakerPortrait.name : "",
@@ -342,6 +357,22 @@ class VisualNovelApp extends _AppBase {
     }
     this._buildInviteUI();
     if (this._broadcasting) this._broadcast();
+
+    const bgEl = document.querySelector(".vn-bg");
+    if (bgEl) {
+      const bgStyle = bgEl.style.backgroundImage;
+      console.log("FreeVN | render bg style:", bgStyle && bgStyle.substring(0,120));
+    }
+    document.querySelectorAll(".vn-portrait-img, .vn-port-avatar img, .vn-emotion-thumb img").forEach(img => {
+      if (img.hasAttribute("data-fvn-logged")) return;
+      img.setAttribute("data-fvn-logged", "1");
+      img.addEventListener("error", () => {
+        console.error("FreeVN | IMAGE LOAD ERROR:", img.getAttribute("src") && img.getAttribute("src").substring(0,150));
+      });
+      img.addEventListener("load", () => {
+        console.log("FreeVN | IMAGE LOADED:", img.getAttribute("src") && img.getAttribute("src").substring(0,100));
+      });
+    });
   }
 
   _el() {
@@ -438,6 +469,7 @@ class VisualNovelApp extends _AppBase {
   }
 
   setBackground(path) {
+    console.log("FreeVN | setBackground raw:", JSON.stringify(path && path.substring(0,100)), "encoded:", JSON.stringify(this._enc(path && path.substring(0,100))));
     this._bg = path;
     if (this.rendered) { this.render(); this._broadcast(); }
   }
