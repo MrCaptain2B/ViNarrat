@@ -48,9 +48,7 @@ export function registerRegionBehavior() {
     }
   }
 
-  CONFIG.RegionBehavior.dataModels["free-visual-novel.fvnScript"] = FVNTriggerRegionBehaviorType;
-  CONFIG.RegionBehavior.typeLabels["free-visual-novel.fvnScript"] = "VN.RegionBehavior.FVNTrigger";
-  CONFIG.RegionBehavior.typeIcons["free-visual-novel.fvnScript"] = "fas fa-comment-dots";
+  CONFIG.RegionBehavior.dataModels["fvnScript"] = FVNTriggerRegionBehaviorType;
 }
 
 async function _openAndPlay(script) {
@@ -66,7 +64,7 @@ async function _openAndPlay(script) {
 }
 
 Hooks.on("renderRegionBehaviorConfig", (app, html) => {
-  if (app.document.type !== "free-visual-novel.fvnScript") return;
+  if (app.document.type !== "fvnScript") return;
   const scriptId = app.document.scriptId || "";
   const form = html.querySelector("form");
   if (!form) return;
