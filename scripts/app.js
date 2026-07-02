@@ -18,7 +18,6 @@ class VisualNovelApp extends _AppBase {
   static DEFAULT_OPTIONS = {
     id: "vinarrat",
     title: "ViNarrat — Live Scene Director",
-    template: "modules/free-visual-novel/templates/visualnovel.hbs",
     window: {
       width: window.innerWidth,
       height: window.innerHeight,
@@ -30,6 +29,10 @@ class VisualNovelApp extends _AppBase {
     },
     classes: ["vinarrat", "vn-fullscreen"],
     form: { submitOnChange: false, closeOnSubmit: false }
+  };
+
+  static PARTS = {
+    main: { template: "modules/free-visual-novel/templates/visualnovel.hbs" }
   };
 
   constructor(options = {}) {
