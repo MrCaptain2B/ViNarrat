@@ -11,14 +11,15 @@ function _openVN(openPanel) {
   try {
     if (ui.freevisualnovel?.rendered) {
       if (openPanel) ui.freevisualnovel._showPanel = openPanel;
-      ui.freevisualnovel.render(true);
+      ui.freevisualnovel.render();
       _vnOpening = false;
       return;
     }
     const app = new VisualNovelApp();
     ui.freevisualnovel = app;
     if (openPanel) app._showPanel = openPanel;
-    app.render(true);
+    console.log("FreeVN | render() call");
+    app.render();
   } catch(e) {
     console.error("ViNarrat | Failed to open:", e);
     ui.notifications?.error("ViNarrat: failed to open");
@@ -37,7 +38,7 @@ function _rejoinVN() {
     app._speaker = _getLastBroadcastState().speaker || "";
     app._claimed = _getLastBroadcastState().claimed || {};
     if (_getLastBroadcastState().dialog) app._dialog = Object.assign({}, app._dialog, _getLastBroadcastState().dialog);
-    app.render(true);
+    app.render();
     _vnOpening = false;
     return;
   }
@@ -49,7 +50,7 @@ function _rejoinVN() {
     app._speaker = _getLastBroadcastState().speaker || "";
     app._claimed = _getLastBroadcastState().claimed || {};
     if (_getLastBroadcastState().dialog) app._dialog = Object.assign({}, app._dialog, _getLastBroadcastState().dialog);
-    app.render(true);
+    app.render();
   } catch(e) {
     console.error("ViNarrat | Failed to rejoin:", e);
     ui.notifications?.error("ViNarrat: failed to rejoin");
@@ -260,7 +261,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
       icon: "fas fa-play",
       button: true,
       visible: true,
-      onClick: () => _openVN()
+      onChange: () => _openVN()
     };
   }
   group.tools.portrait = {
@@ -269,7 +270,7 @@ Hooks.on("getSceneControlButtons", (controls) => {
     icon: "fas fa-user-circle",
     button: true,
     visible: true,
-    onClick: () => _openVN("portraits")
+    onChange: () => _openVN("portraits")
   };
   if (isArray) controls.push(group);
   else controls.freevisualnovel = group;

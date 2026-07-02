@@ -312,6 +312,7 @@ class VisualNovelApp extends _AppBase {
   }
 
   async _renderHTML(context, options) {
+    console.log("FreeVN | _renderHTML called, context keys:", Object.keys(context));
     const path = "modules/free-visual-novel/templates/visualnovel.hbs";
     const resp = await fetch(path);
     const source = await resp.text();
