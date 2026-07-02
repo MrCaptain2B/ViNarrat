@@ -6,7 +6,8 @@ import { bindInlineEdit } from './inline-edit.js';
 import { bindInvite } from './invite.js';
 import { bindScriptEngine } from './script-engine.js';
 
-const _AppBase = foundry.applications?.api?.ApplicationV2;
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications?.api || {};
+const _AppBase = HandlebarsApplicationMixin ? HandlebarsApplicationMixin(ApplicationV2) : ApplicationV2;
 if (!_AppBase) {
   console.error("ViNarrat | Application class not found.");
 }
@@ -26,6 +27,10 @@ class VisualNovelApp extends _AppBase {
     },
     classes: ["vinarrat", "vn-fullscreen"],
     form: { submitOnChange: false, closeOnSubmit: false }
+  };
+
+  static PARTS = {
+    main: { template: "modules/free-visual-novel/templates/visualnovel.hbs" }
   };
 
 
@@ -88,12 +93,31 @@ class VisualNovelApp extends _AppBase {
     this._typewriterDirty = false;
   }
 
-  render(options) {
-    console.log("FreeVN | render called, _state:", this._state, "RENDER_STATES.NONE:", _AppBase.RENDER_STATES?.NONE);
-    if (this._state !== _AppBase.RENDER_STATES?.NONE) {
-      this._state = _AppBase.RENDER_STATES.NONE;
+  get rendered() {
+    return !!this._element;
+  }
+
+  async render(options) {
+    console.log("FreeVN | render called");
+    if (!this._ready) await this._initialize();
+    const context = await this._prepareContext();
+    const html = await this._renderHTML(context, {});
+    const isFirst = !this._element;
+    if (!this._element) {
+      this._element = document.createElement("div");
+      this._element.id = "vinarrat";
+      document.body.appendChild(this._element);
     }
-    return super.render(options);
+    this._element.innerHTML = html;
+    this._contentEl = this._element;
+    try {
+      if (isFirst) this._onFirstRender(context, {});
+      this._onRender(context, {});
+    } catch(e) { console.error("FreeVN | render callback error:", e); }
+    if (this._element && !this._element.querySelector(".vn-root")) {
+      this._element.classList.add("vn-root");
+    }
+    return this;
   }
 
   async _initialize() {
@@ -306,7 +330,8 @@ class VisualNovelApp extends _AppBase {
   }
 
   _applyTheme() {
-    const root = this.element?.querySelector(".vn-root") || this.element;
+    const container = this._element || this.element;
+    const root = container?.querySelector?.(".vn-root") || container;
     if (root) {
       root.style.setProperty("--vn-bg", this._themeBg);
       root.style.setProperty("--vn-accent", this._themeAccent);
@@ -530,18 +555,21 @@ class VisualNovelApp extends _AppBase {
   _onFirstRender(context, options) {
     super._onFirstRender?.(context, options);
     this._context = context;
-    this.element?.classList.add("vn-fullscreen-active");
+    const el = this._element || this.element;
+    el?.classList.add("vn-fullscreen-active");
   }
 
   _onClose(options) {
-    this.element?.classList.remove("vn-fullscreen-active");
+    const el = this._element || this.element;
+    el?.classList.remove("vn-fullscreen-active");
     if (this._playback?.timer) clearTimeout(this._playback.timer);
     if (this._typewriterTimer) { clearInterval(this._typewriterTimer); this._typewriterTimer = null; }
     this._playback = null;
   }
 
   async close(options) {
-    if (!this.element) {
+    const el = this._element || this.element;
+    if (!el) {
       this._broadcastMenuCleanup?.();
       this._inviteMenuCleanup?.();
       this._inviteBtn?.remove();
@@ -550,7 +578,7 @@ class VisualNovelApp extends _AppBase {
       this._inviteMenu = null;
       return super.close(options);
     }
-    this.element.classList.add("vn-fading-out");
+    el.classList.add("vn-fading-out");
     await new Promise(r => setTimeout(r, 250));
     await this._saveSession();
     if (this._dragCleanup) this._dragCleanup();
@@ -564,6 +592,7 @@ class VisualNovelApp extends _AppBase {
     if (!_userCan("permManage") && _getLastBroadcastState()) {
       _whisperInvite();
     }
+    if (this._element) { this._element.remove(); this._element = null; }
     return super.close(options);
   }
 }
