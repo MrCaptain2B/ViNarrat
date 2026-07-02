@@ -7,7 +7,7 @@ export function registerRegionBehavior() {
 
     static defineSchema() {
       const schema = super.defineSchema();
-      schema.scriptId = new StringField({ required: true, blank: false, label: "FVN Script ID", hint: "The Free Visual Novel script to play when a token enters this region" });
+      schema.scriptId = new StringField({ required: true, blank: false, label: "ViNarrat Script ID", hint: "The ViNarrat script to play when a token enters this region" });
       return schema;
     }
 
@@ -30,7 +30,7 @@ export function registerRegionBehavior() {
       if (!data) return;
       const script = (data.scripts || []).find(s => s.id === scriptId);
       if (!script) {
-        ui.notifications?.warn(`FVN Region: Script "${scriptId}" not found`);
+        ui.notifications?.warn(`ViNarrat Region: Script "${scriptId}" not found`);
         return;
       }
       await this.behavior.setFlag("free-visual-novel", "consumed", true);
@@ -86,11 +86,11 @@ Hooks.on("renderRegionBehaviorConfig", (app, html) => {
     const scripts = data?.scripts || [];
     const choices = scripts.map(s => ({ label: `${s.name} (${s.steps?.length || 0} steps)`, value: s.id }));
     if (!choices.length) {
-      ui.notifications?.warn("No FVN scripts found. Create one first in the Free Visual Novel panel.");
+      ui.notifications?.warn("No ViNarrat scripts found. Create one first in the ViNarrat panel.");
       return;
     }
     const result = await foundry.applications.api.DialogV2.prompt({
-      window: { title: "Select FVN Script" },
+      window: { title: "Select ViNarrat Script" },
       content: `<div class="fvn-script-dialog">
         <p>Choose a script to play when a token enters this region:</p>
         <select class="fvn-script-select" style="width:100%;padding:6px;">

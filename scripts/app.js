@@ -8,13 +8,13 @@ import { bindScriptEngine } from './script-engine.js';
 
 const _AppBase = foundry.applications?.api?.Application || foundry.applications?.api?.ApplicationV2;
 if (!_AppBase) {
-  console.error("FreeVisualNovel | Application class not found.");
+  console.error("ViNarrat | Application class not found.");
 }
 
 class VisualNovelApp extends _AppBase {
   static DEFAULT_OPTIONS = {
-    id: "free-visual-novel",
-    title: "Free Visual Dialogs",
+    id: "vinarrat",
+    title: "ViNarrat — Live Scene Director",
     template: "modules/free-visual-novel/templates/visualnovel.hbs",
     window: {
       width: window.innerWidth,
@@ -25,7 +25,7 @@ class VisualNovelApp extends _AppBase {
       frame: false,
       controls: []
     },
-    classes: ["free-visual-novel", "vn-fullscreen"],
+    classes: ["vinarrat", "vn-fullscreen"],
     form: { submitOnChange: false, closeOnSubmit: false }
   };
 
@@ -321,7 +321,7 @@ class VisualNovelApp extends _AppBase {
   }
 
   _replaceHTML(result, content, options) {
-    content.innerHTML = result;
+    super._replaceHTML(result, content, options);
     this._contentEl = content;
   }
 

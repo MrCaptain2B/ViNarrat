@@ -20,8 +20,8 @@ function _openVN(openPanel) {
     if (openPanel) app._showPanel = openPanel;
     app.render(true);
   } catch(e) {
-    console.error("FreeVN | Failed to open:", e);
-    ui.notifications?.error("Free Visual Novel: failed to open");
+    console.error("ViNarrat | Failed to open:", e);
+    ui.notifications?.error("ViNarrat: failed to open");
   }
   _vnOpening = false;
 }
@@ -51,8 +51,8 @@ function _rejoinVN() {
     if (_getLastBroadcastState().dialog) app._dialog = Object.assign({}, app._dialog, _getLastBroadcastState().dialog);
     app.render(true);
   } catch(e) {
-    console.error("FreeVN | Failed to rejoin:", e);
-    ui.notifications?.error("Free Visual Novel: failed to rejoin");
+    console.error("ViNarrat | Failed to rejoin:", e);
+    ui.notifications?.error("ViNarrat: failed to rejoin");
   }
   _vnOpening = false;
 }
@@ -109,7 +109,7 @@ Hooks.once("init", async function() {
   game.settings?.register("free-visual-novel", "themeBg", {
     scope: "world", type: String, default: "#0d0d1a", config: true,
     name: "Theme Background Color",
-    hint: "Main background color for the VN overlay (e.g. #0d0d1a)"
+    hint: "Main background color for the scene overlay (e.g. #0d0d1a)"
   });
   game.settings?.register("free-visual-novel", "themeAccent", {
     scope: "world", type: String, default: "#f0c040", config: true,
@@ -175,7 +175,7 @@ Hooks.once("init", async function() {
         if (_userCan("permManage")) return;
         if (data.userId && data.userId !== game.user?.id) return;
         console.log("FreeVN | Invite received for", game.user?.id);
-        ui.notifications?.info("🎭 You've been invited to the VN scene!");
+        ui.notifications?.info("🎭 You've been invited to the scene!");
       }
       else if (data?.type === "stop") { console.log("FreeVN | Stop received"); _setLastBroadcastState(null); ui.freevisualnovel?.close(); }
       else if (data?.type === "claim") {
@@ -245,7 +245,7 @@ Hooks.on("getSceneControlButtons", (t) => {
   if (!canvas) return;
   const group = {
     name: "freevisualnovel",
-    title: "Free Visual Dialogs",
+    title: "ViNarrat",
     icon: "fas fa-comment-dots",
     layer: "Canvas",
     order: 90,

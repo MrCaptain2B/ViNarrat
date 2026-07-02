@@ -1,16 +1,16 @@
-# Free Visual Novel
+# ViNarrat
 
-A real-time visual novel dialogue overlay for **Foundry Virtual Tabletop v13+**.  
-GMs orchestrate social scenes — backgrounds, portraits, dialogue — while players see everything live and can control their own characters.
+A live social scene director for **Foundry Virtual Tabletop v13/v14**.  
+GMs orchestrate encounters — backgrounds, portraits, dialogue — while players see everything in real time and control their own characters.
 
-> **Version 0.6.0** — Active development
+> **Version 0.7.0** — Active development
 
 ---
 
 ## Features
 
 ### GM Tools
-- **Fullscreen VN overlay** — dialogue box, speaker indicator, character portraits, backgrounds
+- **Fullscreen scene overlay** — dialogue box, speaker indicator, character portraits, backgrounds
 - **Portrait management** — add, drag, scale, flip, lock, arrange; import portraits from Actor sheets
 - **Location backgrounds** — image backgrounds with brightness control, grouped/tagged
 - **Scene control** — dialogue (single or dual mode), speaker selection, themes (bg/accent colors)
@@ -26,7 +26,7 @@ GMs orchestrate social scenes — backgrounds, portraits, dialogue — while pla
 - **Opening transition** — fades from black; **closing transition** — fades to black
 
 ### Region Triggers
-- Attach any FVN script to a Foundry **Region**
+- Attach any script to a Foundry **Region**
 - Auto-plays once when a **player-controlled token** enters the region
 - Works with standard Foundry Region tools — no new UI
 
@@ -53,7 +53,7 @@ Each feature has a configurable minimum role (Player / Trusted / Assistant / GM)
 ## Quick Start
 
 ```
-/vn           Open the VN overlay as GM
+/vn           Open ViNarrat as GM
 /vnreq text   Send a request to GM
 /vnportrait   Open your portrait panel
 /vnedit       Alias for /vnportrait
@@ -108,10 +108,10 @@ Each feature has a configurable minimum role (Player / Trusted / Assistant / GM)
 ## Region Triggers
 
 1. Create a **Region** on your scene
-2. Add behavior → **FVN Script**
+2. Add behavior → **ViNarrat Script**
 3. Click **Select Script** → pick from saved scripts
 4. When a **player-controlled token** enters the region, the script fires **once**
-5. Flag-based: uses `setFlag("free-visual-novel", "consumed")` — re-entering the region won't re-trigger
+5. Flag-based: re-entering the region won't re-trigger
 
 ---
 
@@ -147,7 +147,7 @@ git clone https://github.com/MrCaptain2B/FreeVisualNovel.git
 
 ## Compatibility
 
-- **Foundry VTT v13+** only
+- **Foundry VTT v13/v14**
 - No external library dependencies
 - Works with any game system
 - Tested in modern browsers (Chrome, Firefox, Edge)
@@ -157,7 +157,7 @@ git clone https://github.com/MrCaptain2B/FreeVisualNovel.git
 ## Development
 
 ```
-free-visual-novel/
+vinarrat/
 ├── scripts/
 │   ├── app.js               — VisualNovelApp main class
 │   ├── helpers.js           — data load/save, permissions, FP helper

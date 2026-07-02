@@ -83,7 +83,7 @@ export function _whisperInvite() {
   ChatMessage.create({
     user: game.user?.id,
     whisper: [game.user?.id],
-    content: `🎭 <b>Free Visual Novel</b> broadcast is active!<br>Type <code>/vnrejoin</code> to return to the scene.`
+    content: `🎭 <b>ViNarrat</b> broadcast is active!<br>Type <code>/vnrejoin</code> to return to the scene.`
   });
 }
 

@@ -1,9 +1,9 @@
 {
   "id": "free-visual-novel",
   "name": "FreeVisualNovel",
-  "title": "Free Visual Dialogs",
-  "description": "Free TTRPG dialogue overlay for Foundry VTT. Manage portraits, backgrounds, and dialogue in real-time social scenes.",
-  "version": "0.6.1",
+  "title": "ViNarrat — Live Scene Director",
+  "description": "Real-time visual novel dialogue overlay for Foundry VTT. Manage portraits, backgrounds, and dialogue in live social encounters.",
+  "version": "0.7.0",
   "authors": [
     {
       "name": "Your Name"
@@ -11,7 +11,7 @@
   ],
   "compatibility": {
     "minimum": "13",
-    "verified": "13"
+    "verified": "14"
   },
   "socket": true,
   "scripts": [],

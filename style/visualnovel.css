@@ -29,7 +29,7 @@
   to   { opacity: 0; }
 }
 
-.free-visual-novel.vn-fullscreen {
+.vinarrat.vn-fullscreen {
   position: fixed;
   top: 0; left: 0; bottom: 0; width: 100%;
   z-index: 100;
@@ -39,14 +39,14 @@
   align-items: stretch;
   animation: vn-fade-in 0.3s ease;
 }
-.free-visual-novel.vn-fullscreen.vn-fading-out {
+.vinarrat.vn-fullscreen.vn-fading-out {
   animation: vn-fade-out 0.25s ease forwards;
 }
 
-#free-visual-novel {
+#vinarrat {
   z-index: 100;
 }
-#free-visual-novel .window-content {
+#vinarrat .window-content {
   pointer-events: none;
   background: transparent;
   border: none;
