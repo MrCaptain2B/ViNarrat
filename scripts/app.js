@@ -106,6 +106,7 @@ class VisualNovelApp extends _AppBase {
     if (!this._element) {
       this._element = document.createElement("div");
       this._element.id = "vinarrat";
+      this._element.className = "vinarrat vn-fullscreen";
       document.body.appendChild(this._element);
     }
     this._element.innerHTML = html;
