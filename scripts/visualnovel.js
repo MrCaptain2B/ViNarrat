@@ -241,8 +241,9 @@ Hooks.on("chatMessage", (message, text) => {
   if (text === "/vnrejoin") { _rejoinVN(); return false; }
 });
 
-Hooks.on("getSceneControlButtons", (t) => {
+Hooks.on("getSceneControlButtons", (controls) => {
   if (!canvas) return;
+  const isArray = Array.isArray(controls);
   const group = {
     name: "freevisualnovel",
     title: "ViNarrat",
@@ -259,7 +260,7 @@ Hooks.on("getSceneControlButtons", (t) => {
       icon: "fas fa-play",
       button: true,
       visible: true,
-      onChange: () => _openVN()
+      onClick: () => _openVN()
     };
   }
   group.tools.portrait = {
@@ -268,9 +269,10 @@ Hooks.on("getSceneControlButtons", (t) => {
     icon: "fas fa-user-circle",
     button: true,
     visible: true,
-    onChange: () => _openVN("portraits")
+    onClick: () => _openVN("portraits")
   };
-  t.freevisualnovel = group;
+  if (isArray) controls.push(group);
+  else controls.freevisualnovel = group;
 });
 
 console.log("FreeVN | script LOADED");
