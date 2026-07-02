@@ -3,7 +3,7 @@
   "name": "FreeVisualNovel",
   "title": "ViNarrat — Live Scene Director",
   "description": "Real-time visual novel dialogue overlay for Foundry VTT. Manage portraits, backgrounds, and dialogue in live social encounters.",
-  "version": "0.7.0",
+  "version": "0.7.1",
   "authors": [
     {
       "name": "Your Name"
