@@ -12,7 +12,6 @@ if (!_AppBase) {
 }
 
 class VisualNovelApp extends _AppBase {
-  static get state() { return null; }
   static DEFAULT_OPTIONS = {
     id: "vinarrat",
     title: "ViNarrat — Live Scene Director",
@@ -32,7 +31,7 @@ class VisualNovelApp extends _AppBase {
 
   constructor(options = {}) {
     super(options);
-    console.log("FreeVN | constructor", new Error().stack?.split("\n").slice(2,6).join(" | "));
+    console.log("FreeVN | constructor");
     this._ready = false;
     this._data = null;
     this._bg = "";
