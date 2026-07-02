@@ -11,18 +11,16 @@ export function registerRegionBehavior() {
       return schema;
     }
 
-    static get events() {
-      return {
-        tokenEnter: FVNTriggerRegionBehaviorType.#onTokenEnter
-      };
-    }
+    static events = {
+      tokenEnter: FVNTriggerRegionBehaviorType._onTokenEnter
+    };
 
-    static async #onTokenEnter(event) {
+    static async _onTokenEnter(event) {
       const scriptId = this.scriptId;
       if (!scriptId) return;
       const consumed = this.behavior.getFlag("free-visual-novel", "consumed");
       if (consumed) return;
-      const token = event.token;
+      const token = event.token ?? event.data?.token;
       if (!token?.document?.actor) return;
       const isPlayerControlled = token.document.actor.hasPlayerOwner;
       if (!isPlayerControlled) return;
@@ -41,14 +39,11 @@ export function registerRegionBehavior() {
         _openAndPlay(script);
       }
     }
-
-    async _handleRegionEvent(event) {
-      const handler = FVNTriggerRegionBehaviorType.events[event.type];
-      if (handler) await handler.call(this, event);
-    }
   }
 
-  CONFIG.RegionBehavior.typeDataModels.fvnScript = FVNTriggerRegionBehaviorType;
+  CONFIG.RegionBehavior.dataModels["free-visual-novel.fvnScript"] = FVNTriggerRegionBehaviorType;
+  CONFIG.RegionBehavior.typeLabels["free-visual-novel.fvnScript"] = "VN.RegionBehavior.FVNTrigger";
+  CONFIG.RegionBehavior.typeIcons["free-visual-novel.fvnScript"] = "fas fa-comment-dots";
 }
 
 async function _openAndPlay(script) {
@@ -64,7 +59,7 @@ async function _openAndPlay(script) {
 }
 
 Hooks.on("renderRegionBehaviorConfig", (app, html) => {
-  if (app.document.type !== "fvnScript") return;
+  if (app.document.type !== "free-visual-novel.fvnScript") return;
   const scriptId = app.document.scriptId || "";
   const form = html.querySelector("form");
   if (!form) return;

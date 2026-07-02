@@ -3,5 +3,6 @@
   "VN.Open": "Open ViNarrat",
   "VN.Locations": "Locations",
   "VN.Portraits": "Portraits",
-  "VN.Scene": "Scene Control"
+  "VN.Scene": "Scene Control",
+  "VN.RegionBehavior.FVNTrigger": "ViNarrat Script Trigger"
 }
