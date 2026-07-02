@@ -227,6 +227,24 @@ Hooks.once("ready", async function() {
     _setLastBroadcastState(stored);
   }
 
+  try {
+    const ChatLog = foundry.applications?.sidebar?.tabs?.ChatLog;
+    if (ChatLog?.CHAT_COMMANDS) {
+      const rejoinHandler = (cmd, match, message, chatData) => { _rejoinVN(); return false; };
+      ChatLog.CHAT_COMMANDS.vnrejoin = { pattern: /^\/vnrejoin$/, handler: rejoinHandler };
+      ChatLog.CHAT_COMMANDS.vnportrait = { pattern: /^\/vnportrait$/, handler: () => { _openVN("portraits"); return false; } };
+      ChatLog.CHAT_COMMANDS.vnedit = { pattern: /^\/vnedit$/, handler: () => { _openVN("portraits"); return false; } };
+      ChatLog.CHAT_COMMANDS.vnreq = {
+        pattern: /^\/vnreq\b\s+(.*)$/,
+        handler: (cmd, match, message, chatData) => {
+          const reqText = match[1]?.trim();
+          if (reqText && ui.freevisualnovel) ui.freevisualnovel.addRequest(reqText, "normal");
+          return false;
+        }
+      };
+    }
+  } catch(e) { console.error("FreeVN | Failed to register chat commands:", e); }
+
   document.querySelector("#chat-log")?.addEventListener("click", (ev) => {
     const btn = ev.target.closest("[data-vn-rejoin]");
     if (!btn) return;
