@@ -91,7 +91,8 @@ class VisualNovelApp extends _AppBase {
   }
 
   async _initialize() {
-    this._data = await _loadData();
+    console.log("FreeVN | _initialize start");
+    try { this._data = await _loadData(); } catch(e) { console.error("FreeVN | _loadData failed:", e); throw e; }
     this._themeBg = game.settings?.get("free-visual-novel", "themeBg") || this._data.themeBg || "#0d0d1a";
     this._themeAccent = game.settings?.get("free-visual-novel", "themeAccent") || this._data.themeAccent || "#f0c040";
     this._dialog = {
@@ -175,6 +176,7 @@ class VisualNovelApp extends _AppBase {
   }
 
   async _prepareContext() {
+    console.log("FreeVN | _prepareContext called");
     if (!this._ready) await this._initialize();
 
     const playableEnabled = game.settings?.get("free-visual-novel", "playablePortraits") !== false;
