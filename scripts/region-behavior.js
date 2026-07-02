@@ -12,15 +12,17 @@ export function registerRegionBehavior() {
     }
 
     static get events() {
-      return { tokenEnter: this._onTokenEnter };
+      return {
+        tokenEnter: FVNTriggerRegionBehaviorType.#onTokenEnter
+      };
     }
 
-    static async _onTokenEnter(event) {
+    static async #onTokenEnter(event) {
       const scriptId = this.scriptId;
       if (!scriptId) return;
       const consumed = this.behavior.getFlag("free-visual-novel", "consumed");
       if (consumed) return;
-      const token = event.token ?? event.data?.token;
+      const token = event.token;
       if (!token?.document?.actor) return;
       const isPlayerControlled = token.document.actor.hasPlayerOwner;
       if (!isPlayerControlled) return;
@@ -38,6 +40,11 @@ export function registerRegionBehavior() {
       } else {
         _openAndPlay(script);
       }
+    }
+
+    async _handleRegionEvent(event) {
+      const handler = FVNTriggerRegionBehaviorType.events[event.type];
+      if (handler) await handler.call(this, event);
     }
   }
 
