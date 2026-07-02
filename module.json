@@ -29,6 +29,6 @@
     }
   ],
   "url": "https://github.com/MrCaptain2B/ViNarrat",
-  "manifest": "https://raw.githubusercontent.com/MrCaptain2B/ViNarrat/master/module.json",
-  "download": "https://github.com/MrCaptain2B/ViNarrat/archive/master.zip"
+  "manifest": "https://raw.githubusercontent.com/MrCaptain2B/ViNarrat/v0.7.3/module.json",
+  "download": "https://github.com/MrCaptain2B/ViNarrat/archive/v0.7.3.zip"
 }
