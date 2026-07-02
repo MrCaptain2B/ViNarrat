@@ -6,10 +6,7 @@ import { bindInlineEdit } from './inline-edit.js';
 import { bindInvite } from './invite.js';
 import { bindScriptEngine } from './script-engine.js';
 
-const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications?.api || {};
-const _AppBase = HandlebarsApplicationMixin && ApplicationV2
-  ? HandlebarsApplicationMixin(ApplicationV2)
-  : foundry.applications?.api?.Application;
+const _AppBase = foundry.applications?.api?.ApplicationV2;
 if (!_AppBase) {
   console.error("ViNarrat | Application class not found.");
 }
@@ -31,9 +28,7 @@ class VisualNovelApp extends _AppBase {
     form: { submitOnChange: false, closeOnSubmit: false }
   };
 
-  static PARTS = {
-    main: { template: "modules/free-visual-novel/templates/visualnovel.hbs" }
-  };
+
 
   constructor(options = {}) {
     super(options);
@@ -91,6 +86,14 @@ class VisualNovelApp extends _AppBase {
     this._typewriterFullText = "";
     this._typewriterPos = 0;
     this._typewriterDirty = false;
+  }
+
+  render(options) {
+    console.log("FreeVN | render called, _state:", this._state, "RENDER_STATES.NONE:", _AppBase.RENDER_STATES?.NONE);
+    if (this._state !== _AppBase.RENDER_STATES?.NONE) {
+      this._state = _AppBase.RENDER_STATES.NONE;
+    }
+    return super.render(options);
   }
 
   async _initialize() {
