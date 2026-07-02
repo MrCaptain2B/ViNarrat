@@ -81,10 +81,12 @@ export function _getLastBroadcastState() { return _lastVal; }
 export function _setLastBroadcastState(v) { _lastVal = v; }
 
 export function _whisperInvite() {
+  const macro = game.macros?.getName("ViNarrat: Rejoin");
+  const link = macro ? macro.link : "<code>/vnrejoin</code>";
   ChatMessage.create({
     user: game.user?.id,
     whisper: [game.user?.id],
-    content: `🎭 <b>ViNarrat</b> broadcast is active<br><a href="#" class="vn-rejoin-link" data-vn-rejoin="1">Rejoin Scene</a>`
+    content: `🎭 <b>ViNarrat</b> broadcast is active. Click to rejoin:<br>${link}`
   });
 }
 

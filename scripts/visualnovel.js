@@ -264,14 +264,6 @@ Hooks.once("ready", async function() {
     }
   } catch(e) { console.error("FreeVN | Failed to register chat commands:", e); }
 
-  document.querySelector("#chat-log")?.addEventListener("click", (ev) => {
-    const btn = ev.target.closest("[data-vn-rejoin]");
-    if (!btn) return;
-    _rejoinVN();
-    const msgEl = btn.closest(".chat-message");
-    const msgId = msgEl?.dataset.messageId;
-    if (msgId) game.messages.get(msgId)?.delete();
-  });
 });
 
 Hooks.on("chatMessage", (chatLog, message, chatData) => {
