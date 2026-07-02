@@ -6,7 +6,10 @@ import { bindInlineEdit } from './inline-edit.js';
 import { bindInvite } from './invite.js';
 import { bindScriptEngine } from './script-engine.js';
 
-const _AppBase = foundry.applications?.api?.ApplicationV2 || foundry.applications?.api?.Application;
+const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications?.api || {};
+const _AppBase = HandlebarsApplicationMixin && ApplicationV2
+  ? HandlebarsApplicationMixin(ApplicationV2)
+  : foundry.applications?.api?.Application;
 if (!_AppBase) {
   console.error("ViNarrat | Application class not found.");
 }
