@@ -11,9 +11,9 @@ export function registerRegionBehavior() {
       return schema;
     }
 
-    static events = {
-      tokenEnter: FVNTriggerRegionBehaviorType._onTokenEnter
-    };
+    static get events() {
+      return { tokenEnter: this._onTokenEnter };
+    }
 
     static async _onTokenEnter(event) {
       const scriptId = this.scriptId;
