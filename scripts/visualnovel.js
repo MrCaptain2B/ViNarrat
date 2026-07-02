@@ -218,9 +218,7 @@ Hooks.once("ready", async function() {
     addPortrait(id) { ui.freevisualnovel?.addPortraitToStage(id); },
     addRequest(text, priority) { ui.freevisualnovel?.addRequest(text, priority); },
     clearStage() { ui.freevisualnovel?.clearStage(); },
-    importActorPortraits(folderPath) { _importActorPortraits(folderPath); },
-    rejoin() { _rejoinVN(); },
-    getBroadcastState() { return _getLastBroadcastState(); }
+    importActorPortraits(folderPath) { _importActorPortraits(folderPath); }
   };
 
   const stored = game.settings?.get("free-visual-novel", "broadcastStore");
