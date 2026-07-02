@@ -4,7 +4,7 @@ import { bindPortraitDrag } from './portrait-drag.js';
 import { bindDialog } from './dialog.js';
 import { bindInlineEdit } from './inline-edit.js';
 import { bindInvite } from './invite.js';
-import { bindScriptEngine } from './script-engine.js';
+// import { bindScriptEngine } from './script-engine.js'; // SCENARIO ENGINE — disabled for narrator focus
 
 const { ApplicationV2, HandlebarsApplicationMixin } = foundry.applications?.api || {};
 const _AppBase = HandlebarsApplicationMixin ? HandlebarsApplicationMixin(ApplicationV2) : ApplicationV2;
@@ -82,11 +82,12 @@ class VisualNovelApp extends _AppBase {
       yOffset: 100,
       leftText: ""
     };
-    this._playback = null;
-    this._editScriptId = null;
-    this._tempSteps = [];
-    this._activeEditIdx = null;
-    this._showStepTypePicker = false;
+    // SCENARIO ENGINE (disabled)
+    // this._playback = null;
+    // this._editScriptId = null;
+    // this._tempSteps = [];
+    // this._activeEditIdx = null;
+    // this._showStepTypePicker = false;
     this._typewriterTimer = null;
     this._typewriterFullText = "";
     this._typewriterPos = 0;
@@ -324,6 +325,7 @@ class VisualNovelApp extends _AppBase {
       themeBg: this._themeBg,
       themeAccent: this._themeAccent,
       defaultPortraitScale: this._defaultPortraitScale,
+      /* SCENARIO ENGINE (disabled)
       scripts: this._data?.scripts || [],
       editScript: this._editScriptId ? (this._data?.scripts?.find(s => s.id === this._editScriptId) || { id: null, name: "", steps: [] }) : { id: null, name: "", steps: [] },
       editSteps: this._showPanel === "scriptEdit" ? (this._tempSteps || []) : [],
@@ -334,6 +336,7 @@ class VisualNovelApp extends _AppBase {
         currentStep: this._playback.currentStep,
         script: { name: this._playback.script.name, steps: this._playback.script.steps, length: this._playback.script.steps.length }
       } : null
+      */
     };
   }
 
@@ -382,7 +385,9 @@ class VisualNovelApp extends _AppBase {
     else if (this._showPanel === "portraits") this._bindPortraitPanel();
     else if (this._showPanel === "scene") this._bindScenePanel();
     else if (this._showPanel === "presets") this._bindPresetsPanel();
-    else if (this._showPanel === "scripts" || this._showPanel === "scriptEdit") this._bindScriptPanel();
+    // SCENARIO ENGINE (disabled)
+    // else if (this._showPanel === "scripts" || this._showPanel === "scriptEdit") this._bindScriptPanel();
+    /* SCENARIO ENGINE (disabled)
     if (this._playback) {
       this._bindPlayback();
       if (this._typewriterDirty) {
@@ -390,6 +395,7 @@ class VisualNovelApp extends _AppBase {
         this._typewriterDirty = false;
       }
     }
+    */
     const panelEl = this._el();
     const panel = panelEl.querySelector(".vn-panel-floating");
     const header = panel?.querySelector(".vn-panel-header");
@@ -570,9 +576,10 @@ class VisualNovelApp extends _AppBase {
   _onClose(options) {
     const el = this._element || this.element;
     el?.classList.remove("vn-fullscreen-active");
-    if (this._playback?.timer) clearTimeout(this._playback.timer);
-    if (this._typewriterTimer) { clearInterval(this._typewriterTimer); this._typewriterTimer = null; }
-    this._playback = null;
+    // SCENARIO ENGINE (disabled)
+    // if (this._playback?.timer) clearTimeout(this._playback.timer);
+    // if (this._typewriterTimer) { clearInterval(this._typewriterTimer); this._typewriterTimer = null; }
+    // this._playback = null;
   }
 
   async close(options) {
@@ -611,7 +618,7 @@ bindPortraitDrag(VisualNovelApp.prototype);
 bindInlineEdit(VisualNovelApp.prototype);
 bindDialog(VisualNovelApp.prototype);
 bindInvite(VisualNovelApp.prototype);
-bindScriptEngine(VisualNovelApp.prototype);
+// bindScriptEngine(VisualNovelApp.prototype); // SCENARIO ENGINE (disabled)
 bindPanels(VisualNovelApp.prototype);
 
 export default VisualNovelApp;

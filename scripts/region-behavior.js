@@ -1,3 +1,4 @@
+/* SCENARIO ENGINE (disabled)
 export function registerRegionBehavior() {
 
   const { StringField } = foundry.data.fields;
@@ -122,3 +123,7 @@ Hooks.on("renderRegionBehaviorConfig", (app, html) => {
   field.addEventListener("change", syncName);
   syncName();
 });
+*/
+export function registerRegionBehavior() {
+  console.log("FreeVN | Region behavior disabled");
+}

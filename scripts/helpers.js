@@ -160,10 +160,12 @@ Handlebars.registerHelper("multiply", function(a, b) {
 Handlebars.registerHelper("divide", function(a, b) {
   return b ? (a || 0) / b : 0;
 });
+/* SCENARIO ENGINE (disabled)
 Handlebars.registerHelper("getStepType", function(steps, idx) {
   return steps?.[idx]?.type || "";
 });
 Handlebars.registerHelper("getStepChoices", function(steps, idx) {
   return steps?.[idx]?.choices || [];
 });
+*/
 

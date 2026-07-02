@@ -67,34 +67,35 @@ proto._bindMainUI = function() {
       this.render();
     });
 
-      html.querySelector(".vn-btn-create-script")?.addEventListener("click", () => {
-        this._editScriptId = null;
-        this._tempSteps = [
-          {
-            type: "transition", label: "Opening", duration: 0,
-            transition: "fadeToBlack", transitionDuration: 0.5,
-            state: null
-          },
-          {
-            type: "scene", label: "Scene", duration: 0,
-            state: this._captureSceneState()
-          },
-          {
-            type: "transition", label: "Closing", duration: 0,
-            transition: "fadeToBlack", transitionDuration: 0.5,
-            state: null
-          }
-        ];
-        this._activeEditIdx = null;
-        this._showStepTypePicker = false;
-        this._showPanel = "scriptEdit";
-        this._editScriptName = "";
-        this.render();
-      });
-      html.querySelector(".vn-btn-load-script")?.addEventListener("click", () => {
-        this._showPanel = "scripts";
-        this.render();
-      });
+      // SCENARIO ENGINE (disabled)
+      // html.querySelector(".vn-btn-create-script")?.addEventListener("click", () => {
+      //   this._editScriptId = null;
+      //   this._tempSteps = [
+      //     {
+      //       type: "transition", label: "Opening", duration: 0,
+      //       transition: "fadeToBlack", transitionDuration: 0.5,
+      //       state: null
+      //     },
+      //     {
+      //       type: "scene", label: "Scene", duration: 0,
+      //       state: this._captureSceneState()
+      //     },
+      //     {
+      //       type: "transition", label: "Closing", duration: 0,
+      //       transition: "fadeToBlack", transitionDuration: 0.5,
+      //       state: null
+      //     }
+      //   ];
+      //   this._activeEditIdx = null;
+      //   this._showStepTypePicker = false;
+      //   this._showPanel = "scriptEdit";
+      //   this._editScriptName = "";
+      //   this.render();
+      // });
+      // html.querySelector(".vn-btn-load-script")?.addEventListener("click", () => {
+      //   this._showPanel = "scripts";
+      //   this.render();
+      // });
       html.querySelector(".vn-btn-close")?.addEventListener("click", () => this.close());
 
     this._bindPortraitDrag(html);

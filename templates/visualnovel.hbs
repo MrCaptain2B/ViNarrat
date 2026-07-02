@@ -137,8 +137,10 @@
     <button class="vn-btn-presets" title="Scene Presets"><i class="fas fa-bookmark"></i></button>
     <button class="vn-btn-toggle-bg" title="Toggle Background"><i class="fas fa-image"></i></button>
     <button class="vn-btn-toggle-ui" title="Toggle UI"><i class="fas fa-eye-slash"></i></button>
+    {{!-- SCENARIO ENGINE (disabled)
     <button class="vn-btn-create-script" title="Create Script"><i class="fas fa-file-alt"></i></button>
     <button class="vn-btn-load-script" title="Load Script"><i class="fas fa-folder-open"></i></button>
+    --}}
     <div class="vn-broadcast-wrapper">
       <button class="vn-btn-broadcast {{#if broadcasting}}vn-broadcast-active{{/if}}" title="{{#if broadcasting}}Stop{{else}}Start{{/if}} Broadcast">
         <i class="fas {{#if broadcasting}}fa-stop-circle{{else}}fa-play-circle{{/if}}"></i>
@@ -154,6 +156,7 @@
     <button class="vn-btn-close" title="Close"><i class="fas fa-times"></i></button>
   </div>
   {{else}}
+  {{!-- SCENARIO ENGINE (disabled)
   {{!-- Playback Controls --}}
   <div class="vn-playback-bar">
     <span class="vn-playback-name">{{playback.script.name}}</span>
@@ -165,6 +168,7 @@
       <button class="vn-playback-stop" title="Stop"><i class="fas fa-stop"></i></button>
     </div>
   </div>
+  --}}
   {{/if}}
   {{else}}
   {{!-- Toolbar --}}
@@ -175,8 +179,10 @@
     <button class="vn-btn-presets" title="Scene Presets"><i class="fas fa-bookmark"></i></button>
     <button class="vn-btn-toggle-bg" title="Toggle Background"><i class="fas fa-image"></i></button>
     <button class="vn-btn-toggle-ui" title="Toggle UI"><i class="fas fa-eye-slash"></i></button>
+    {{!-- SCENARIO ENGINE (disabled)
     <button class="vn-btn-create-script" title="Create Script"><i class="fas fa-file-alt"></i></button>
     <button class="vn-btn-load-script" title="Load Script"><i class="fas fa-folder-open"></i></button>
+    --}}
     <div class="vn-broadcast-wrapper">
       <button class="vn-btn-broadcast {{#if broadcasting}}vn-broadcast-active{{/if}}" title="{{#if broadcasting}}Stop{{else}}Start{{/if}} Broadcast">
         <i class="fas {{#if broadcasting}}fa-stop-circle{{else}}fa-play-circle{{/if}}"></i>
@@ -463,87 +469,19 @@
   </div>
   {{/if}}
 
+  {{!-- SCENARIO ENGINE (disabled)
   {{#if (eq showPanel "scripts")}}
   <div class="vn-panel-floating vn-panel">
-    <div class="vn-panel-header">
-      <span class="vn-panel-title">Scripts</span>
-      <button class="vn-scripts-back"><i class="fas fa-arrow-left"></i> Back</button>
-    </div>
-    <div class="vn-scripts-list">
-      {{#each scripts}}
-      <div class="vn-scripts-row">
-        <span>{{this.name}}</span>
-        <span class="vn-scripts-stepcount">{{this.steps.length}} steps</span>
-        <div class="vn-scripts-actions">
-          <button class="vn-script-load" data-id="{{this.id}}">Load</button>
-          <button class="vn-script-edit" data-id="{{this.id}}">Edit</button>
-          <button class="vn-script-delete" data-id="{{this.id}}"><i class="fas fa-trash"></i></button>
-        </div>
-      </div>
-      {{/each}}
-      {{#unless scripts.length}}
-      <div class="vn-scripts-empty">No scripts yet. Create one from the toolbar.</div>
-      {{/unless}}
-    </div>
+    ...
   </div>
   {{/if}}
 
   {{#if (eq showPanel "scriptEdit")}}
   <div class="vn-panel-floating vn-panel vn-panel-wide">
-    <div class="vn-panel-header">
-      <span class="vn-panel-title">{{#if editScript.id}}Edit Script{{else}}New Script{{/if}}</span>
-      <button class="vn-sceditor-back"><i class="fas fa-arrow-left"></i> Back</button>
-    </div>
-    <div class="vn-sceditor-body">
-      <div class="vn-sceditor-name-row">
-        <input class="vn-sceditor-name" type="text" placeholder="e.g. Chapter 1 Intro" value="{{editScript.name}}">
-        <button class="vn-sceditor-save"><i class="fas fa-save"></i> Save Script</button>
-      </div>
-      <div class="vn-sceditor-hint">Each step stores the full scene state. Click a step to load it, edit the scene, then save.</div>
-      {{#if editSteps.length}}
-      <div class="vn-sceditor-stepcount">{{editSteps.length}} step{{#unless (eq editSteps.length 1)}}s{{/unless}}</div>
-      {{/if}}
-      <div class="vn-sceditor-steps">
-        {{#each editSteps}}
-          <div class="vn-sceditor-step {{#if (eq @index ../activeEditIdx)}}vn-step-active{{/if}}" data-step-idx="{{@index}}">
-            <div class="vn-step-header">
-              <span class="vn-step-num">{{add @index 1}}.</span>
-              <button class="vn-sceditor-toggle-type vn-step-type-{{this.type}}" data-idx="{{@index}}">{{#if (eq this.type "pause")}}⏸ Pause{{else if (eq this.type "transition")}}🎬 Transition{{else}}▶ Scene{{/if}}</button>
-              {{#if (eq this.type "pause")}}
-              <input class="vn-sceditor-duration" type="number" step="0.5" min="0.5" value="{{this.duration}}" data-idx="{{@index}}" title="Duration (seconds)">
-              <span class="vn-step-dur-text">sec</span>
-              {{/if}}
-              {{#if (eq this.type "transition")}}
-              <select class="vn-sceditor-transition" data-idx="{{@index}}">
-                <option value="fadeToBlack" {{#if (eq this.transition "fadeToBlack")}}selected{{/if}}>Fade to Black</option>
-                <option value="crossfade" {{#if (eq this.transition "crossfade")}}selected{{/if}}>Crossfade</option>
-              </select>
-              <input class="vn-sceditor-transition-dur" type="number" step="0.1" min="0.2" max="3" value="{{this.transitionDuration}}" data-idx="{{@index}}" title="Duration (seconds)">
-              <span class="vn-step-dur-text">sec</span>
-              {{/if}}
-              {{#unless (eq this.type "pause")}}
-              {{#unless (eq this.type "transition")}}
-              <input class="vn-sceditor-duration" type="number" step="0.5" min="0" value="{{this.duration}}" data-idx="{{@index}}" title="0 = wait for click">
-              <span class="vn-step-dur-text">sec (0 = click)</span>
-              {{/unless}}
-              {{/unless}}
-            <input class="vn-sceditor-label" type="text" placeholder="label" value="{{this.label}}" data-idx="{{@index}}">
-            <button class="vn-sceditor-load" data-idx="{{@index}}" title="Load this step's scene"><i class="fas fa-eye"></i></button>
-            <button class="vn-sceditor-up" data-idx="{{@index}}" title="Move up"><i class="fas fa-chevron-up"></i></button>
-            <button class="vn-sceditor-down" data-idx="{{@index}}" title="Move down"><i class="fas fa-chevron-down"></i></button>
-            <button class="vn-sceditor-delete" data-idx="{{@index}}" title="Delete"><i class="fas fa-trash-alt"></i></button>
-          </div>
-        </div>
-        {{/each}}
-      </div>
-      <div class="vn-sceditor-add-row">
-        <button class="vn-sceditor-add" data-add-type="scene"><i class="fas fa-plus"></i> Scene</button>
-        <button class="vn-sceditor-add" data-add-type="pause"><i class="fas fa-hourglass"></i> Pause</button>
-        <button class="vn-sceditor-add" data-add-type="transition"><i class="fas fa-magic"></i> Transition</button>
-      </div>
-    </div>
+    ...
   </div>
   {{/if}}
+  --}}
 
   {{/if}}
 </div>
