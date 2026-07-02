@@ -1118,3 +1118,11 @@
 }
 .vn-sceditor-add-row { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
 .vn-sceditor-add-row button { flex: 1; min-width: 100px; }
+
+/* ─────────── Rejoin Link ─────────── */
+.vn-rejoin-link {
+  display: inline-block; margin-top: 6px; padding: 6px 16px;
+  background: var(--vn-accent); color: #000 !important;
+  border-radius: 6px; font-size: 0.9em; font-weight: bold;
+  text-decoration: none !important;
+}

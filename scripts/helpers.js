@@ -84,7 +84,7 @@ export function _whisperInvite() {
   ChatMessage.create({
     user: game.user?.id,
     whisper: [game.user?.id],
-    content: `🎭 <b>ViNarrat</b> broadcast is active<br><button class="vn-rejoin-btn" data-vn-rejoin="1">Rejoin Scene</button>`
+    content: `🎭 <b>ViNarrat</b> broadcast is active<br><a href="#" class="vn-rejoin-link" data-vn-rejoin="1">Rejoin Scene</a>`
   });
 }
 
