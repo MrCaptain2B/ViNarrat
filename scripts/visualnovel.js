@@ -237,18 +237,18 @@ Hooks.once("ready", async function() {
   });
 });
 
-Hooks.on("chatMessage", (chatLog, message, text) => {
-  if (text?.startsWith("/vnreq ")) {
-    const reqText = text.slice(7).trim();
+Hooks.on("chatMessage", (chatLog, message, chatData) => {
+  if (message?.startsWith("/vnreq ")) {
+    const reqText = message.slice(7).trim();
     if (reqText && ui.freevisualnovel) ui.freevisualnovel.addRequest(reqText, "normal");
     return false;
   }
-  if (text === "/vnreq" || text === "/vnrequest") {
+  if (message === "/vnreq" || message === "/vnrequest") {
     ui.notifications?.info("Usage: /vnreq <your request text>");
     return false;
   }
-  if (text === "/vnportrait" || text === "/vnedit") { _openVN("portraits"); return false; }
-  if (text === "/vnrejoin") { _rejoinVN(); return false; }
+  if (message === "/vnportrait" || message === "/vnedit") { _openVN("portraits"); return false; }
+  if (message === "/vnrejoin") { _rejoinVN(); return false; }
 });
 
 Hooks.on("getSceneControlButtons", (controls) => {
