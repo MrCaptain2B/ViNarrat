@@ -93,6 +93,13 @@ class VisualNovelApp extends _AppBase {
     this._typewriterDirty = false;
   }
 
+  get element() {
+    return this._element || null;
+  }
+  set element(v) {
+    this._element = v;
+  }
+
   get rendered() {
     return !!this._element;
   }
