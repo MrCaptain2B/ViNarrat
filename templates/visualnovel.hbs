@@ -203,6 +203,7 @@
   <div class="vn-panel-floating vn-panel">
     <div class="vn-panel-header">
       <span class="vn-panel-title">Locations</span>
+      <span class="vn-drag-handle"><i class="fas fa-hand-paper"></i></span>
       <button class="vn-loc-back"><i class="fas fa-arrow-left"></i> Back</button>
     </div>
     <div class="vn-filter-row">
@@ -241,6 +242,7 @@
   <div class="vn-panel-floating vn-panel">
     <div class="vn-panel-header">
       <span class="vn-panel-title">Portraits</span>
+      <span class="vn-drag-handle"><i class="fas fa-hand-paper"></i></span>
       <button class="vn-port-back"><i class="fas fa-arrow-left"></i> Back</button>
     </div>
     <div class="vn-filter-row">
@@ -291,7 +293,7 @@
 
   {{#if (eq showPanel "scene")}}
   <div class="vn-panel-floating vn-panel-scene vn-panel">
-    <div class="vn-panel-header"><span class="vn-panel-title">Scene Settings</span><button class="vn-scene-back"><i class="fas fa-arrow-left"></i> Back</button></div>
+    <div class="vn-panel-header"><span class="vn-panel-title">Scene Settings</span><span class="vn-drag-handle"><i class="fas fa-hand-paper"></i></span><button class="vn-scene-back"><i class="fas fa-arrow-left"></i> Back</button></div>
     <div class="vn-scene-section">
       <label>Background</label>
       <div class="vn-dialog-setting"><span>Brightness</span><input class="vn-scene-brightness" type="range" min="0.2" max="2" step="0.05" value="{{bgBrightness}}"><span class="vn-dialog-val">{{bgBrightness}}</span></div>
@@ -329,7 +331,7 @@
 
   {{#if (eq showPanel "presets")}}
   <div class="vn-panel-floating vn-panel">
-    <div class="vn-panel-header"><span class="vn-panel-title">Scene Presets</span><button class="vn-presets-back"><i class="fas fa-arrow-left"></i> Back</button></div>
+    <div class="vn-panel-header"><span class="vn-panel-title">Scene Presets</span><span class="vn-drag-handle"><i class="fas fa-hand-paper"></i></span><button class="vn-presets-back"><i class="fas fa-arrow-left"></i> Back</button></div>
     <div class="vn-presets-save-row"><input class="vn-presets-name-input" type="text" placeholder="Preset name"><button class="vn-presets-save-btn">Save Current</button></div>
     <div class="vn-presets-list">
       {{#each presets}}

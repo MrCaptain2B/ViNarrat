@@ -520,6 +520,12 @@
   font-size: .8rem;
 }
 .vn-panel-header button:hover { background: rgba(255,255,255,.18); color: #fff; }
+.vn-drag-handle {
+  cursor: grab; color: rgba(255,255,255,.4);
+  font-size: 1rem; padding: 0 8px;
+  user-select: none;
+}
+.vn-drag-handle:active { cursor: grabbing; }
 
 /* Filter row */
 .vn-filter-row {

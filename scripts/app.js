@@ -409,21 +409,29 @@ class VisualNovelApp extends _AppBase {
       }
     }
     */
-    const panelEl = this._el();
-    const panel = panelEl.querySelector(".vn-panel-floating");
-    const header = panel?.querySelector(".vn-panel-header");
-    if (panel && header) {
-      header.addEventListener("mousedown", (ev) => {
+    const panel = this._el().querySelector(".vn-panel-floating");
+    const handle = panel?.querySelector(".vn-drag-handle");
+    if (panel && handle) {
+      handle.addEventListener("mousedown", (ev) => {
         if (ev.button !== 0) return;
+        ev.preventDefault();
         const rect = panel.getBoundingClientRect();
+        panel.style.left = rect.left + "px";
+        panel.style.top = rect.top + "px";
+        panel.style.transform = "none";
         const offX = ev.clientX - rect.left;
         const offY = ev.clientY - rect.top;
+        handle.querySelector("i").className = "fas fa-hand-rock";
         const onMove = (e) => {
           panel.style.left = (e.clientX - offX) + "px";
           panel.style.top = (e.clientY - offY) + "px";
           panel.style.right = "auto";
         };
-        const onUp = () => { document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp); };
+        const onUp = () => {
+          document.removeEventListener("mousemove", onMove);
+          document.removeEventListener("mouseup", onUp);
+          handle.querySelector("i").className = "fas fa-hand-paper";
+        };
         document.addEventListener("mousemove", onMove);
         document.addEventListener("mouseup", onUp);
       });
