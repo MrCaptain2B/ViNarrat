@@ -678,6 +678,15 @@ proto._bindScenePanel = function() {
       game.settings?.set("free-visual-novel", key, value);
     };
 
+    const _updateDialogText = () => {
+      const contentEls = document.querySelectorAll(".vn-dlg-content");
+      contentEls.forEach(el => {
+        const side = el.dataset.side;
+        if (side === "left") el.textContent = this._dialog.leftText;
+        else if (side === "single" || side === "right") el.textContent = this._dialog.text;
+      });
+    };
+
     html.querySelector(".vn-dialog-width")?.addEventListener("input", (ev) => {
       this._dialog.width = parseInt(ev.target.value) || 65;
       _saveDialogSetting("dialogWidth", this._dialog.width);
@@ -710,9 +719,9 @@ proto._bindScenePanel = function() {
       });
     });
 
-    html.querySelector(".vn-dialog-text")?.addEventListener("input", async (ev) => {
+    html.querySelector(".vn-dialog-text")?.addEventListener("input", (ev) => {
       this._dialog.text = ev.target.value;
-      await this.render();
+      _updateDialogText();
     });
 
     html.querySelector(".vn-dialog-speaker-toggle")?.addEventListener("click", async (ev) => {
@@ -763,9 +772,9 @@ proto._bindScenePanel = function() {
       this._applyDialogStyles();
     });
 
-    html.querySelector(".vn-dialog-lefttext")?.addEventListener("input", async (ev) => {
+    html.querySelector(".vn-dialog-lefttext")?.addEventListener("input", (ev) => {
       this._dialog.leftText = ev.target.value;
-      await this.render();
+      _updateDialogText();
     });
 };
 
