@@ -732,8 +732,7 @@ proto._bindScenePanel = function() {
     });
 
     html.querySelector(".vn-dialog-enable-toggle")?.addEventListener("click", async (ev) => {
-      const cur = game.settings?.get("free-visual-novel", "dialogEnabled") !== false;
-      await game.settings?.set("free-visual-novel", "dialogEnabled", !cur);
+      this._dialogEnabled = !this._dialogEnabled;
       await this.render();
     });
 

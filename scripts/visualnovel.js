@@ -39,6 +39,7 @@ function _rejoinVN() {
     app._speaker = bs.speaker || "";
     app._claimed = bs.claimed || {};
     if (bs.dialog) app._dialog = Object.assign({}, app._dialog, bs.dialog);
+    if (bs.dialogEnabled !== undefined) app._dialogEnabled = bs.dialogEnabled;
     if (bs.speakerBarPos) app._speakerBarPos = bs.speakerBarPos;
     if (bs.portraitMode) app._portraitMode = bs.portraitMode;
     if (bs.splashShowNames !== undefined) app._splashShowNames = bs.splashShowNames;
@@ -55,6 +56,7 @@ function _rejoinVN() {
     app._speaker = bs.speaker || "";
     app._claimed = bs.claimed || {};
     if (bs.dialog) app._dialog = Object.assign({}, app._dialog, bs.dialog);
+    if (bs.dialogEnabled !== undefined) app._dialogEnabled = bs.dialogEnabled;
     if (bs.speakerBarPos) app._speakerBarPos = bs.speakerBarPos;
     if (bs.portraitMode) app._portraitMode = bs.portraitMode;
     if (bs.splashShowNames !== undefined) app._splashShowNames = bs.splashShowNames;
@@ -95,6 +97,7 @@ function _applyVNState(data) {
     app._speaker = data.speaker || "";
     app._claimed = data.claimed || {};
     if (data.dialog) app._dialog = Object.assign({}, app._dialog, data.dialog);
+    if (data.dialogEnabled !== undefined) app._dialogEnabled = data.dialogEnabled;
     if (data.themeBg) app._themeBg = data.themeBg;
     if (data.themeAccent) app._themeAccent = data.themeAccent;
     if (data.speakerFontSize) app._speakerFontSize = data.speakerFontSize;

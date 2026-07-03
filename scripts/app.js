@@ -74,6 +74,7 @@ class VisualNovelApp extends _AppBase {
     this._speakerBarPos = game.settings?.get("free-visual-novel", "speakerBarPos") || "left";
     this._portraitMode = game.settings?.get("free-visual-novel", "portraitMode") || "portrait";
     this._splashShowNames = game.settings?.get("free-visual-novel", "splashShowNames") !== false;
+    this._dialogEnabled = true;
     this._dialog = {
       width: 65,
       height: 160,
@@ -326,7 +327,7 @@ class VisualNovelApp extends _AppBase {
       showBroadcastMenu: this._showBroadcastMenu,
       showInviteMenu: this._showInviteMenu,
       dialog: this._dialog,
-      dialogEnabled: game.settings?.get("free-visual-novel", "dialogEnabled") !== false,
+      dialogEnabled: this._dialogEnabled,
       speakerFontSize: this._speakerFontSize,
       speakerBarPos: this._speakerBarPos,
       portraitMode: this._portraitMode,

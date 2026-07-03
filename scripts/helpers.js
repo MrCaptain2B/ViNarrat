@@ -66,6 +66,7 @@ export function _broadcastVNState(app, force) {
     dialog: app._dialog,
     themeBg: app._themeBg,
     themeAccent: app._themeAccent,
+    dialogEnabled: app._dialogEnabled,
     speakerFontSize: app._speakerFontSize,
     speakerBarPos: app._speakerBarPos,
     portraitMode: app._portraitMode,
