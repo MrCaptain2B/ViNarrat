@@ -170,7 +170,7 @@
           <i class="fas fa-broadcast-tower"></i>
           <span>{{#if (eq inviteMode "all")}}All Players{{else}}Stage Only{{/if}}</span>
         </button>
-        <button class="vn-console-btn vn-console-btn-arrow"><i class="fas fa-caret-up"></i></button>
+        <button class="vn-console-btn vn-console-btn-arrow"><i class="fas {{#if showBroadcastMenu}}fa-caret-up{{else}}fa-caret-down{{/if}}"></i></button>
         {{#if showBroadcastMenu}}
         <div class="vn-bm">
           <button class="vn-bo {{#if (eq inviteMode "all")}}vn-bo-active{{/if}}" data-mode="all"><i class="fas fa-check"></i>All Players</button>
