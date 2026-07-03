@@ -678,15 +678,6 @@ proto._bindScenePanel = function() {
       game.settings?.set("free-visual-novel", key, value);
     };
 
-    const _updateDialogText = () => {
-      const contentEls = document.querySelectorAll(".vn-dlg-content");
-      contentEls.forEach(el => {
-        const side = el.dataset.side;
-        if (side === "left") el.textContent = this._dialog.leftText;
-        else if (side === "single" || side === "right") el.textContent = this._dialog.text;
-      });
-    };
-
     html.querySelector(".vn-dialog-width")?.addEventListener("input", (ev) => {
       this._dialog.width = parseInt(ev.target.value) || 65;
       _saveDialogSetting("dialogWidth", this._dialog.width);
@@ -719,14 +710,20 @@ proto._bindScenePanel = function() {
       });
     });
 
-    html.querySelector(".vn-dialog-text")?.addEventListener("input", (ev) => {
+    html.querySelector(".vn-dialog-text")?.addEventListener("input", async (ev) => {
       this._dialog.text = ev.target.value;
-      _updateDialogText();
+      await this.render();
     });
 
     html.querySelector(".vn-dialog-speaker-toggle")?.addEventListener("click", async (ev) => {
       this._dialog.showSpeaker = !this._dialog.showSpeaker;
       _saveDialogSetting("dialogShowSpeaker", this._dialog.showSpeaker);
+      await this.render();
+    });
+
+    html.querySelector(".vn-dialog-enable-toggle")?.addEventListener("click", async (ev) => {
+      const cur = game.settings?.get("free-visual-novel", "dialogEnabled") !== false;
+      await game.settings?.set("free-visual-novel", "dialogEnabled", !cur);
       await this.render();
     });
 
@@ -766,10 +763,9 @@ proto._bindScenePanel = function() {
       this._applyDialogStyles();
     });
 
-    html.querySelector(".vn-dialog-lefttext")?.addEventListener("input", (ev) => {
+    html.querySelector(".vn-dialog-lefttext")?.addEventListener("input", async (ev) => {
       this._dialog.leftText = ev.target.value;
-      const leftBox = document.querySelector(".vn-dlg-content[data-side='left']");
-      if (leftBox) leftBox.textContent = this._dialog.leftText;
+      await this.render();
     });
 };
 
