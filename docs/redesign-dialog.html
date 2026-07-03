@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViNarrat — Dialog Redesign Concepts</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0d0d1a;
+  color: #e0d8c8;
+  font-family: 'Inter', 'Noto Sans', sans-serif;
+  padding: 40px 20px;
+}
+
+h1 {
+  text-align: center;
+  font-size: 1.4rem;
+  font-weight: 600;
+  margin-bottom: 6px;
+  color: #f0c040;
+}
+h1 small {
+  display: block;
+  font-size: .85rem;
+  font-weight: 400;
+  color: #888;
+  margin-top: 4px;
+}
+
+.concepts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.card {
+  background: rgba(255,255,255,.03);
+  border: 1px solid rgba(255,255,255,.06);
+  border-radius: 14px;
+  padding: 20px;
+  width: 100%;
+  max-width: 420px;
+}
+
+.card h2 {
+  font-size: .9rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: #f0c040;
+  margin-bottom: 4px;
+}
+.card .sub {
+  font-size: .75rem;
+  color: #777;
+  margin-bottom: 18px;
+}
+
+/* === SCREEN MOCK === */
+.screen-mock {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.08);
+  margin-bottom: 14px;
+}
+
+/* fake portrait */
+.bg-portrait {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 3rem;
+  opacity: .15;
+  color: #fff;
+}
+
+/* ════════════════════════════════════
+   CONCEPT A — Classic+
+   Speaker pill above-left, box with
+   thin accent top border
+   ════════════════════════════════════ */
+.concept-a .vn-dialog-box {
+  position: absolute;
+  bottom: 30px;
+  left: 5%;
+  right: 5%;
+  background: rgba(10,8,18,0.92);
+  border: 1px solid rgba(255,255,255,.06);
+  border-top: 2px solid #f0c040;
+  border-radius: 0 0 12px 12px;
+  padding: 20px 24px 18px;
+  z-index: 8;
+  backdrop-filter: blur(4px);
+}
+.concept-a .vn-speaker-pill {
+  position: absolute;
+  bottom: calc(30px + 100% - 0px);
+  left: 5%;
+  transform: translateY(50%);
+  background: #f0c040;
+  color: #0d0d1a;
+  font-size: .75rem;
+  font-weight: 700;
+  padding: 3px 14px;
+  border-radius: 4px 4px 0 0;
+  z-index: 9;
+  letter-spacing: .3px;
+}
+.concept-a .vn-dialog-text {
+  font-size: .95rem;
+  line-height: 1.55;
+  color: #f0e6d0;
+}
+.concept-a .vn-click-indicator {
+  position: absolute;
+  right: 20px;
+  bottom: 14px;
+  font-size: .7rem;
+  color: rgba(255,255,255,.2);
+}
+
+/* ════════════════════════════════════
+   CONCEPT B — Modern
+   Speaker name tab inside box top-left
+   Glass-morphism, minimal
+   ════════════════════════════════════ */
+.concept-b .vn-dialog-box {
+  position: absolute;
+  bottom: 30px;
+  left: 8%;
+  right: 8%;
+  background: rgba(20,18,30,0.85);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 14px;
+  padding: 28px 24px 18px;
+  z-index: 8;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 30px rgba(0,0,0,.4);
+}
+.concept-b .vn-speaker-tab {
+  position: absolute;
+  top: -1px;
+  left: 24px;
+  background: #f0c040;
+  color: #0d0d1a;
+  font-size: .7rem;
+  font-weight: 700;
+  padding: 2px 16px;
+  border-radius: 0 0 8px 8px;
+  z-index: 9;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+.concept-b .vn-dialog-text {
+  font-size: .95rem;
+  line-height: 1.55;
+  color: #f0e6d0;
+}
+.concept-b .vn-click-indicator {
+  position: absolute;
+  right: 20px;
+  bottom: 12px;
+  font-size: .7rem;
+  color: rgba(255,255,255,.2);
+}
+
+/* ════════════════════════════════════
+   CONCEPT C — Bold
+   Speaker name on left accent bar
+   Strong visual impact
+   ════════════════════════════════════ */
+.concept-c .vn-dialog-box {
+  position: absolute;
+  bottom: 30px;
+  left: 4%;
+  right: 4%;
+  background: rgba(8,6,16,0.94);
+  border: 1px solid rgba(255,255,255,.06);
+  border-left: 4px solid #f0c040;
+  border-radius: 0 12px 12px 0;
+  padding: 18px 24px 18px 20px;
+  z-index: 8;
+}
+.concept-c .vn-speaker-left {
+  position: absolute;
+  bottom: 100%;
+  left: 4%;
+  background: #f0c040;
+  color: #0d0d1a;
+  font-size: .8rem;
+  font-weight: 700;
+  padding: 4px 16px 3px;
+  border-radius: 6px 6px 0 0;
+  z-index: 9;
+  letter-spacing: .5px;
+}
+.concept-c .vn-dialog-text {
+  font-size: .95rem;
+  line-height: 1.55;
+  color: #f0e6d0;
+}
+.concept-c .vn-click-indicator {
+  position: absolute;
+  right: 20px;
+  bottom: 12px;
+  font-size: .7rem;
+  color: rgba(255,255,255,.2);
+}
+
+/* ─── extra detail ─── */
+.mock-label {
+  position: absolute;
+  top: 8px;
+  left: 10px;
+  font-size: .6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  color: rgba(255,255,255,.15);
+}
+
+/* ─── Feature checklist ─── */
+.features {
+  list-style: none;
+  margin-top: 10px;
+  font-size: .78rem;
+  line-height: 1.8;
+  color: #999;
+}
+.features li i {
+  width: 16px;
+  margin-right: 6px;
+  font-size: .65rem;
+}
+.features .yes { color: #27ae60; }
+.features .no  { color: #666; }
+</style>
+</head>
+<body>
+
+<h1>ViNarrat — Dialog Redesign <small>3 visual novel–inspired concepts for the dialog box + speaker indicator</small></h1>
+
+<div class="concepts">
+
+  <!-- A: Classic+ -->
+  <div class="card concept-a">
+    <h2>A · Classic+</h2>
+    <div class="sub">Speaker pill above · thin accent top border</div>
+
+    <div class="screen-mock">
+      <div class="bg-portrait"><i class="fas fa-user-circle"></i></div>
+      <div class="mock-label">VN Screen</div>
+
+      <div class="vn-speaker-pill">MURA</div>
+      <div class="vn-dialog-box">
+        <div class="vn-dialog-text">
+          Я не знаю, что именно ты хочешь услышать. Но если бы ты спросил меня, я бы сказала, что всё это кажется мне неправильным.
+        </div>
+        <div class="vn-click-indicator"><i class="fas fa-chevron-circle-down"></i></div>
+      </div>
+    </div>
+
+    <ul class="features">
+      <li><i class="fas fa-check yes"></i>Speaker как отдельный pill над боксом</li>
+      <li><i class="fas fa-check yes"></i>Тонкая верхняя рамка акцентного цвета</li>
+      <li><i class="fas fa-check yes"></i>Классический ADV layout</li>
+      <li><i class="fas fa-check yes"></i>Прозрачный фон с backdrop-filter</li>
+      <li><i class="fas fa-minus no"></i>Иконка «продолжить» снизу справа</li>
+    </ul>
+  </div>
+
+  <!-- B: Modern -->
+  <div class="card concept-b">
+    <h2>B · Modern</h2>
+    <div class="sub">Speaker tab внутри бокса · glass-morphism</div>
+
+    <div class="screen-mock">
+      <div class="bg-portrait"><i class="fas fa-user-circle"></i></div>
+      <div class="mock-label">VN Screen</div>
+
+      <div class="vn-dialog-box">
+        <div class="vn-speaker-tab">MURA</div>
+        <div class="vn-dialog-text">
+          Я не знаю, что именно ты хочешь услышать. Но если бы ты спросил меня, я бы сказала, что всё это кажется мне неправильным.
+        </div>
+        <div class="vn-click-indicator"><i class="fas fa-chevron-circle-down"></i></div>
+      </div>
+    </div>
+
+    <ul class="features">
+      <li><i class="fas fa-check yes"></i>Speaker tab внутри бокса (свеху слева)</li>
+      <li><i class="fas fa-check yes"></i>Glass-morphism (blur + box-shadow)</li>
+      <li><i class="fas fa-check yes"></i>Минималистичный, современный</li>
+      <li><i class="fas fa-check yes"></i>Узкие отступы по краям (8%)</li>
+      <li><i class="fas fa-minus no"></i>Нет внешних элементов</li>
+    </ul>
+  </div>
+
+  <!-- C: Bold -->
+  <div class="card concept-c">
+    <h2>C · Bold</h2>
+    <div class="sub">Акцентная полоса слева · имя наверху</div>
+
+    <div class="screen-mock">
+      <div class="bg-portrait"><i class="fas fa-user-circle"></i></div>
+      <div class="mock-label">VN Screen</div>
+
+      <div class="vn-speaker-left">MURA</div>
+      <div class="vn-dialog-box">
+        <div class="vn-dialog-text">
+          Я не знаю, что именно ты хочешь услышать. Но если бы ты спросил меня, я бы сказала, что всё это кажется мне неправильным.
+        </div>
+        <div class="vn-click-indicator"><i class="fas fa-chevron-circle-down"></i></div>
+      </div>
+    </div>
+
+    <ul class="features">
+      <li><i class="fas fa-check yes"></i>Акцентная полоса слева (4px)</li>
+      <li><i class="fas fa-check yes"></i>Speaker name как плашка над боксом</li>
+      <li><i class="fas fa-check yes"></i>Тёмный плотный фон (0.94)</li>
+      <li><i class="fas fa-check yes"></i>Скругление только справа</li>
+      <li><i class="fas fa-minus no"></i>Асимметричный, дерзкий</li>
+    </ul>
+  </div>
+
+</div>
+
+<div style="text-align:center; margin-top:40px; font-size:.8rem; color:#555;">
+  Цвет акцента: #f0c040 · Цвет бокса: настраивается через тему · Все варианты используют position: absolute в нижней части экрана
+</div>
+
+</body>
+</html>

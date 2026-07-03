@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ViNarrat — Dialog Redesign 2 (Atmospheric)</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=JetBrains+Mono:wght@400;700&family=Crimson+Pro:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0a0a12;
+  color: #e0d8c8;
+  font-family: 'Inter', sans-serif;
+  padding: 40px 20px;
+}
+
+h1 {
+  text-align: center;
+  font-size: 1.3rem;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #e8c870;
+  letter-spacing: 1px;
+}
+h1 small {
+  display: block;
+  font-size: .8rem;
+  font-weight: 400;
+  color: #666;
+  margin-top: 4px;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+  line-height: 1.5;
+}
+
+.concepts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 30px;
+  margin-top: 30px;
+}
+
+.card {
+  background: rgba(255,255,255,.02);
+  border: 1px solid rgba(255,255,255,.05);
+  border-radius: 14px;
+  padding: 20px;
+  width: 100%;
+  max-width: 420px;
+  transition: border-color .2s;
+}
+.card:hover { border-color: rgba(255,255,255,.1); }
+
+.card h2 {
+  font-size: .85rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 2px;
+}
+.card .sub {
+  font-size: .72rem;
+  color: #666;
+  margin-bottom: 16px;
+  font-style: italic;
+}
+
+/* === SCREEN MOCK === */
+.screen-mock {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: radial-gradient(ellipse at center, #14142a 0%, #0a0a18 70%);
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,.06);
+  margin-bottom: 14px;
+}
+
+/* subtle vignette overlay on all mocks */
+.screen-mock::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,.5) 100%);
+  pointer-events: none;
+  z-index: 1;
+}
+
+/* fake atmosphere elements */
+.atmos-bg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 0;
+}
+.atmos-bg i {
+  font-size: 4rem;
+  color: rgba(255,255,255,.04);
+}
+
+/* ════════════════════════════════════════
+   CONCEPT D — "Narration"
+   No box borders — just text floating
+   above a dark gradient footer.
+   Speaker as a watermark corner.
+   ════════════════════════════════════════ */
+.concept-d .vn-footer {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 45%;
+  background: linear-gradient(0deg, rgba(0,0,0,.7) 0%, transparent 100%);
+  z-index: 2;
+  pointer-events: none;
+}
+.concept-d .vn-dialog-text {
+  position: absolute;
+  bottom: 40px; left: 6%; right: 6%;
+  z-index: 3;
+  font-family: 'Crimson Pro', serif;
+  font-size: 1.05rem;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.6;
+  color: rgba(240,230,208,.85);
+  text-shadow: 0 2px 20px rgba(0,0,0,.6);
+}
+.concept-d .vn-speaker {
+  position: absolute;
+  bottom: calc(40px + 1.05rem * 3 + 16px);
+  left: 6%;
+  z-index: 3;
+  font-size: .6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: rgba(240,230,208,.25);
+}
+.concept-d .vn-click {
+  position: absolute;
+  right: 6%;
+  bottom: 34px;
+  z-index: 3;
+  font-size: .6rem;
+  color: rgba(255,255,255,.1);
+  animation: pulse-d 2s ease-in-out infinite;
+}
+@keyframes pulse-d {
+  0%, 100% { opacity: .1; transform: translateY(0); }
+  50% { opacity: .3; transform: translateY(2px); }
+}
+
+/* ════════════════════════════════════════
+   CONCEPT E — "Thought"
+   Floating card with soft edges.
+   Speaker as a thin label on top.
+   Slight float illusion.
+   ════════════════════════════════════════ */
+.concept-e .vn-thought-card {
+  position: absolute;
+  bottom: 40px; left: 8%; right: 8%;
+  background: rgba(16,14,26,.82);
+  border: 1px solid rgba(255,255,255,.04);
+  border-radius: 18px;
+  padding: 22px 24px 16px;
+  z-index: 3;
+  backdrop-filter: blur(6px);
+  box-shadow:
+    0 4px 30px rgba(0,0,0,.5),
+    inset 0 1px 0 rgba(255,255,255,.04);
+}
+.concept-e .vn-speaker-thin {
+  font-size: .6rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 2.5px;
+  color: rgba(240,230,208,.3);
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255,255,255,.04);
+}
+.concept-e .vn-dialog-text {
+  font-family: 'Inter', sans-serif;
+  font-size: .9rem;
+  font-weight: 300;
+  line-height: 1.65;
+  color: rgba(240,230,208,.8);
+}
+.concept-e .vn-click {
+  position: absolute;
+  right: 18px;
+  bottom: 12px;
+  font-size: .6rem;
+  color: rgba(255,255,255,.1);
+}
+
+/* ════════════════════════════════════════
+   CONCEPT F — "Manifestation"
+   Rising panel from bottom, decorative
+   dashed top border, glitchy accent line.
+   Monospace-ish for system/thought feel.
+   ════════════════════════════════════════ */
+.concept-f .vn-rising-panel {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 50px 6% 30px;
+  background: linear-gradient(0deg, rgba(4,2,10,.95) 0%, rgba(4,2,10,.7) 70%, transparent 100%);
+  z-index: 2;
+}
+.concept-f .vn-accent-line {
+  position: absolute;
+  top: 30px; left: 6%; right: 6%;
+  height: 1px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(240,200,64,.15) 0px,
+    rgba(240,200,64,.15) 8px,
+    transparent 8px,
+    transparent 16px
+  );
+  z-index: 3;
+}
+.concept-f .vn-speaker-system {
+  position: absolute;
+  top: 38px;
+  left: 6%;
+  z-index: 3;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: .6rem;
+  font-weight: 700;
+  color: rgba(240,200,64,.25);
+  text-transform: uppercase;
+  letter-spacing: .5px;
+}
+.concept-f .vn-speaker-system::before {
+  content: '> ';
+  color: rgba(240,200,64,.15);
+}
+.concept-f .vn-dialog-text {
+  position: relative;
+  z-index: 3;
+  font-family: 'Crimson Pro', serif;
+  font-size: 1rem;
+  font-weight: 400;
+  font-style: italic;
+  line-height: 1.7;
+  color: rgba(240,230,208,.75);
+  text-shadow: 0 2px 12px rgba(0,0,0,.5);
+}
+.concept-f .vn-click {
+  position: absolute;
+  right: 6%;
+  bottom: 22px;
+  z-index: 3;
+  font-size: .6rem;
+  color: rgba(255,255,255,.08);
+}
+
+/* ─── Feature lists ─── */
+.features {
+  list-style: none;
+  margin-top: 10px;
+  font-size: .75rem;
+  line-height: 1.8;
+  color: #777;
+}
+.features li i {
+  width: 14px;
+  margin-right: 4px;
+  font-size: .6rem;
+}
+.features .on  { color: #e8c870; }
+.features .off { color: #444; }
+
+/* ─── Label theme colors ─── */
+.card.hue-d h2 { color: #8ab4f8; }
+.card.hue-e h2 { color: #a78bfa; }
+.card.hue-f h2 { color: #e8c870; }
+
+</style>
+</head>
+<body>
+
+<h1>ViNarrat — Atmospheric Concepts <small>Для «Mind Games» — fiction &amp; decor, не игровое диалоговое окно, а атмосферный нарративный слой</small></h1>
+
+<div class="concepts">
+
+  <!-- D: Narration -->
+  <div class="card hue-d concept-d">
+    <h2>D · Narration</h2>
+    <div class="sub">Бесшовный градиент · текст «парит» · голос рассказчика</div>
+
+    <div class="screen-mock">
+      <div class="atmos-bg"><i class="fas fa-circle-nodes"></i></div>
+      <div class="vn-footer"></div>
+      <div class="vn-speaker">MURA · голос в тишине</div>
+      <div class="vn-dialog-text">
+        «Я не знаю, что именно ты хочешь услышать. Но если бы ты спросил меня, я бы сказала, что всё это кажется мне неправильным.»
+      </div>
+      <div class="vn-click"><i class="fas fa-chevron-down"></i></div>
+    </div>
+
+    <ul class="features">
+      <li><i class="fas fa-circle on"></i> НЕТ рамок бокса — только градиент затемнения снизу</li>
+      <li><i class="fas fa-circle on"></i> Текст serif, курсив — как книга/мысли</li>
+      <li><i class="fas fa-circle on"></i> Спикер мелко, полупрозрачно — «голос в голове»</li>
+      <li><i class="fas fa-circle on"></i> Подходит для повествования / fiction</li>
+      <li><i class="fas fa-circle on"></i> Минимализм — вообще нет UI-элементов</li>
+    </ul>
+  </div>
+
+  <!-- E: Thought -->
+  <div class="card hue-e concept-e">
+    <h2>E · Thought</h2>
+    <div class="sub">Парящая карточка · мягкие края · стекло</div>
+
+    <div class="screen-mock">
+      <div class="atmos-bg"><i class="fas fa-diamond"></i></div>
+      <div class="vn-thought-card">
+        <div class="vn-speaker-thin">MURA</div>
+        <div class="vn-dialog-text">
+          Я не знаю, что именно ты хочешь услышать. Но если бы ты спросил меня, я бы сказала, что всё это кажется мне неправильным.
+        </div>
+        <div class="vn-click"><i class="fas fa-chevron-circle-down"></i></div>
+      </div>
+    </div>
+
+    <ul class="features">
+      <li><i class="fas fa-circle on"></i> Карточка с backdrop-blur — «стекло»</li>
+      <li><i class="fas fa-circle on"></i> Спикер как тонкая полоска сверху внутри</li>
+      <li><i class="fas fa-circle on"></i> Мягкое скругление 18px</li>
+      <li><i class="fas fa-circle on"></i> Тень + внутренний свет — объём</li>
+      <li><i class="fas fa-circle on"></i> Выглядит как «заметка» / «мысль»</li>
+    </ul>
+  </div>
+
+  <!-- F: Manifestation -->
+  <div class="card hue-f concept-f">
+    <h2>F · Manifestation</h2>
+    <div class="sub">Панель восходит снизу · пунктирная линия · моно-спикер</div>
+
+    <div class="screen-mock">
+      <div class="atmos-bg"><i class="fas fa-arrow-trend-down"></i></div>
+      <div class="vn-rising-panel">
+        <div class="vn-accent-line"></div>
+        <div class="vn-speaker-system">MURA</div>
+        <div class="vn-dialog-text">
+          Я не знаю, что именно ты хочешь увидеть. Но если ты смотришь — значит уже часть этого.
+        </div>
+        <div class="vn-click"><i class="fas fa-chevron-down"></i></div>
+      </div>
+    </div>
+
+    <ul class="features">
+      <li><i class="fas fa-circle on"></i> Панель восходит снизу (градиент прозрачности)</li>
+      <li><i class="fas fa-circle on"></i> Пунктирная accent-линия как разделитель</li>
+      <li><i class="fas fa-circle on"></i> Спикер в стиле system prompt — <code>&gt; MURA</code></li>
+      <li><i class="fas fa-circle on"></i> Serif italic текст — нарратив</li>
+      <li><i class="fas fa-circle on"></i> «Манифестация» — голос проявляется</li>
+    </ul>
+  </div>
+
+</div>
+
+<div style="text-align:center; margin-top:40px; font-size:.78rem; color:#444; max-width:700px; margin-left:auto; margin-right:auto; line-height:1.6;">
+  Все варианты <strong>position: absolute</strong> в нижней части экрана, z-index поверх фона/портретов.<br>
+  Акцент #f0c040 · Фон бокса/градиента настраивается через тему.<br>
+  <span style="color:#555;">Ключевое отличие от первой серии: отсутствие «игрового» UI — только атмосфера, текст и намёк на источник голоса.</span>
+</div>
+
+</body>
+</html>
