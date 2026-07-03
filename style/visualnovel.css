@@ -438,7 +438,6 @@
   transition: background .15s;
 }
 .vn-btn-live:hover { background: rgba(255,255,255,.18); }
-.vn-live-active { background: rgba(var(--vn-accent-rgb),0.2); }
 .vn-live-dot {
   width: 10px; height: 10px;
   border-radius: 50%;
