@@ -96,12 +96,12 @@
   <div class="vn-speaker-bar vn-speaker-{{speakerBarPos}}">
     {{#each portraits}}
     <button class="vn-sb-btn {{#if this.speaking}}vn-sb-active{{/if}} {{#if this.isClaimed}}vn-sb-claimed{{/if}} {{#if this.userId}}vn-sb-player{{else}}vn-sb-npc{{/if}}" data-id="{{this.id}}">
-      <div class="vn-sb-avatar"><i class="fas fa-user"></i></div>
+      <div class="vn-sb-avatar">{{#if this.currentImg}}<img class="vn-sb-avatar-img" src="{{this.currentImg}}" alt="">{{else}}<i class="fas fa-user"></i>{{/if}}</div>
       <div class="vn-sb-info">
         <div class="vn-sb-name">{{this.name}}</div>
         {{#if this.title}}<div class="vn-sb-title">{{this.title}}</div>{{/if}}
       </div>
-      {{#if this.speaking}}<div class="vn-sb-live"><i class="fas fa-circle"></i></div>{{/if}}
+      <div class="vn-sb-live {{#unless this.speaking}}vn-sb-live-off{{/unless}}"><i class="fas fa-circle"></i></div>
     </button>
     {{/each}}
   </div>

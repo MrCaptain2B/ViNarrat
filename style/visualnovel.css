@@ -238,6 +238,8 @@
   transition: background .15s, border-color .15s;
   white-space: nowrap;
   flex-shrink: 0;
+  min-width: 0;
+  max-width: 180px;
 }
 .vn-sb-btn:hover { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.3); }
 .vn-sb-active { background: rgba(230,126,34,.25); border-color: #e67e22; color: #fff; }
@@ -249,11 +251,14 @@
   background: rgba(255,255,255,.1);
   display: flex; align-items: center; justify-content: center;
   font-size: .7rem;
+  overflow: hidden; flex-shrink: 0;
 }
-.vn-sb-info { display: flex; flex-direction: column; }
-.vn-sb-name { font-weight: 600; font-size: .8rem; line-height: 1.2; }
-.vn-sb-title { font-size: .65rem; opacity: .6; line-height: 1.2; }
-.vn-sb-live { color: #e74c3c; font-size: .55rem; margin-left: auto; }
+.vn-sb-avatar-img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.vn-sb-info { display: flex; flex-direction: column; min-width: 0; }
+.vn-sb-name { font-weight: 600; font-size: .8rem; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; }
+.vn-sb-title { font-size: .65rem; opacity: .6; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; }
+.vn-sb-live { color: #e74c3c; font-size: .55rem; margin-left: auto; flex-shrink: 0; }
+.vn-sb-live-off { visibility: hidden; }
 
 /* ─── DIALOG BOX ─── */
 .vn-dialog-box {
