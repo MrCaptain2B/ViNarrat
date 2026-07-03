@@ -99,74 +99,27 @@
   <div class="vn-dialog-dual" style="bottom: {{dialog.yOffset}}px;">
     {{#if (eq dialog.dialogStyle "classic")}}
     {{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-speaker-pill" style="bottom: calc({{dialog.height}}px + 10px); font-size: {{speakerFontSize}}px;">{{speaker}}</div>{{/if}}{{/if}}
-    <div class="vn-dialog-box vn-dialog-left vn-ds-classic" style="position: absolute; left: 20px; right: auto; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};">
-      <div class="vn-dialog-content" data-side="left">{{dialog.leftText}}</div>
-    </div>
-    <div class="vn-dialog-box vn-dialog-right vn-ds-classic" style="position: absolute; left: auto; right: 20px; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};">
-      <div class="vn-dialog-content" data-side="right">{{dialog.text}}</div>
-    </div>
+    <div class="vn-dialog-box vn-dialog-left vn-ds-classic" style="position: absolute; left: 20px; right: auto; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};"><div class="vn-dialog-content" data-side="left">{{dialog.leftText}}</div></div>
+    <div class="vn-dialog-box vn-dialog-right vn-ds-classic" style="position: absolute; left: auto; right: 20px; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};"><div class="vn-dialog-content" data-side="right">{{dialog.text}}</div></div>
     {{else if (eq dialog.dialogStyle "bold")}}
     {{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-speaker-plaque" style="bottom: calc({{dialog.height}}px + 10px); font-size: {{speakerFontSize}}px;">{{speaker}}</div>{{/if}}{{/if}}
-    <div class="vn-dialog-box vn-dialog-left vn-ds-bold" style="position: absolute; left: 20px; right: auto; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};">
-      <div class="vn-dialog-content" data-side="left">{{dialog.leftText}}</div>
-    </div>
-    <div class="vn-dialog-box vn-dialog-right vn-ds-bold" style="position: absolute; left: auto; right: 20px; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};">
-      <div class="vn-dialog-content" data-side="right">{{dialog.text}}</div>
-    </div>
+    <div class="vn-dialog-box vn-dialog-left vn-ds-bold" style="position: absolute; left: 20px; right: auto; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};"><div class="vn-dialog-content" data-side="left">{{dialog.leftText}}</div></div>
+    <div class="vn-dialog-box vn-dialog-right vn-ds-bold" style="position: absolute; left: auto; right: 20px; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};"><div class="vn-dialog-content" data-side="right">{{dialog.text}}</div></div>
     {{else}}
-    <div class="vn-dialog-box vn-dialog-left vn-ds-manifest" style="position: absolute; left: 20px; right: auto; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};">
-      <div class="vn-accent-line"></div>
-      {{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-speaker-system">&gt; {{speaker}}</div>{{/if}}{{/if}}
-      <div class="vn-dialog-content" data-side="left">{{dialog.leftText}}</div>
-    </div>
-    <div class="vn-dialog-box vn-dialog-right vn-ds-manifest" style="position: absolute; left: auto; right: 20px; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};">
-      <div class="vn-accent-line"></div>
-      {{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-speaker-system">&gt; {{speaker}}</div>{{/if}}{{/if}}
-      <div class="vn-dialog-content" data-side="right">{{dialog.text}}</div>
-    </div>
-    {{/if}}
-  </div>
-    <div class="vn-dialog-box vn-dialog-right vn-ds-classic" style="position: absolute; left: auto; right: 20px; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};">
-      <div class="vn-dialog-content" data-side="right">{{dialog.text}}</div>
-    </div>
-    {{else if (eq dialog.dialogStyle "bold")}}
-    <div class="vn-dialog-box vn-dialog-left vn-ds-bold" style="position: absolute; left: 20px; right: auto; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};">
-      <div class="vn-dialog-content" data-side="left">{{dialog.leftText}}</div>
-    </div>
-    <div class="vn-dialog-box vn-dialog-right vn-ds-bold" style="position: absolute; left: auto; right: 20px; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};">
-      <div class="vn-dialog-content" data-side="right">{{dialog.text}}</div>
-    </div>
-    {{else}}
-    <div class="vn-dialog-box vn-dialog-left vn-ds-manifest" style="position: absolute; left: 20px; right: auto; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};">
-      <div class="vn-accent-line"></div>
-      {{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-speaker-system">&gt; {{speaker}}</div>{{/if}}{{/if}}
-      <div class="vn-dialog-content" data-side="left">{{dialog.leftText}}</div>
-    </div>
-    <div class="vn-dialog-box vn-dialog-right vn-ds-manifest" style="position: absolute; left: auto; right: 20px; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};">
-      <div class="vn-accent-line"></div>
-      {{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-speaker-system">&gt; {{speaker}}</div>{{/if}}{{/if}}
-      <div class="vn-dialog-content" data-side="right">{{dialog.text}}</div>
-    </div>
+    <div class="vn-dialog-box vn-dialog-left vn-ds-manifest" style="position: absolute; left: 20px; right: auto; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};"><div class="vn-accent-line"></div>{{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-speaker-system">&gt; {{speaker}}</div>{{/if}}{{/if}}<div class="vn-dialog-content" data-side="left">{{dialog.leftText}}</div></div>
+    <div class="vn-dialog-box vn-dialog-right vn-ds-manifest" style="position: absolute; left: auto; right: 20px; top: auto; bottom: 0; transform: none; width: calc({{dialog.width}}% / 2 - 30px); height: {{dialog.height}}px; opacity: {{dialog.opacity}}; font-size: {{dialog.fontSize}}px; text-align: {{dialog.align}};"><div class="vn-accent-line"></div>{{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-speaker-system">&gt; {{speaker}}</div>{{/if}}{{/if}}<div class="vn-dialog-content" data-side="right">{{dialog.text}}</div></div>
     {{/if}}
   </div>
   {{else}}
   {{!-- SINGLE MODE --}}
   {{#if (eq dialog.dialogStyle "classic")}}
-  {{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-speaker-pill" style="bottom: calc({{dialog.yOffset}}px + {{dialog.height}}px + 10px); font-size: {{speakerFontSize}}px;">{{speaker}}</div>{{/if}}{{/if}}
-  <div class="vn-dialog-box vn-ds-classic" style="position: absolute; left: 50%; transform: translateX(-50%); width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; text-align: {{dialog.align}}; font-size: {{dialog.fontSize}}px; bottom: {{dialog.yOffset}}px;">
-    <div class="vn-dialog-content" data-side="single">{{dialog.text}}</div>
-  </div>
+  {{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-speaker-pill" style="bottom: calc({{dialog.yOffset}}px + {{dialog.height}}px + 10px); left: 50%; transform: translateX(-50%); font-size: {{speakerFontSize}}px;">{{speaker}}</div>{{/if}}{{/if}}
+  <div class="vn-dialog-box vn-ds-classic" style="position: absolute; left: 50%; transform: translateX(-50%); width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; text-align: {{dialog.align}}; font-size: {{dialog.fontSize}}px; bottom: {{dialog.yOffset}}px;"><div class="vn-dialog-content" data-side="single">{{dialog.text}}</div></div>
   {{else if (eq dialog.dialogStyle "bold")}}
-  {{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-speaker-plaque" style="bottom: calc({{dialog.yOffset}}px + {{dialog.height}}px + 10px); font-size: {{speakerFontSize}}px;">{{speaker}}</div>{{/if}}{{/if}}
-  <div class="vn-dialog-box vn-ds-bold" style="position: absolute; left: 50%; transform: translateX(-50%); width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; text-align: {{dialog.align}}; font-size: {{dialog.fontSize}}px; bottom: {{dialog.yOffset}}px;">
-    <div class="vn-dialog-content" data-side="single">{{dialog.text}}</div>
-  </div>
+  {{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-speaker-plaque" style="bottom: calc({{dialog.yOffset}}px + {{dialog.height}}px + 10px); left: 50%; transform: translateX(-50%); font-size: {{speakerFontSize}}px;">{{speaker}}</div>{{/if}}{{/if}}
+  <div class="vn-dialog-box vn-ds-bold" style="position: absolute; left: 50%; transform: translateX(-50%); width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; text-align: {{dialog.align}}; font-size: {{dialog.fontSize}}px; bottom: {{dialog.yOffset}}px;"><div class="vn-dialog-content" data-side="single">{{dialog.text}}</div></div>
   {{else}}
-  <div class="vn-dialog-box vn-ds-manifest" style="position: absolute; left: 50%; transform: translateX(-50%); width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; text-align: {{dialog.align}}; font-size: {{dialog.fontSize}}px; bottom: {{dialog.yOffset}}px;">
-    <div class="vn-accent-line"></div>
-    {{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-speaker-system">&gt; {{speaker}}</div>{{/if}}{{/if}}
-    <div class="vn-dialog-content" data-side="single">{{dialog.text}}</div>
-  </div>
+  <div class="vn-dialog-box vn-ds-manifest" style="position: absolute; left: 50%; transform: translateX(-50%); width: {{dialog.width}}%; height: {{dialog.height}}px; opacity: {{dialog.opacity}}; text-align: {{dialog.align}}; font-size: {{dialog.fontSize}}px; bottom: {{dialog.yOffset}}px;"><div class="vn-accent-line"></div>{{#if dialog.showSpeaker}}{{#if speaker}}<div class="vn-speaker-system">&gt; {{speaker}}</div>{{/if}}{{/if}}<div class="vn-dialog-content" data-side="single">{{dialog.text}}</div></div>
   {{/if}}
   {{/if}}
   {{/if}}
