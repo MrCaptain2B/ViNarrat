@@ -249,7 +249,7 @@
 .vn-sb-info { display: flex; flex-direction: column; min-width: 0; }
 .vn-sb-name { font-weight: 600; font-size: .8rem; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; }
 .vn-sb-title { font-size: .65rem; opacity: .6; line-height: 1.2; overflow: hidden; text-overflow: ellipsis; }
-.vn-sb-live { color: #e74c3c; font-size: .55rem; margin-left: auto; flex-shrink: 0; }
+.vn-sb-live { color: var(--vn-accent); font-size: .55rem; margin-left: auto; flex-shrink: 0; }
 .vn-sb-live-off { visibility: hidden; }
 
 /* ─── SPEAKER INDICATOR ─── */
@@ -438,7 +438,7 @@
   transition: background .15s;
 }
 .vn-btn-live:hover { background: rgba(255,255,255,.18); }
-.vn-live-active { background: rgba(231,76,60,.2); }
+.vn-live-active { background: rgba(var(--vn-accent-rgb),0.2); }
 .vn-live-dot {
   width: 10px; height: 10px;
   border-radius: 50%;
@@ -446,11 +446,11 @@
   transition: background .2s, box-shadow .2s;
 }
 .vn-live-on {
-  background: #e74c3c;
-  box-shadow: 0 0 8px #e74c3c;
+  background: var(--vn-accent);
+  box-shadow: 0 0 8px var(--vn-accent);
 }
 .vn-live-label { font-weight: 600; }
-.vn-live-label.vn-live-on { color: #e74c3c; }
+.vn-live-label.vn-live-on { color: var(--vn-accent); }
 
 /* Broadcast menu */
 .vn-bw { position: relative; display: flex; }
