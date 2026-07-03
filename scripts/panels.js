@@ -680,6 +680,7 @@ proto._bindScenePanel = function() {
 
     const _updateDialogText = () => {
       const contentEls = document.querySelectorAll(".vn-dialog-content");
+      if (!contentEls.length) console.warn("FreeVN | _updateDialogText: no .vn-dialog-content elements found");
       contentEls.forEach(el => {
         const side = el.dataset.side;
         if (side === "left") el.textContent = this._dialog.leftText;

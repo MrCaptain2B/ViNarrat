@@ -386,6 +386,9 @@ class VisualNovelApp extends _AppBase {
     super._onRender?.(context, options);
     this._applyTheme();
     this._applyDialogStyles();
+    const dbg = document.querySelector(".vn-dialog-box");
+    console.log("FreeVN | _onRender: .vn-dialog-box found:", !!dbg, "dialogEnabled:", this._context?.dialogEnabled, "dialog.mode:", this._dialog?.mode);
+    if (dbg) console.log("FreeVN | _onRender: dialog box styles:", dbg.style.cssText.substring(0,200));
     if (this._dragCleanup) this._dragCleanup();
     if (this._dragCleanupPanel) this._dragCleanupPanel();
     this._bindMainUI();
