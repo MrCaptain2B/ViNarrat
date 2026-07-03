@@ -85,7 +85,8 @@ class VisualNovelApp extends _AppBase {
       fontSize: 16,
       mode: 1,
       yOffset: 100,
-      leftText: ""
+      leftText: "",
+      dialogStyle: "classic"
     };
     // SCENARIO ENGINE (disabled)
     // this._playback = null;
@@ -149,7 +150,8 @@ class VisualNovelApp extends _AppBase {
       fontSize: parseInt(game.settings?.get("free-visual-novel", "dialogFontSize")) || 16,
       mode: 1,
       yOffset: 100,
-      leftText: ""
+      leftText: "",
+      dialogStyle: game.settings?.get("free-visual-novel", "dialogStyle") || "classic"
     };
     this._speakerFontSize = parseInt(game.settings?.get("free-visual-novel", "speakerFontSize")) || 20;
     this._defaultPortraitScale = this._data.defaultPortraitScale ?? 1;

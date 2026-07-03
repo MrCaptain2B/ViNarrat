@@ -759,6 +759,14 @@ proto._bindScenePanel = function() {
       await this.render();
     });
 
+    html.querySelectorAll(".vn-ds-opt").forEach(btn => {
+      btn.addEventListener("click", async (ev) => {
+        this._dialog.dialogStyle = ev.currentTarget.dataset.style;
+        game.settings?.set("free-visual-novel", "dialogStyle", this._dialog.dialogStyle);
+        await this.render();
+      });
+    });
+
     html.querySelector(".vn-dialog-yoffset")?.addEventListener("input", (ev) => {
       this._dialog.yOffset = parseInt(ev.target.value) || 100;
       const val = ev.target.parentElement?.querySelector(".vn-dialog-val");

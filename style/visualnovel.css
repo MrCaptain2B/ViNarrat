@@ -252,46 +252,67 @@
 .vn-sb-live { color: var(--vn-accent); font-size: .55rem; margin-left: auto; flex-shrink: 0; }
 .vn-sb-live-off { visibility: hidden; }
 
-/* ─── SPEAKER INDICATOR ─── */
-.vn-speaker-indicator {
+/* ─── SPEAKER INDICATORS (per style) ─── */
+
+/* Classic+ — pill above the box */
+.vn-speaker-pill {
   position: absolute;
-  top: 52px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(0,0,0,0.45);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(255,255,255,.06);
-  border-radius: 10px;
-  padding: 4px 18px;
-  z-index: 7;
-  pointer-events: none;
-  text-align: center;
-}
-.vn-speaker-name {
+  background: var(--vn-accent);
+  color: #0d0d1a;
+  padding: 3px 16px;
+  border-radius: 6px 6px 0 0;
+  z-index: 9;
   font-weight: 700;
-  color: var(--vn-accent);
-  text-shadow: 0 0 16px rgba(var(--vn-accent-rgb),0.5);
+  letter-spacing: .3px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.vn-dialog-dual .vn-speaker-pill {
+  left: 20px;
+  transform: none;
 }
 
-/* ─── DIALOG BOX ─── */
+/* Bold — plaque above the box */
+.vn-speaker-plaque {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--vn-accent);
+  color: #0d0d1a;
+  padding: 4px 16px 3px;
+  border-radius: 6px 6px 0 0;
+  z-index: 9;
+  font-weight: 700;
+  letter-spacing: .5px;
+  pointer-events: none;
+  white-space: nowrap;
+}
+.vn-dialog-dual .vn-speaker-plaque {
+  left: 20px;
+  transform: none;
+}
+
+/* Manifestation — system prompt inside the box */
+.vn-speaker-system {
+  font-family: 'Courier New', monospace;
+  font-size: .75rem;
+  font-weight: 700;
+  color: var(--vn-accent);
+  margin-top: 2px;
+  margin-bottom: 6px;
+  letter-spacing: 0;
+  pointer-events: none;
+}
+
+/* ─── DIALOG BOX (base) ─── */
 .vn-dialog-box {
   position: absolute;
   bottom: 100px;
   left: 50%;
   transform: translateX(-50%);
-  background: rgba(12,10,20,0.92);
-  border: 1px solid rgba(255,255,255,0.06);
-  border-radius: 14px;
-  padding: 16px 22px;
   z-index: 8;
-  pointer-events: none;
-}
-.vn-dialog-box::before {
-  content: '';
-  position: absolute;
-  inset: 1px;
-  border-radius: 13px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.02) 0%, transparent 40%);
   pointer-events: none;
 }
 .vn-dialog-dual {
@@ -306,14 +327,52 @@
   position: absolute;
   bottom: auto;
 }
-.vn-dialog-speaker {
-  font-size: .85rem;
-  font-weight: 700;
-  color: var(--vn-accent);
-  margin-bottom: 6px;
-  text-shadow: 0 0 10px rgba(var(--vn-accent-rgb),0.25);
-  letter-spacing: 0.04em;
+
+/* ─── DIALOG STYLES ─── */
+
+/* Classic+ — thin accent top border */
+.vn-ds-classic {
+  background: rgba(12,10,20,0.92);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-top: 2px solid var(--vn-accent);
+  border-radius: 0 0 14px 14px;
+  padding: 20px 24px 18px;
 }
+
+/* Bold — thick accent left bar */
+.vn-ds-bold {
+  background: rgba(12,10,20,0.92);
+  border: 1px solid rgba(255,255,255,0.06);
+  border-left: 4px solid var(--vn-accent);
+  border-radius: 0 14px 14px 0;
+  padding: 18px 24px 18px 20px;
+}
+
+/* Manifestation — dashed line, gradient bg, serif text */
+.vn-ds-manifest {
+  background: linear-gradient(0deg, rgba(8,6,18,0.96) 0%, rgba(12,10,22,0.9) 100%);
+  border: none;
+  border-radius: 0;
+  padding: 36px 24px 18px;
+}
+.vn-ds-manifest .vn-accent-line {
+  position: absolute;
+  top: 16px; left: 24px; right: 24px;
+  height: 1px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(var(--vn-accent-rgb),0.2) 0px,
+    rgba(var(--vn-accent-rgb),0.2) 6px,
+    transparent 6px,
+    transparent 12px
+  );
+  pointer-events: none;
+}
+.vn-ds-manifest .vn-dialog-content {
+  font-family: 'Georgia', 'Times New Roman', serif;
+  font-style: italic;
+}
+
 .vn-dialog-content {
   font-size: 1rem;
   line-height: 1.6;
@@ -649,6 +708,25 @@
 .vn-dialog-align:hover { background: rgba(255,255,255,0.1); color: #fff; }
 .vn-dialog-align.vn-align-active { background: rgba(var(--vn-accent-rgb),0.2); border-color: var(--vn-accent); color: var(--vn-accent); }
 .vn-dialog-val { width: 50px; text-align: right; font-size: .8rem; opacity: .6; }
+
+/* Style dropdown */
+.vn-ds-select { position: relative; display: flex; align-items: center; gap: 4px; }
+.vn-ds-current {
+  background: rgba(255,255,255,.08); color: #ccc; border: none;
+  border-radius: 4px; padding: 4px 12px; font-size: .8rem; cursor: pointer;
+  min-width: 120px; text-align: left;
+}
+.vn-ds-current:hover { background: rgba(255,255,255,.18); color: #fff; }
+.vn-ds-options {
+  display: flex; gap: 2px;
+}
+.vn-ds-opt {
+  background: rgba(255,255,255,.06); color: #999; border: none;
+  border-radius: 4px; padding: 4px 10px; font-size: .75rem; cursor: pointer;
+  transition: background .15s, color .15s;
+}
+.vn-ds-opt:hover { background: rgba(255,255,255,.12); color: #fff; }
+.vn-ds-opt-active { background: rgba(var(--vn-accent-rgb),0.2); color: var(--vn-accent); }
 .vn-scene-section input[type="color"] {
   width: 30px; height: 26px; padding: 0; border: none;
   border-radius: 4px; cursor: pointer;

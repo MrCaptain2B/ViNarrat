@@ -139,6 +139,7 @@ Hooks.once("init", async function() {
     { key: "dialogAlign", name: "Dialogue Text Align", hint: "left, center, or right", default: "left", type: String },
     { key: "dialogShowSpeaker", name: "Show Speaker Name", hint: "Whether to display the speaker name in the dialogue box", default: true, type: Boolean },
     { key: "dialogFontSize", name: "Dialogue Font Size", hint: "Font size in pixels (10-36)", default: 16, type: Number },
+    { key: "dialogStyle", name: "Dialogue Box Style", hint: "Visual style of the dialogue box (classic / bold / manifestation)", default: "classic", type: String },
   ];
   for (const s of dialogSettings) {
     game.settings?.register("free-visual-novel", s.key, {
