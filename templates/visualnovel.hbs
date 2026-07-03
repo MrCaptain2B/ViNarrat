@@ -59,10 +59,11 @@
     {{/each}}
   </div>
 
-  {{!-- Portrait editor panel --}}
-  {{#if (and canManage (ne editingPortraitIdx null))}}
-  {{#with (lookup portraits editingPortraitIdx)}}
-  <div class="vn-port-editor-panel" data-port-idx="{{../editingPortraitIdx}}">
+  {{!-- Portrait editor panels --}}
+  {{#if canManage}}
+  {{#each portraits}}
+  {{#if (eq @index ../editingPortraitIdx)}}
+  <div class="vn-port-editor-panel" data-port-idx="{{@index}}">
     <div class="vn-pep-header">
       <span class="vn-pep-title">{{this.name}}</span>
       <button class="vn-pep-close"><i class="fas fa-times"></i></button>
@@ -78,15 +79,16 @@
         <span class="vn-pep-xy">X: <input class="vn-pep-x" type="number" value="{{this.x}}" step="10"> Y: <input class="vn-pep-y" type="number" value="{{this.y}}" step="10"></span>
       </div>
       <div class="vn-pep-actions">
-        <button class="vn-pep-btn" data-action="flip" title="{{#if this.flip}}Unflip{{else}}Flip{{/if}}"><i class="fas fa-arrows-alt-h"></i> {{#if this.flip}}Unflip{{else}}Flip{{/if}}</button>
-        <button class="vn-pep-btn" data-action="lock" title="{{#if this.locked}}Unlock{{else}}Lock{{/if}}"><i class="fas {{#if this.locked}}fa-lock{{else}}fa-unlock{{/if}}"></i> {{#if this.locked}}Unlock{{else}}Lock{{/if}}</button>
-        <button class="vn-pep-btn" data-action="forward" title="Bring Forward"><i class="fas fa-arrow-up"></i> Forward</button>
-        <button class="vn-pep-btn" data-action="backward" title="Send Backward"><i class="fas fa-arrow-down"></i> Backward</button>
-        <button class="vn-pep-btn vn-pep-del" data-action="remove" title="Remove"><i class="fas fa-trash"></i> Remove</button>
+        <button class="vn-pep-btn" data-action="flip"><i class="fas fa-arrows-alt-h"></i> {{#if this.flip}}Unflip{{else}}Flip{{/if}}</button>
+        <button class="vn-pep-btn" data-action="lock"><i class="fas {{#if this.locked}}fa-lock{{else}}fa-unlock{{/if}}"></i> {{#if this.locked}}Unlock{{else}}Lock{{/if}}</button>
+        <button class="vn-pep-btn" data-action="forward"><i class="fas fa-arrow-up"></i> Forward</button>
+        <button class="vn-pep-btn" data-action="backward"><i class="fas fa-arrow-down"></i> Backward</button>
+        <button class="vn-pep-btn vn-pep-del" data-action="remove"><i class="fas fa-trash"></i> Remove</button>
       </div>
     </div>
   </div>
-  {{/with}}
+  {{/if}}
+  {{/each}}
   {{/if}}
 
   {{!-- Speaker bar --}}

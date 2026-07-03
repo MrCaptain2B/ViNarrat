@@ -68,7 +68,6 @@
   position: relative;
   border-radius: 6px;
   overflow: hidden;
-  box-shadow: 0 2px 12px rgba(0,0,0,.5);
   transition: opacity .3s;
 }
 .vn-portrait-frame.vn-dimmed { opacity: .35; }
