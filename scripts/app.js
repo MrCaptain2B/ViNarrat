@@ -550,7 +550,7 @@ class VisualNovelApp extends _AppBase {
         images,
         x: 50 + this._portraits.length * 180,
         y: 150,
-        scale: 1.5,
+        scale: this._defaultPortraitScale ?? 1,
         flip: false,
         locked: false,
         _currentEmotion: 0

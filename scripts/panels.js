@@ -23,11 +23,6 @@ proto._bindMainUI = function() {
           this.render();
         });
       });
-      // Toggle UI
-      html.querySelector(".vn-btn-toggle-ui")?.addEventListener("click", () => {
-        this._hideUI = !this._hideUI;
-        this.render();
-      });
       // Live toggle
       html.querySelector(".vn-btn-live")?.addEventListener("click", () => {
         this._broadcasting = !this._broadcasting;
@@ -87,6 +82,75 @@ proto._bindMainUI = function() {
         if (id && this._speaker && this._claimed[id]) {
           delete this._claimed[id];
         }
+        this.render();
+        this._broadcast();
+      });
+    });
+
+    // Portrait editor controls (selected portrait)
+    html.querySelectorAll(".vn-pe-scale").forEach(slider => {
+      const idx = parseInt(slider.dataset.portIdx);
+      const updateScale = (val) => {
+        if (this._portraits[idx]) {
+          this._portraits[idx].scale = val;
+          const el = document.querySelector(`.vn-portrait[data-port-idx="${idx}"]`);
+          if (el) {
+            const flip = this._portraits[idx].flip ? "scaleX(-1)" : "";
+            el.style.transform = `scale(${val}) ${flip}`;
+          }
+          const valEl = document.querySelector(`.vn-pe-scale[data-port-idx="${idx}"] + .vn-pe-val`);
+          if (valEl) valEl.textContent = val;
+        }
+      };
+      slider.addEventListener("input", (ev) => updateScale(parseFloat(ev.currentTarget.value)));
+    });
+    html.querySelectorAll('.vn-pe-btn[data-action="forward"]').forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.portIdx);
+        if (idx < this._portraits.length - 1) {
+          [this._portraits[idx], this._portraits[idx+1]] = [this._portraits[idx+1], this._portraits[idx]];
+          this.render();
+          this._broadcast();
+        }
+      });
+    });
+    html.querySelectorAll('.vn-pe-btn[data-action="backward"]').forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.portIdx);
+        if (idx > 0) {
+          [this._portraits[idx-1], this._portraits[idx]] = [this._portraits[idx], this._portraits[idx-1]];
+          this.render();
+          this._broadcast();
+        }
+      });
+    });
+    html.querySelectorAll('.vn-pe-btn[data-action="flip"]').forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.portIdx);
+        if (this._portraits[idx]) {
+          this._portraits[idx].flip = !this._portraits[idx].flip;
+          const el = document.querySelector(`.vn-portrait[data-port-idx="${idx}"]`);
+          if (el) {
+            const p = this._portraits[idx];
+            el.style.transform = `scale(${p.scale}) ${p.flip ? "scaleX(-1)" : ""}`;
+          }
+          this._broadcast();
+        }
+      });
+    });
+    html.querySelectorAll('.vn-pe-btn[data-action="lock"]').forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.portIdx);
+        if (this._portraits[idx]) {
+          this._portraits[idx].locked = !this._portraits[idx].locked;
+          this.render();
+        }
+      });
+    });
+    html.querySelectorAll('.vn-pe-btn[data-action="remove"]').forEach(btn => {
+      btn.addEventListener("click", (ev) => {
+        const idx = parseInt(ev.currentTarget.dataset.portIdx);
+        this._portraits.splice(idx, 1);
         this.render();
         this._broadcast();
       });

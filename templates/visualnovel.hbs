@@ -52,6 +52,23 @@
           <button class="vn-hc-btn" data-action="lock" data-port-idx="{{this.index}}" title="{{#if this.locked}}Unlock{{else}}Lock{{/if}}"><i class="fas {{#if this.locked}}fa-lock{{else}}fa-unlock{{/if}}"></i></button>
           <button class="vn-hc-btn vn-hc-del" data-action="remove" data-port-idx="{{this.index}}" title="Remove"><i class="fas fa-times"></i></button>
         </div>
+        {{!-- Selected portrait editor --}}
+        {{#if this.selected}}
+        <div class="vn-port-editor">
+          <div class="vn-pe-row">
+            <span class="vn-pe-label">S</span>
+            <input class="vn-pe-scale" type="range" min="0.3" max="3" step="0.1" value="{{this.scale}}" data-port-idx="{{this.index}}">
+            <span class="vn-pe-val">{{this.scale}}</span>
+          </div>
+          <div class="vn-pe-actions">
+            <button class="vn-pe-btn" data-action="flip" data-port-idx="{{this.index}}" title="Flip"><i class="fas fa-arrows-alt-h"></i></button>
+            <button class="vn-pe-btn" data-action="lock" data-port-idx="{{this.index}}" title="{{#if this.locked}}Unlock{{else}}Lock{{/if}}"><i class="fas {{#if this.locked}}fa-lock{{else}}fa-unlock{{/if}}"></i></button>
+            <button class="vn-pe-btn" data-action="forward" data-port-idx="{{this.index}}" title="Bring Forward"><i class="fas fa-arrow-up"></i></button>
+            <button class="vn-pe-btn" data-action="backward" data-port-idx="{{this.index}}" title="Send Backward"><i class="fas fa-arrow-down"></i></button>
+            <button class="vn-pe-btn vn-pe-del" data-action="remove" data-port-idx="{{this.index}}" title="Remove"><i class="fas fa-trash"></i></button>
+          </div>
+        </div>
+        {{/if}}
         {{/if}}
       </div>
     </div>
@@ -134,12 +151,11 @@
     </div>
     {{!-- Broadcast mode dropdown --}}
     <div class="vn-console-section">
-      <div class="vn-bw">
-        <button class="vn-console-btn vn-console-btn-wide">
-          <i class="fas fa-broadcast-tower"></i>
-          <span>{{#if (eq inviteMode "all")}}All Players{{else}}Stage Only{{/if}}</span>
-        </button>
-        <button class="vn-console-btn vn-console-btn-arrow"><i class="fas fa-caret-up"></i></button>
+      <button class="vn-console-btn vn-console-btn-wide">
+        <i class="fas fa-broadcast-tower"></i>
+        <span>{{#if (eq inviteMode "all")}}All Players{{else}}Stage Only{{/if}}</span>
+      </button>
+      <button class="vn-console-btn vn-console-btn-arrow"><i class="fas fa-caret-up"></i></button>
         {{#if showBroadcastMenu}}
         <div class="vn-bm">
           <button class="vn-bo {{#if (eq inviteMode "all")}}vn-bo-active{{/if}}" data-mode="all"><i class="fas fa-check"></i>All Players</button>
@@ -168,9 +184,8 @@
       <button class="vn-console-btn vn-btn-invite" title="Invite Player"><i class="fas fa-user-plus"></i></button>
     </div>
     <div class="vn-console-div"></div>
-    {{!-- Utility --}}
+    {{!-- Close --}}
     <div class="vn-console-section">
-      <button class="vn-console-btn vn-btn-toggle-ui" title="Toggle UI"><i class="fas fa-eye"></i></button>
       <button class="vn-console-btn vn-btn-close vn-console-btn-danger" title="Close"><i class="fas fa-times"></i></button>
     </div>
   </div>

@@ -130,6 +130,45 @@
   z-index: 3;
 }
 
+/* ─── Portrait editor (selected portrait) ─── */
+.vn-port-editor {
+  position: absolute; bottom: -52px; left: 50%; transform: translateX(-50%);
+  display: flex; flex-direction: column; gap: 3px;
+  background: rgba(0,0,0,.75);
+  backdrop-filter: blur(4px);
+  border: 1px solid rgba(255,255,255,.12);
+  border-radius: 6px;
+  padding: 4px 8px;
+  z-index: 10;
+  white-space: nowrap;
+}
+.vn-pe-row {
+  display: flex; align-items: center; gap: 4px;
+}
+.vn-pe-label {
+  font-size: .6rem; opacity: .5; width: 10px; text-align: right;
+}
+.vn-pe-scale {
+  width: 60px; height: 3px; cursor: pointer;
+}
+.vn-pe-val {
+  font-size: .6rem; opacity: .6; width: 22px; text-align: right;
+}
+.vn-pe-actions {
+  display: flex; gap: 2px;
+}
+.vn-pe-btn {
+  width: 20px; height: 20px;
+  padding: 0; border: none; border-radius: 3px;
+  background: rgba(255,255,255,.08);
+  color: #ccc; font-size: .6rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: background .15s;
+}
+.vn-pe-btn:hover { background: rgba(255,255,255,.2); color: #fff; }
+.vn-pe-del:hover { background: #e74c3c; }
+
 /* ─── Portrait hover controls (compact 20px) ─── */
 .vn-port-hover-controls {
   position: absolute; top: 4px; right: 4px;
@@ -309,7 +348,7 @@
 .vn-console-btn-wide { border-radius: 4px 0 0 4px; }
 .vn-console-btn-arrow {
   border-radius: 0 4px 4px 0;
-  padding: 4px 6px; font-size: .6rem;
+  padding: 4px 8px;
 }
 .vn-btn-invite { color: #3498db; }
 .vn-btn-invite:hover { background: rgba(52,152,219,.2) !important; color: #3498db !important; }
