@@ -679,7 +679,7 @@ proto._bindScenePanel = function() {
     };
 
     const _updateDialogText = () => {
-      const contentEls = document.querySelectorAll(".vn-dlg-content");
+      const contentEls = document.querySelectorAll(".vn-dialog-content");
       contentEls.forEach(el => {
         const side = el.dataset.side;
         if (side === "left") el.textContent = this._dialog.leftText;
