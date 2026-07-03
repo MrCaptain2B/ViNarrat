@@ -4,18 +4,14 @@ export function bindInvite(proto) {
 
 proto._buildInviteUI = function() {
     if (!_userCan("permManage") || !this.element) return;
-    if (this._inviteBtn) { this._inviteBtn.remove(); this._inviteBtn = null; }
+    if (this._inviteMenuCleanup) { this._inviteMenuCleanup(); this._inviteMenuCleanup = null; }
     if (this._inviteMenu) { this._inviteMenu.remove(); this._inviteMenu = null; }
-    this._inviteMenuCleanup?.();
 
     const toolbar = this.element.querySelector(".vn-console");
     if (!toolbar) return;
 
-    const btn = document.createElement("button");
-    btn.className = "vn-btn-invite";
-    btn.title = "Invite Player";
-    btn.innerHTML = '<i class="fas fa-user-plus"></i>';
-    toolbar.insertBefore(btn, toolbar.querySelector(".vn-btn-close"));
+    const btn = toolbar.querySelector(".vn-btn-invite");
+    if (!btn) return;
 
     const menu = document.createElement("div");
     menu.className = "vn-invite-menu";
@@ -75,7 +71,6 @@ proto._buildInviteUI = function() {
       document.removeEventListener("click", closer);
       btn.removeEventListener("click", btnClick);
     };
-    this._inviteBtn = btn;
     this._inviteMenu = menu;
 };
 
