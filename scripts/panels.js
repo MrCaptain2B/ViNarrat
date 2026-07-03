@@ -679,7 +679,7 @@ proto._bindScenePanel = function() {
     };
 
     const _updateDialogText = () => {
-      const contentEls = document.querySelectorAll(".vn-dialog-content");
+      const contentEls = document.querySelectorAll(".vn-dlg-content");
       contentEls.forEach(el => {
         const side = el.dataset.side;
         if (side === "left") el.textContent = this._dialog.leftText;
@@ -768,7 +768,7 @@ proto._bindScenePanel = function() {
 
     html.querySelector(".vn-dialog-lefttext")?.addEventListener("input", (ev) => {
       this._dialog.leftText = ev.target.value;
-      const leftBox = document.querySelector(".vn-dialog-content[data-side='left']");
+      const leftBox = document.querySelector(".vn-dlg-content[data-side='left']");
       if (leftBox) leftBox.textContent = this._dialog.leftText;
     });
 };

@@ -4,7 +4,7 @@ proto._bindInlineEdit = function() {
     if (this._inlineEditBound) return;
     this._inlineEditBound = true;
     document.addEventListener("click", (ev) => {
-      const content = ev.target.closest(".vn-dialog-content");
+      const content = ev.target.closest(".vn-dlg-content");
       if (!content || content.getAttribute("contenteditable") === "true") return;
       content.setAttribute("contenteditable", "true");
       content.focus();
@@ -15,7 +15,7 @@ proto._bindInlineEdit = function() {
       sel.addRange(range);
     });
     document.addEventListener("blur", (ev) => {
-      const content = ev.target.closest?.(".vn-dialog-content");
+      const content = ev.target.closest?.(".vn-dlg-content");
       if (!content || content.getAttribute("contenteditable") !== "true") return;
       content.removeAttribute("contenteditable");
       const side = content.dataset.side;
@@ -25,7 +25,7 @@ proto._bindInlineEdit = function() {
       if (val) this.render();
     }, true);
     document.addEventListener("keydown", (ev) => {
-      const content = ev.target.closest?.(".vn-dialog-content");
+      const content = ev.target.closest?.(".vn-dlg-content");
       if (!content || content.getAttribute("contenteditable") !== "true") return;
       if (ev.key === "Escape") {
         content.textContent = content.dataset.side === "left" ? this._dialog.leftText : this._dialog.text;

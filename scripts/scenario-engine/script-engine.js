@@ -282,7 +282,7 @@ proto._clearTypewriter = function() {
 
 proto._startTypewriter = function() {
   this._clearTypewriter();
-  const contentEls = document.querySelectorAll(".vn-dialog-content");
+  const contentEls = document.querySelectorAll(".vn-dlg-content");
   const mainEl = Array.from(contentEls).find(el => el.dataset.side === "single" || el.dataset.side === "right");
   if (!mainEl) return;
   const fullText = mainEl.textContent || "";
@@ -604,7 +604,7 @@ proto._bindPlayback = function() {
     if (ev.target.closest(".vn-gm-toolbar") || ev.target.closest(".vn-playback-bar") || ev.target.closest(".vn-panel") || ev.target.closest(".vn-emotion-strip")) { ev.stopImmediatePropagation(); return; }
     if (this._typewriterTimer) {
       this._clearTypewriter();
-      const contentEls = document.querySelectorAll(".vn-dialog-content");
+      const contentEls = document.querySelectorAll(".vn-dlg-content");
       contentEls.forEach(el => {
         const side = el.dataset.side;
         if (side === "single" || side === "right") el.textContent = this._typewriterFullText || "";
