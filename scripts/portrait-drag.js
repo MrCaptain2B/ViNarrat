@@ -13,7 +13,7 @@ proto._bindPortraitDrag = function(html) {
       if (!this.element?.contains(ev.target)) return;
       if (ev.target.closest(".vn-portrait-controls")) return;
       if (ev.target.closest(".vn-port-hover-controls")) return;
-      if (ev.target.closest(".vn-port-editor")) return;
+      if (ev.target.closest(".vn-port-editor-panel")) return;
       if (ev.target.closest(".vn-dialog-box")) return;
       if (ev.target.closest(".vn-panel")) return;
       if (ev.target.closest("select")) return;
@@ -23,6 +23,7 @@ proto._bindPortraitDrag = function(html) {
       const el = ev.target.closest(".vn-portrait");
       if (!el) {
         this._selectedPortraitIdx = null;
+        this._editingPortraitIdx = null;
         this.render();
         return;
       }

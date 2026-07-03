@@ -48,32 +48,46 @@
         {{/if}}
         {{!-- Compact hover controls --}}
         <div class="vn-port-hover-controls">
+          <button class="vn-hc-btn" data-action="edit" data-port-idx="{{this.index}}" title="Edit"><i class="fas fa-sliders-h"></i></button>
           <button class="vn-hc-btn" data-action="flip" data-port-idx="{{this.index}}" title="Flip"><i class="fas fa-arrows-alt-h"></i></button>
           <button class="vn-hc-btn" data-action="lock" data-port-idx="{{this.index}}" title="{{#if this.locked}}Unlock{{else}}Lock{{/if}}"><i class="fas {{#if this.locked}}fa-lock{{else}}fa-unlock{{/if}}"></i></button>
           <button class="vn-hc-btn vn-hc-del" data-action="remove" data-port-idx="{{this.index}}" title="Remove"><i class="fas fa-times"></i></button>
         </div>
-        {{!-- Selected portrait editor --}}
-        {{#if this.selected}}
-        <div class="vn-port-editor">
-          <div class="vn-pe-row">
-            <span class="vn-pe-label">S</span>
-            <input class="vn-pe-scale" type="range" min="0.3" max="3" step="0.1" value="{{this.scale}}" data-port-idx="{{this.index}}">
-            <span class="vn-pe-val">{{this.scale}}</span>
-          </div>
-          <div class="vn-pe-actions">
-            <button class="vn-pe-btn" data-action="flip" data-port-idx="{{this.index}}" title="Flip"><i class="fas fa-arrows-alt-h"></i></button>
-            <button class="vn-pe-btn" data-action="lock" data-port-idx="{{this.index}}" title="{{#if this.locked}}Unlock{{else}}Lock{{/if}}"><i class="fas {{#if this.locked}}fa-lock{{else}}fa-unlock{{/if}}"></i></button>
-            <button class="vn-pe-btn" data-action="forward" data-port-idx="{{this.index}}" title="Bring Forward"><i class="fas fa-arrow-up"></i></button>
-            <button class="vn-pe-btn" data-action="backward" data-port-idx="{{this.index}}" title="Send Backward"><i class="fas fa-arrow-down"></i></button>
-            <button class="vn-pe-btn vn-pe-del" data-action="remove" data-port-idx="{{this.index}}" title="Remove"><i class="fas fa-trash"></i></button>
-          </div>
-        </div>
-        {{/if}}
         {{/if}}
       </div>
     </div>
     {{/each}}
   </div>
+
+  {{!-- Portrait editor panel --}}
+  {{#if (and canManage (ne editingPortraitIdx null))}}
+  {{#with (lookup portraits editingPortraitIdx)}}
+  <div class="vn-port-editor-panel" data-port-idx="{{../editingPortraitIdx}}">
+    <div class="vn-pep-header">
+      <span class="vn-pep-title">{{this.name}}</span>
+      <button class="vn-pep-close"><i class="fas fa-times"></i></button>
+    </div>
+    <div class="vn-pep-body">
+      <div class="vn-pep-row">
+        <span class="vn-pep-label">Scale</span>
+        <input class="vn-pep-scale" type="range" min="0.3" max="3" step="0.1" value="{{this.scale}}">
+        <span class="vn-pep-val">{{this.scale}}</span>
+      </div>
+      <div class="vn-pep-row">
+        <span class="vn-pep-label">Position</span>
+        <span class="vn-pep-xy">X: <input class="vn-pep-x" type="number" value="{{this.x}}" step="10"> Y: <input class="vn-pep-y" type="number" value="{{this.y}}" step="10"></span>
+      </div>
+      <div class="vn-pep-actions">
+        <button class="vn-pep-btn" data-action="flip" title="{{#if this.flip}}Unflip{{else}}Flip{{/if}}"><i class="fas fa-arrows-alt-h"></i> {{#if this.flip}}Unflip{{else}}Flip{{/if}}</button>
+        <button class="vn-pep-btn" data-action="lock" title="{{#if this.locked}}Unlock{{else}}Lock{{/if}}"><i class="fas {{#if this.locked}}fa-lock{{else}}fa-unlock{{/if}}"></i> {{#if this.locked}}Unlock{{else}}Lock{{/if}}</button>
+        <button class="vn-pep-btn" data-action="forward" title="Bring Forward"><i class="fas fa-arrow-up"></i> Forward</button>
+        <button class="vn-pep-btn" data-action="backward" title="Send Backward"><i class="fas fa-arrow-down"></i> Backward</button>
+        <button class="vn-pep-btn vn-pep-del" data-action="remove" title="Remove"><i class="fas fa-trash"></i> Remove</button>
+      </div>
+    </div>
+  </div>
+  {{/with}}
+  {{/if}}
 
   {{!-- Speaker bar --}}
   {{#if canManage}}

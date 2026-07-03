@@ -157,6 +157,12 @@ Handlebars.registerHelper("or", function(v1, v2) {
 Handlebars.registerHelper("and", function(v1, v2) {
   return v1 && v2;
 });
+Handlebars.registerHelper("not", function(v) {
+  return !v;
+});
+Handlebars.registerHelper("ne", function(v1, v2) {
+  return v1 !== v2;
+});
 Handlebars.registerHelper("add", function(a, b) {
   return (a || 0) + b;
 });

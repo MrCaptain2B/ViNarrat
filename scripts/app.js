@@ -51,6 +51,7 @@ class VisualNovelApp extends _AppBase {
     this._dragState = null;
     this._dragCleanup = null;
     this._selectedPortraitIdx = null;
+    this._editingPortraitIdx = null;
     this._currentLocationId = null;
     this._broadcasting = false;
     this._locSearch = "";
@@ -189,6 +190,7 @@ class VisualNovelApp extends _AppBase {
     this._claimed = state.claimed || {};
     this._hideBg = !!state.hideBg;
     this._hideUI = !!state.hideUI;
+    this._editingPortraitIdx = null;
     this._bgBrightness = state.bgBrightness ?? 1;
     this._themeBg = state.themeBg || this._themeBg;
     this._themeAccent = state.themeAccent || this._themeAccent;
@@ -322,6 +324,7 @@ class VisualNovelApp extends _AppBase {
       bgBrightness: this._bgBrightness,
       inviteMode: this._inviteMode,
       showBroadcastMenu: this._showBroadcastMenu,
+      editingPortraitIdx: this._editingPortraitIdx,
       showInviteMenu: this._showInviteMenu,
       dialog: this._dialog,
       dialogEnabled: game.settings?.get("free-visual-novel", "dialogEnabled") !== false,
