@@ -139,80 +139,61 @@
   z-index: 3;
 }
 
-/* ─── Portrait editor panel (floating) ─── */
-.vn-port-editor-panel {
-  position: absolute; left: 50%; top: 80px; transform: translateX(-50%);
-  width: 320px;
-  background: rgba(15,15,30,.95);
-  border: 1px solid rgba(255,255,255,.1);
+/* ─── Portrait Controls Panel ─── */
+.vn-portrait-controls {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(10,8,18,.88);
+  border: 1px solid rgba(255,255,255,.08);
   border-radius: 10px;
-  padding: 12px 16px;
-  z-index: 25;
-  color: #e0d8c8;
-  font-size: .85rem;
-}
-.vn-pep-header {
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 10px;
-}
-.vn-pep-title { font-weight: 600; font-size: 1rem; }
-.vn-pep-close {
-  border: none; background: rgba(255,255,255,.08);
-  color: #ccc; cursor: pointer;
-  border-radius: 4px; padding: 2px 6px; font-size: .8rem;
-}
-.vn-pep-close:hover { background: rgba(255,255,255,.18); color: #fff; }
-.vn-pep-body { display: flex; flex-direction: column; gap: 8px; }
-.vn-pep-row {
-  display: flex; align-items: center; gap: 8px;
-}
-.vn-pep-label {
-  width: 55px; font-size: .75rem; opacity: .6; flex-shrink: 0;
-}
-.vn-pep-scale { flex: 1; height: 4px; cursor: pointer; }
-.vn-pep-val { width: 30px; text-align: right; font-size: .75rem; opacity: .6; }
-.vn-pep-xy { display: flex; gap: 4px; align-items: center; }
-.vn-pep-xy input {
-  width: 55px; background: rgba(0,0,0,.3);
-  border: 1px solid rgba(255,255,255,.1);
-  color: #e0d8c8; border-radius: 4px; padding: 2px 4px;
-  font-size: .75rem;
-}
-.vn-pep-actions {
-  display: flex; flex-wrap: wrap; gap: 4px;
-  margin-top: 4px;
-}
-.vn-pep-btn {
-  border: 1px solid rgba(255,255,255,.1);
-  background: rgba(255,255,255,.06);
-  color: #ccc; cursor: pointer;
-  border-radius: 4px; padding: 4px 8px;
-  font-size: .75rem;
-  display: flex; align-items: center; gap: 4px;
-  transition: background .15s;
-}
-.vn-pep-btn:hover { background: rgba(255,255,255,.14); color: #fff; }
-.vn-pep-del { border-color: rgba(231,76,60,.3); color: #e74c3c; }
-.vn-pep-del:hover { background: rgba(231,76,60,.2) !important; color: #e74c3c !important; }
-
-/* ─── Portrait hover controls (compact 20px) ─── */
-.vn-port-hover-controls {
-  position: absolute; top: 4px; right: 4px;
-  display: none; gap: 3px;
+  padding: 6px 12px;
   z-index: 5;
+  pointer-events: auto;
+  white-space: nowrap;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.4);
 }
-.vn-portrait-wrapper:hover .vn-port-hover-controls { display: flex; }
-.vn-hc-btn {
-  width: 20px; height: 20px;
-  padding: 0; border: none; border-radius: 3px;
-  background: rgba(0,0,0,.65);
-  color: #ccc; font-size: .6rem;
+.vn-controls-name {
+  font-size: .9em;
+  font-weight: 600;
+  color: var(--vn-accent);
+  margin-right: 4px;
+}
+.vn-port-scale-inline {
+  width: 70px;
+  height: 4px;
+  accent-color: var(--vn-accent);
   cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: background .15s;
 }
-.vn-hc-btn:hover { background: #e67e22; color: #fff; }
-.vn-hc-del:hover { background: #e74c3c; }
+.vn-port-scale-val {
+  min-width: 28px;
+  text-align: center;
+  font-size: .82em;
+  font-weight: 600;
+  color: var(--vn-accent);
+}
+.vn-portrait-controls button {
+  background: transparent;
+  border: none;
+  color: rgba(224,216,200,.5);
+  cursor: pointer;
+  font-size: 14px;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: all .15s;
+  padding: 0;
+}
+.vn-portrait-controls button:hover { color: #fff; background: rgba(255,255,255,.1); }
+.vn-portrait-controls .vn-port-remove:hover { color: #e74c3c; background: rgba(231,76,60,.15); }
+.vn-portrait-controls .vn-locked { color: var(--vn-accent); }
 
 /* ─── SPEAKER BAR ─── */
 /* Left position */

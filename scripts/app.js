@@ -324,7 +324,6 @@ class VisualNovelApp extends _AppBase {
       bgBrightness: this._bgBrightness,
       inviteMode: this._inviteMode,
       showBroadcastMenu: this._showBroadcastMenu,
-      editingPortraitIdx: this._editingPortraitIdx,
       showInviteMenu: this._showInviteMenu,
       dialog: this._dialog,
       dialogEnabled: game.settings?.get("free-visual-novel", "dialogEnabled") !== false,

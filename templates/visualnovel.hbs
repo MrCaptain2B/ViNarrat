@@ -46,49 +46,30 @@
         {{#if this.isClaimed}}
         <button class="vn-approve-btn" data-port-idx="{{this.index}}" title="Approve"><i class="fas fa-check"></i></button>
         {{/if}}
-        {{!-- Compact hover controls --}}
-        <div class="vn-port-hover-controls">
-          <button class="vn-hc-btn" data-action="edit" data-port-idx="{{this.index}}" title="Edit"><i class="fas fa-sliders-h"></i></button>
-          <button class="vn-hc-btn" data-action="flip" data-port-idx="{{this.index}}" title="Flip"><i class="fas fa-arrows-alt-h"></i></button>
-          <button class="vn-hc-btn" data-action="lock" data-port-idx="{{this.index}}" title="{{#if this.locked}}Unlock{{else}}Lock{{/if}}"><i class="fas {{#if this.locked}}fa-lock{{else}}fa-unlock{{/if}}"></i></button>
-          <button class="vn-hc-btn vn-hc-del" data-action="remove" data-port-idx="{{this.index}}" title="Remove"><i class="fas fa-times"></i></button>
-        </div>
         {{/if}}
       </div>
     </div>
     {{/each}}
   </div>
 
-  {{!-- Portrait editor panels --}}
+  {{!-- Portrait controls bar (GM, selected portrait) --}}
   {{#if canManage}}
-  {{#each portraits}}
-  {{#if (eq @index ../editingPortraitIdx)}}
-  <div class="vn-port-editor-panel" data-port-idx="{{@index}}">
-    <div class="vn-pep-header">
-      <span class="vn-pep-title">{{this.name}}</span>
-      <button class="vn-pep-close"><i class="fas fa-times"></i></button>
-    </div>
-    <div class="vn-pep-body">
-      <div class="vn-pep-row">
-        <span class="vn-pep-label">Scale</span>
-        <input class="vn-pep-scale" type="range" min="0.3" max="3" step="0.1" value="{{this.scale}}">
-        <span class="vn-pep-val">{{this.scale}}</span>
-      </div>
-      <div class="vn-pep-row">
-        <span class="vn-pep-label">Position</span>
-        <span class="vn-pep-xy">X: <input class="vn-pep-x" type="number" value="{{this.x}}" step="10"> Y: <input class="vn-pep-y" type="number" value="{{this.y}}" step="10"></span>
-      </div>
-      <div class="vn-pep-actions">
-        <button class="vn-pep-btn" data-action="flip"><i class="fas fa-arrows-alt-h"></i> {{#if this.flip}}Unflip{{else}}Flip{{/if}}</button>
-        <button class="vn-pep-btn" data-action="lock"><i class="fas {{#if this.locked}}fa-lock{{else}}fa-unlock{{/if}}"></i> {{#if this.locked}}Unlock{{else}}Lock{{/if}}</button>
-        <button class="vn-pep-btn" data-action="forward"><i class="fas fa-arrow-up"></i> Forward</button>
-        <button class="vn-pep-btn" data-action="backward"><i class="fas fa-arrow-down"></i> Backward</button>
-        <button class="vn-pep-btn vn-pep-del" data-action="remove"><i class="fas fa-trash"></i> Remove</button>
-      </div>
-    </div>
+  {{#if selectedPortrait}}
+  <div class="vn-portrait-controls">
+    <button class="vn-port-prev" title="Previous portrait"><i class="fas fa-chevron-left"></i></button>
+    <span class="vn-controls-name">{{selectedPortrait.name}}</span>
+    <button class="vn-port-next" title="Next portrait"><i class="fas fa-chevron-right"></i></button>
+    <input class="vn-port-scale-inline" type="range" min="0.3" max="3" step="0.1" value="{{selectedPortrait.scale}}" data-port-idx="{{selectedPortrait.index}}">
+    <span class="vn-port-scale-val" data-port-idx="{{selectedPortrait.index}}">{{selectedPortrait.scale}}</span>
+    <button class="vn-port-bring-forward" data-port-idx="{{selectedPortrait.index}}" title="Bring Forward"><i class="fas fa-chevron-up"></i></button>
+    <button class="vn-port-send-backward" data-port-idx="{{selectedPortrait.index}}" title="Send Backward"><i class="fas fa-chevron-down"></i></button>
+    <button class="vn-port-flip" data-port-idx="{{selectedPortrait.index}}" title="Flip horizontally"><i class="fas fa-arrows-alt-h"></i></button>
+    <button class="vn-port-lock {{#if selectedPortrait.locked}}vn-locked{{/if}}" data-port-idx="{{selectedPortrait.index}}" title="{{#if selectedPortrait.locked}}Unlock{{else}}Lock{{/if}}">
+      <i class="fas {{#if selectedPortrait.locked}}fa-lock{{else}}fa-unlock{{/if}}"></i>
+    </button>
+    <button class="vn-port-remove" data-port-idx="{{selectedPortrait.index}}" title="Remove"><i class="fas fa-times"></i></button>
   </div>
   {{/if}}
-  {{/each}}
   {{/if}}
 
   {{!-- Speaker bar --}}
